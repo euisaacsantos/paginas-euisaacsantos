@@ -61,7 +61,7 @@ h1, h2, h3, h4, .hero-title, .section-title {
   }
   .hero-container h1 {
     font-size: 28px !important;
-    min-height: calc(28px * 1.1 * 5) !important;
+    min-height: 0 !important;
     text-align: center !important;
   }
   h1, h2, h3 { font-size: 28px !important; }
@@ -955,12 +955,13 @@ details.faq-item p {
 /* ===== Hero V1 — title responsivo ===== */
 .hero-title-v1 {
   font-size: clamp(28px, 7vw, 48px);
-  min-height: calc(clamp(28px, 7vw, 48px) * 1.05 * 2);
+  min-height: 0;
+  margin-bottom: 8px !important;
 }
-@media (max-width: 640px) {
+@media (min-width: 1024px) {
   .hero-title-v1 {
-    min-height: 0;
-    margin-bottom: 2px !important;
+    min-height: calc(48px * 1.05 * 2);
+    margin-bottom: 24px !important;
   }
 }
 
