@@ -960,7 +960,7 @@ details.faq-item p {
 @media (max-width: 640px) {
   .hero-title-v1 {
     min-height: 0;
-    margin-bottom: 10px !important;
+    margin-bottom: 2px !important;
   }
 }
 
