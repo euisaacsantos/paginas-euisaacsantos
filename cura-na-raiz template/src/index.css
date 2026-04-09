@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap');
 
 @font-face {
   font-family: 'Sora';
@@ -51,7 +51,7 @@ h1, h2, h3, h4, .hero-title, .section-title {
   .max-w-lg { max-width: 360px !important; }
   /* Reduce tech-card padding on mobile */
   .tech-card { padding: 1.25rem !important; }
-  .tech-card.!p-8, .tech-card.!p-10 { padding: 1.25rem !important; }
+  .tech-card.\!p-8, .tech-card.\!p-10 { padding: 1.25rem !important; }
   /* Hero title */
   .hero-container {
     max-width: 360px !important;
