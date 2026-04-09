@@ -1184,9 +1184,9 @@ details.faq-item p {
 
 /* ===== CtaProgress (barra abaixo de cada CTA) ===== */
 .cta-progress {
-  max-width: 360px;
-  margin: 12px auto 0;
-  padding: 14px 16px 0;
+  max-width: 320px;
+  margin: 14px auto 0;
+  padding: 14px 8px 0;
   border-top: 1px solid #1f1f22;
 }
 .cta-progress-bar {
