@@ -49,12 +49,12 @@ function HeroTitle() {
   const after = typed.slice(Math.min(typed.length, raizEnd))
   const done = typed.length >= full.length
   return (
-    <h1 className="mb-4 md:mb-6 font-black leading-[1.05] tracking-tight hero-title-v1 relative">
+    <h1 className="mb-4 md:mb-6 font-black leading-[1.05] tracking-tight hero-title-v1 relative" style={{ whiteSpace: 'pre-line' }}>
       <span aria-hidden="true" className="invisible">
-        Pare de subir campanha. Comece a <span className="highlight-orange">COMANDAR</span>.
+        {'Pare de subir campanha.\nComece a\n'}<span className="highlight-orange">COMANDAR</span>.
       </span>
       <span className="absolute inset-0">
-        {before}
+        {before.replace('Comece', '\nComece').replace(/ $/, '\n')}
         <span className="highlight-orange">{raiz}</span>
         {after}
         <span className={`typewriter-caret ${done ? 'blink' : ''}`}>|</span>
@@ -451,22 +451,24 @@ function AppV1() {
         <div className="hero-term-abs hidden lg:block">
           <ClaudeTerminal />
         </div>
+        <img src="/assets/clawd mascot.png" alt="" className="clawd-float hidden lg:block" />
+        <img src="/assets/clawd mascot.png" alt="" className="clawd-float clawd-float--2 hidden lg:block" />
 <div className="hero-container px-5 pt-12 pb-6 md:pt-24 md:pb-8 text-center md:text-left relative z-10">
         <div className="hero-text-col">
-          <img src="/assets/LOGO.svg" alt="Logo" className="h-10 md:h-12 mb-6 mx-auto md:mx-0" />
+          <img src="/assets/LOGO.png" alt="Logo" className="h-14 md:h-16 mb-6 mx-auto md:mx-0" />
           <HeroTitle />
-          <p className="text-lg md:text-xl text-txts max-w-3xl md:mx-0 mx-auto mb-10">
+          <p className="hero-subhead text-lg md:text-xl text-txts max-w-3xl md:mx-0 mx-auto mb-10">
             Em 3 horas ao vivo, monte 3 agentes Claude Code que sobem suas campanhas, geram seus relatórios e monitoram suas contas — você só dá o comando. Método validado por gestores que operam <span className="text-white font-bold">+R$ 1M/mês em mídia</span>.
           </p>
 
-          <div className="flex flex-wrap items-center gap-x-8 gap-y-3 mb-10 justify-center md:justify-start">
+          <div className="flex flex-wrap md:flex-nowrap items-center gap-x-8 gap-y-3 mb-10 justify-center md:justify-start">
             <div className="flex items-center gap-3">
               <span className="badge">Data</span>
-              <p className="text-base font-black">Sábado, 25 de abril</p>
+              <p className="text-base font-black whitespace-nowrap">Sábado, 25 de abril</p>
             </div>
             <div className="flex items-center gap-3">
               <span className="badge">Horário</span>
-              <p className="text-base font-black">9h às 12h</p>
+              <p className="text-base font-black whitespace-nowrap">9h às 12h</p>
             </div>
           </div>
 
@@ -558,36 +560,57 @@ function AppV1() {
           <p className="text-center uppercase tracking-widest text-sm font-bold eyebrow mb-3">Programação Completa</p>
           <h2 className="reveal section-title text-center mb-14">O que você vai construir ao vivo</h2>
 
-          <div className="grid lg:grid-cols-2 gap-8">
-            <div className="reveal tech-card dia-card !p-8 md:!p-10">
-              <span className="badge mb-4">BLOCO 01 — FUNDAÇÃO + SUBIDOR | 9h às 10h30</span>
-              <p className="text-txts mt-4 mb-6 italic border-l-2 border-accent pl-4">
-                Você muda de ferramenta, paga novo SaaS, contrata mais gente… mas o operacional continua engolindo seu dia. Não é sobre fazer mais. É sobre comandar.
-              </p>
-              <ul className="space-y-4">
-                {dia1.map((t, i) => (
-                  <li key={i} className="flex gap-3">
-                    <span className="text-accent font-black shrink-0">→</span>
-                    <span className="text-sm leading-relaxed">{t}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="reveal tech-card dia-card !p-8 md:!p-10">
-              <span className="badge mb-4">BLOCO 02 — RELATOR + VIGIA + SKILL MESTRE | 10h30 às 12h</span>
-              <p className="text-txts mt-4 mb-6 italic border-l-2 border-accent pl-4">
-                Seu n8n não vai conseguir fazer isso. Workflow visual ficou pra trás. A próxima geração é agente que entende contexto, lembra da sua operação e age sozinho.
-              </p>
-              <ul className="space-y-4">
-                {dia2.map((t, i) => (
-                  <li key={i} className="flex gap-3">
-                    <span className="text-accent font-black shrink-0">→</span>
-                    <span className="text-sm leading-relaxed">{t}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
+          <ol className="timeline">
+            <li className="timeline-item reveal">
+              <div className="timeline-marker">
+                <span className="timeline-time">9h</span>
+                <span className="timeline-dot" />
+              </div>
+              <div className="timeline-card">
+                <span className="badge mb-3">BLOCO 01 — FUNDAÇÃO + SUBIDOR · 9h às 10h30</span>
+                <p className="text-txts mt-2 mb-5 italic border-l-2 border-accent pl-4">
+                  Você muda de ferramenta, paga novo SaaS, contrata mais gente… mas o operacional continua engolindo seu dia. Não é sobre fazer mais. É sobre comandar.
+                </p>
+                <ul className="space-y-3">
+                  {dia1.map((t, i) => (
+                    <li key={i} className="flex gap-3">
+                      <span className="text-accent font-black shrink-0">→</span>
+                      <span className="text-sm leading-relaxed">{t}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+            <li className="timeline-item reveal">
+              <div className="timeline-marker">
+                <span className="timeline-time">10h30</span>
+                <span className="timeline-dot" />
+              </div>
+              <div className="timeline-card">
+                <span className="badge mb-3">BLOCO 02 — RELATOR + VIGIA + SKILL MESTRE · 10h30 às 12h</span>
+                <p className="text-txts mt-2 mb-5 italic border-l-2 border-accent pl-4">
+                  Seu n8n não vai conseguir fazer isso. Workflow visual ficou pra trás. A próxima geração é agente que entende contexto, lembra da sua operação e age sozinho.
+                </p>
+                <ul className="space-y-3">
+                  {dia2.map((t, i) => (
+                    <li key={i} className="flex gap-3">
+                      <span className="text-accent font-black shrink-0">→</span>
+                      <span className="text-sm leading-relaxed">{t}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+            <li className="timeline-item timeline-item--end reveal">
+              <div className="timeline-marker">
+                <span className="timeline-time">12h</span>
+                <span className="timeline-dot timeline-dot--end" />
+              </div>
+              <div className="timeline-end-text">
+                <strong>Você sai com 3 agentes + 1 cérebro Obsidian rodando.</strong>
+              </div>
+            </li>
+          </ol>
         </div>
       </section>
 
@@ -760,7 +783,7 @@ function AppV1() {
             {/* RIGHT */}
             <div className="offer-right">
               <div className="offer-brand flex justify-center">
-                <img src="/assets/LOGO.svg" alt="Claude para Gestores de Tráfego" className="h-12 md:h-14" />
+                <img src="/assets/LOGO.png" alt="Claude para Gestores de Tráfego" className="h-12 md:h-14" />
               </div>
 
               <div className="offer-price">
@@ -888,7 +911,7 @@ function AppV1() {
 
       {/* FOOTER */}
       <footer className="py-10 bg-bgp border-t border-bgt text-center">
-        <img src="/assets/LOGO.svg" alt="Logo" className="h-8 mx-auto mb-4 opacity-80" />
+        <img src="/assets/LOGO.png" alt="Logo" className="h-8 mx-auto mb-4 opacity-80" />
         <p className="text-txts text-sm">© 2026 Isaac Santos. Todos os direitos reservados.</p>
       </footer>
     </div>
