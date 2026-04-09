@@ -310,7 +310,7 @@ function AppV1() {
 
           <a href="#checkout" className="btn-brutalist mb-12">GARANTIR MEU INGRESSO POR R$9</a>
         </div>
-        <div className="hidden lg:block">
+        <div className="flex justify-center lg:block">
           <ClaudeTerminal />
         </div>
         </div>
