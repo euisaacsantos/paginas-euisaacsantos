@@ -877,3 +877,77 @@ details.faq-item p {
   .offer-feature-title { font-size: 12px; }
   .offer-feature-desc { font-size: 10px; }
 }
+
+/* ===== Claude Terminal (hero V1) ===== */
+.claude-term {
+  background: #0a0a0a;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  box-shadow: 0 24px 60px -20px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,140,60,0.08);
+  font-family: ui-monospace, "JetBrains Mono", "Fira Code", Menlo, monospace;
+  overflow: hidden;
+  width: 100%;
+  max-width: 560px;
+}
+.claude-term-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #141414;
+  border-bottom: 1px solid #2a2a2a;
+}
+.claude-term-dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+.claude-term-dot--r { background: #ff5f57; }
+.claude-term-dot--y { background: #febc2e; }
+.claude-term-dot--g { background: #28c840; }
+.claude-term-bar-title {
+  margin-left: auto;
+  font-size: 11px;
+  color: #6b6b6b;
+  letter-spacing: 0.04em;
+}
+.claude-term-body {
+  padding: 18px 18px 22px;
+  min-height: 340px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #d4d4d4;
+}
+.claude-term-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.claude-term-ascii {
+  margin: 0;
+  color: #ff8c3c;
+  font-size: 11px;
+  line-height: 1.1;
+  white-space: pre;
+}
+.claude-term-meta p { margin: 0; font-size: 12px; }
+.claude-term-orange { color: #ff8c3c; font-weight: 700; }
+.claude-term-dim { color: #6b6b6b; font-size: 11px; }
+.claude-term-divider {
+  margin: 14px 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #2a2a2a, transparent);
+}
+.claude-term-line { display: flex; align-items: baseline; gap: 8px; }
+.claude-term-prompt { color: #ff8c3c; font-weight: 700; }
+.claude-term-cmd { color: #f5f5f5; }
+.claude-term-caret {
+  color: #ff8c3c;
+  animation: claudeBlink 0.9s steps(2) infinite;
+  margin-left: 2px;
+}
+@keyframes claudeBlink { 50% { opacity: 0; } }
+.claude-term-reply { margin-top: 14px; padding-left: 18px; border-left: 2px solid #ff8c3c33; }
+.claude-term-reply-line {
+  margin: 0 0 6px;
+  color: #c8c8c8;
+  font-size: 12.5px;
+  animation: claudeFade 0.4s ease;
+}
+@keyframes claudeFade { from { opacity: 0; transform: translateY(-2px); } to { opacity: 1; transform: translateY(0); } }
