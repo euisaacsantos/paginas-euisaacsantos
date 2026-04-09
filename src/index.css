@@ -954,11 +954,14 @@ details.faq-item p {
 
 /* ===== Hero V1 — title responsivo ===== */
 .hero-title-v1 {
-  font-size: clamp(30px, 7.5vw, 48px);
-  min-height: calc(clamp(30px, 7.5vw, 48px) * 1.05 * 2);
+  font-size: clamp(28px, 7vw, 48px);
+  min-height: calc(clamp(28px, 7vw, 48px) * 1.05 * 2);
 }
 @media (max-width: 640px) {
-  .hero-title-v1 { min-height: calc(30px * 1.05 * 3); }
+  .hero-title-v1 {
+    min-height: 0;
+    margin-bottom: 10px !important;
+  }
 }
 
 /* ===== Hero V1 — terminal absoluto na direita (desktop) ===== */
@@ -966,7 +969,7 @@ details.faq-item p {
   position: absolute;
   top: 50%;
   right: max(24px, calc((100vw - 1200px) / 2 + 24px));
-  transform: translateY(-50%);
+  transform: translateY(calc(-50% + 80px));
   z-index: 5;
   width: min(520px, 42vw);
 }
