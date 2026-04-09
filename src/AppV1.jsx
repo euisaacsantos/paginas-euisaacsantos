@@ -49,11 +49,16 @@ function HeroTitle() {
   const after = typed.slice(Math.min(typed.length, raizEnd))
   const done = typed.length >= full.length
   return (
-    <h1 className="mb-4 md:mb-6 font-black leading-[1.05] tracking-tight hero-title-v1">
-      {before}
-      <span className="highlight-orange">{raiz}</span>
-      {after}
-      <span className={`typewriter-caret ${done ? 'blink' : ''}`}>|</span>
+    <h1 className="mb-4 md:mb-6 font-black leading-[1.05] tracking-tight hero-title-v1 relative">
+      <span aria-hidden="true" className="invisible">
+        Pare de subir campanha. Comece a <span className="highlight-orange">COMANDAR</span>.
+      </span>
+      <span className="absolute inset-0">
+        {before}
+        <span className="highlight-orange">{raiz}</span>
+        {after}
+        <span className={`typewriter-caret ${done ? 'blink' : ''}`}>|</span>
+      </span>
     </h1>
   )
 }
