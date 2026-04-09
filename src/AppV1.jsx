@@ -49,7 +49,7 @@ function HeroTitle() {
   const after = typed.slice(Math.min(typed.length, raizEnd))
   const done = typed.length >= full.length
   return (
-    <h1 className="mb-6 font-black leading-[1.05] tracking-tight" style={{ fontSize: '48px', minHeight: 'calc(48px * 1.05 * 2)' }}>
+    <h1 className="mb-4 md:mb-6 font-black leading-[1.05] tracking-tight hero-title-v1">
       {before}
       <span className="highlight-orange">{raiz}</span>
       {after}
@@ -273,8 +273,11 @@ function AppV1() {
 
       {/* HERO */}
       <section className="hero-section relative overflow-hidden">
-<div className="hero-container px-5 pt-16 pb-6 md:pt-24 md:pb-8 text-center md:text-left relative z-10 grid lg:grid-cols-[1.1fr_1fr] gap-10 items-center">
-        <div>
+        <div className="hero-term-abs hidden lg:block">
+          <ClaudeTerminal />
+        </div>
+<div className="hero-container px-5 pt-12 pb-6 md:pt-24 md:pb-8 text-center md:text-left relative z-10">
+        <div className="hero-text-col">
           <img src="/assets/LOGO.svg" alt="Logo" className="h-10 md:h-12 mb-6 mx-auto md:mx-0" />
           <HeroTitle />
           <p className="text-lg md:text-xl text-txts max-w-3xl md:mx-0 mx-auto mb-10">
@@ -308,9 +311,9 @@ function AppV1() {
             </div>
           </div>
 
-          <a href="#checkout" className="btn-brutalist mb-12">GARANTIR MEU INGRESSO POR R$9</a>
+          <a href="#checkout" className="btn-brutalist mb-8">GARANTIR MEU INGRESSO POR R$9</a>
         </div>
-        <div className="flex justify-center lg:block">
+        <div className="flex justify-center lg:hidden mt-2">
           <ClaudeTerminal />
         </div>
         </div>
