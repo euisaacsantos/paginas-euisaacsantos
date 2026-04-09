@@ -432,6 +432,18 @@ function ObsidianBrain() {
   return <canvas ref={ref} className="obsidian-brain" />
 }
 
+function CtaProgress() {
+  return (
+    <div className="cta-progress">
+      <div className="cta-progress-bar"><div className="cta-progress-fill" /></div>
+      <div className="cta-progress-label">
+        <strong>LOTE 0</strong>
+        <span>74% dos ingressos vendidos</span>
+      </div>
+    </div>
+  )
+}
+
 function AppV1() {
   useReveal()
   return (
@@ -439,7 +451,7 @@ function AppV1() {
       {/* TOP BAR */}
       <div className="topbar">
         <div className="topbar-inner">
-          <span className="topbar-item"><span className="topbar-fire">🔥</span> 1° LOTE · <strong>R$ 9</strong></span>
+          <span className="topbar-item"><span className="topbar-fire">🔥</span> LOTE 0 · <strong>R$ 9</strong></span>
           <span className="topbar-sep">|</span>
           <span className="topbar-item">74% das vagas preenchidas</span>
           <div className="topbar-progress"><div className="topbar-progress-fill" /></div>
@@ -475,20 +487,21 @@ function AppV1() {
           <div className="grid grid-cols-3 gap-3 mb-8 max-w-lg md:mx-0 mx-auto">
             <div className="lote-card lote-card--active">
               <span className="lote-fire">🔥</span>
-              <span className="lote-label">1° Lote</span>
+              <span className="lote-label">Lote 0</span>
               <span className="lote-price">R$ 9</span>
             </div>
             <div className="lote-card">
-              <span className="lote-label">2° Lote</span>
+              <span className="lote-label">1° Lote</span>
               <span className="lote-price">R$ 15</span>
             </div>
             <div className="lote-card">
-              <span className="lote-label">3° Lote</span>
+              <span className="lote-label">2° Lote</span>
               <span className="lote-price">R$ 19</span>
             </div>
           </div>
 
-          <a href="#checkout" className="btn-brutalist mb-8">GARANTIR MEU INGRESSO POR R$9</a>
+          <a href="#checkout" className="btn-brutalist mb-3">GARANTIR MEU INGRESSO POR R$9</a>
+          <CtaProgress />
         </div>
         <div className="flex justify-center lg:hidden mt-2">
           <ClaudeTerminal />
@@ -631,6 +644,7 @@ function AppV1() {
             </div>
           </div>
           <a href="#checkout" className="btn-brutalist">GARANTIR MINHA VAGA — R$9</a>
+          <CtaProgress />
           <p className="mt-4 text-sm text-txts">Pagamento Seguro | Acesso imediato aos bônus</p>
         </div>
       </section>
@@ -649,7 +663,10 @@ function AppV1() {
               </div>
             ))}
           </div>
-          <div className="text-center"><a href="#checkout" className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a></div>
+          <div className="text-center">
+            <a href="#checkout" className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
+            <CtaProgress />
+          </div>
         </div>
       </section>
 
@@ -677,6 +694,7 @@ function AppV1() {
             </div>
           </div>
           <a href="#checkout" className="btn-brutalist">QUERO AS DUAS COISAS</a>
+          <CtaProgress />
         </div>
       </section>
 
@@ -733,6 +751,7 @@ function AppV1() {
             </div>
           </div>
           <a href="#checkout" className="btn-brutalist">QUERO OS DOIS — GARANTIR MINHA VAGA</a>
+          <CtaProgress />
         </div>
       </section>
 
@@ -804,7 +823,7 @@ function AppV1() {
               <div className="offer-progress">
                 <div className="offer-progress-bar"><div className="offer-progress-fill" /></div>
                 <div className="offer-progress-label">
-                  <strong>1° LOTE</strong>
+                  <strong>LOTE 0</strong>
                   <span>74% dos ingressos vendidos</span>
                 </div>
               </div>
@@ -848,7 +867,10 @@ function AppV1() {
               </div>
             ))}
           </div>
-          <div className="text-center"><a href="#checkout" className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a></div>
+          <div className="text-center">
+            <a href="#checkout" className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
+            <CtaProgress />
+          </div>
         </div>
       </section>
 
@@ -873,6 +895,7 @@ function AppV1() {
           </div>
           <p className="text-txts mb-8">Seu ingresso da imersão é a porta de entrada para essa oportunidade.</p>
           <a href="#checkout" className="btn-brutalist">GARANTIR MEU INGRESSO — R$9</a>
+          <CtaProgress />
         </div>
       </section>
 
@@ -905,6 +928,7 @@ function AppV1() {
           </p>
           <div className="mb-10"><Countdown compact /></div>
           <a href="#checkout" className="btn-brutalist btn-brutalist-orange">GARANTIR MEU INGRESSO POR R$9</a>
+          <CtaProgress />
           <p className="text-sm text-txts mt-6">Vagas limitadas · 1° lote · Compra segura</p>
         </div>
       </section>
