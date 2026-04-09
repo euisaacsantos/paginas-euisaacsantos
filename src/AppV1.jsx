@@ -262,6 +262,176 @@ function ClaudeTerminal() {
   )
 }
 
+const BRAIN_LABELS = [
+  'campanha-acme', 'criativo-vencedor-3', 'relatorio-joao', 'vigia-loja-x',
+  'roas-3.2', 'lookalike-1%', 'publico-frio', 'cpa-alvo', 'briefing-cliente',
+  'teste-headline', 'cta-versao-b', 'funil-quente', 'remarketing-vsl',
+  'copy-nova', 'meta-pixel', 'utm-cliente-x', 'retencao-d7', 'catalog-feed',
+  'idade-25-34', 'conversao-checkout', 'pixel-lead', 'vsl-30s',
+  'cliente-mateus', 'dashboard-acme', 'alerta-saldo', 'copy-gancho',
+  'meta-ads-api', 'google-ads', 'tiktok-spark', 'reels-organico',
+  'newsletter-warm', 'segmento-quente', 'funil-vsl', 'criativo-ugc',
+  'teste-thumb', 'campanha-bf', 'orcamento-300', 'public-lookalike-2%'
+]
+
+function ObsidianBrain() {
+  const ref = useRef(null)
+  useEffect(() => {
+    const canvas = ref.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    let W, H, dpr
+    const resize = () => {
+      dpr = window.devicePixelRatio || 1
+      const rect = canvas.getBoundingClientRect()
+      W = rect.width
+      H = rect.height
+      canvas.width = W * dpr
+      canvas.height = H * dpr
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    }
+    resize()
+    window.addEventListener('resize', resize)
+
+    let nodes = []
+    let edges = []
+    let frame = 0
+    let lastSpawn = 0
+    const MAX = 45
+
+    const spawn = () => {
+      if (nodes.length >= MAX) {
+        nodes = []
+        edges = []
+        return
+      }
+      const n = {
+        x: W / 2 + (Math.random() - 0.5) * 60,
+        y: H / 2 + (Math.random() - 0.5) * 60,
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 2,
+        label: BRAIN_LABELS[Math.floor(Math.random() * BRAIN_LABELS.length)],
+        born: frame,
+        pulse: Math.random() * Math.PI * 2,
+      }
+      nodes.push(n)
+      const idx = nodes.length - 1
+      if (idx > 0) {
+        const num = Math.min(idx, 1 + Math.floor(Math.random() * 2))
+        const used = new Set()
+        for (let i = 0; i < num; i++) {
+          let t
+          do { t = Math.floor(Math.random() * idx) } while (used.has(t))
+          used.add(t)
+          edges.push({ a: idx, b: t, born: frame })
+        }
+      }
+    }
+
+    spawn()
+
+    let raf
+    const tick = () => {
+      frame++
+      if (frame - lastSpawn > 28) {
+        spawn()
+        lastSpawn = frame
+      }
+
+      // repulsion
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i], b = nodes[j]
+          const dx = b.x - a.x, dy = b.y - a.y
+          const d2 = dx * dx + dy * dy + 0.01
+          const d = Math.sqrt(d2)
+          const force = 1400 / d2
+          const fx = (dx / d) * force
+          const fy = (dy / d) * force
+          a.vx -= fx; a.vy -= fy
+          b.vx += fx; b.vy += fy
+        }
+      }
+      // attraction along edges
+      for (const e of edges) {
+        const a = nodes[e.a], b = nodes[e.b]
+        if (!a || !b) continue
+        const dx = b.x - a.x, dy = b.y - a.y
+        const d = Math.sqrt(dx * dx + dy * dy) + 0.01
+        const force = (d - 90) * 0.018
+        const fx = (dx / d) * force
+        const fy = (dy / d) * force
+        a.vx += fx; a.vy += fy
+        b.vx -= fx; b.vy -= fy
+      }
+      // center pull, friction, integrate, bounds
+      for (const n of nodes) {
+        n.vx += (W / 2 - n.x) * 0.0018
+        n.vy += (H / 2 - n.y) * 0.0018
+        n.vx *= 0.86
+        n.vy *= 0.86
+        n.x += n.vx
+        n.y += n.vy
+        const m = 36
+        if (n.x < m) { n.x = m; n.vx = 0 }
+        if (n.x > W - m) { n.x = W - m; n.vx = 0 }
+        if (n.y < m) { n.y = m; n.vy = 0 }
+        if (n.y > H - m) { n.y = H - m; n.vy = 0 }
+      }
+
+      // draw
+      ctx.clearRect(0, 0, W, H)
+      // edges
+      for (const e of edges) {
+        const a = nodes[e.a], b = nodes[e.b]
+        if (!a || !b) continue
+        const age = Math.min(1, (frame - e.born) / 25)
+        ctx.strokeStyle = `rgba(255, 140, 60, ${0.18 * age})`
+        ctx.lineWidth = 1
+        ctx.beginPath()
+        ctx.moveTo(a.x, a.y)
+        ctx.lineTo(b.x, b.y)
+        ctx.stroke()
+      }
+      // nodes
+      for (const n of nodes) {
+        const age = Math.min(1, (frame - n.born) / 25)
+        n.pulse += 0.05
+        const r = 3.6 + Math.sin(n.pulse) * 0.7
+        // glow
+        const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, r * 5)
+        grad.addColorStop(0, `rgba(255, 140, 60, ${0.55 * age})`)
+        grad.addColorStop(1, 'rgba(255, 140, 60, 0)')
+        ctx.fillStyle = grad
+        ctx.beginPath()
+        ctx.arc(n.x, n.y, r * 5, 0, Math.PI * 2)
+        ctx.fill()
+        // core
+        ctx.fillStyle = `rgba(255, 195, 120, ${age})`
+        ctx.beginPath()
+        ctx.arc(n.x, n.y, r, 0, Math.PI * 2)
+        ctx.fill()
+        // label
+        if (age > 0.5) {
+          ctx.fillStyle = `rgba(190, 190, 190, ${(age - 0.5) * 0.85})`
+          ctx.font = '10px ui-monospace, "JetBrains Mono", monospace'
+          ctx.textAlign = 'center'
+          ctx.fillText(n.label, n.x, n.y - 9)
+        }
+      }
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('resize', resize)
+    }
+  }, [])
+
+  return <canvas ref={ref} className="obsidian-brain" />
+}
+
 function AppV1() {
   useReveal()
   return (
@@ -328,6 +498,41 @@ function AppV1() {
       <section className="py-12 md:py-16 px-5 text-center" style={{ backgroundColor: '#09090B' }}>
         <p className="uppercase tracking-widest text-sm text-txts mb-6">A imersão começa em</p>
         <Countdown big />
+      </section>
+
+      {/* CÉREBRO OBSIDIAN */}
+      <section className="py-20 md:py-28 border-y border-bgt" style={{ backgroundColor: '#050505' }}>
+        <div className="max-w-6xl mx-auto px-5">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+            <div className="reveal text-center lg:text-left">
+              <p className="uppercase tracking-widest text-sm font-bold eyebrow mb-3">Memória infinita</p>
+              <h2 className="section-title mb-6">O Jarvis <span className="highlight-orange">nunca esquece</span> nada da sua operação.</h2>
+              <p className="text-lg text-txts mb-8">
+                Cada campanha que você roda, cada criativo que funcionou, cada cliente, cada teste — vira memória viva. Você comanda. Ele lembra. Sempre.
+              </p>
+              <ul className="space-y-4 text-left max-w-md mx-auto lg:mx-0">
+                <li className="flex gap-3">
+                  <span className="text-accent font-black shrink-0">→</span>
+                  <span><span className="text-white font-bold">Memória permanente.</span> <span className="text-txts">Nada do que funcionou se perde no tempo.</span></span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="text-accent font-black shrink-0">→</span>
+                  <span><span className="text-white font-bold">Contexto em todas as decisões.</span> <span className="text-txts">Os agentes consultam o histórico antes de agir.</span></span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="text-accent font-black shrink-0">→</span>
+                  <span><span className="text-white font-bold">Você vê seu negócio virar conhecimento.</span> <span className="text-txts">Em tempo real, na sua frente.</span></span>
+                </li>
+              </ul>
+            </div>
+            <div className="brain-wrap reveal">
+              <ObsidianBrain />
+              <div className="brain-caption">
+                <span className="brain-dot" /> cérebro Obsidian · sincronizando memória ao vivo
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* IDENTIFICAÇÃO */}
