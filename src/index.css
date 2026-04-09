@@ -170,7 +170,7 @@ body {
 .bg-grid-pattern { background-color: #09090b; }
 
 .hero-section {
-  background-color: #09090b;
+  background-color: #000000;
   background-image: url('/assets/isaacbg1mobile.png');
   background-size: 100% auto;
   background-position: bottom center;
