@@ -500,8 +500,10 @@ function AppV1() {
             </div>
           </div>
 
-          <a href="#checkout" className="btn-brutalist mb-3">GARANTIR MEU INGRESSO POR R$9</a>
-          <CtaProgress />
+          <span className="cta-stack">
+            <a href="#checkout" className="btn-brutalist">GARANTIR MEU INGRESSO POR R$9</a>
+            <CtaProgress />
+          </span>
         </div>
         <div className="flex justify-center lg:hidden mt-2">
           <ClaudeTerminal />
@@ -643,8 +645,10 @@ function AppV1() {
               <p className="text-txts text-sm">20 comandos essenciais do Claude Code para gestor de tráfego + template do primeiro agente entregue antes da imersão.</p>
             </div>
           </div>
-          <a href="#checkout" className="btn-brutalist">GARANTIR MINHA VAGA — R$9</a>
-          <CtaProgress />
+          <span className="cta-stack">
+            <a href="#checkout" className="btn-brutalist">GARANTIR MINHA VAGA — R$9</a>
+            <CtaProgress />
+          </span>
           <p className="mt-4 text-sm text-txts">Pagamento Seguro | Acesso imediato aos bônus</p>
         </div>
       </section>
@@ -664,8 +668,10 @@ function AppV1() {
             ))}
           </div>
           <div className="text-center">
-            <a href="#checkout" className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
-            <CtaProgress />
+            <span className="cta-stack">
+              <a href="#checkout" className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
+              <CtaProgress />
+            </span>
           </div>
         </div>
       </section>
@@ -693,8 +699,10 @@ function AppV1() {
               <p className="text-txts text-sm">Venda "gestão de tráfego com agentes IA" e cobre R$2k–8k a mais por cliente. Diferenciação real.</p>
             </div>
           </div>
-          <a href="#checkout" className="btn-brutalist">QUERO AS DUAS COISAS</a>
-          <CtaProgress />
+          <span className="cta-stack">
+            <a href="#checkout" className="btn-brutalist">QUERO AS DUAS COISAS</a>
+            <CtaProgress />
+          </span>
         </div>
       </section>
 
@@ -750,8 +758,10 @@ function AppV1() {
               <p className="mt-4">Acesso exclusivo à Comunidade Claude Code para Tráfego com condições únicas pra quem estiver ao vivo</p>
             </div>
           </div>
-          <a href="#checkout" className="btn-brutalist">QUERO OS DOIS — GARANTIR MINHA VAGA</a>
-          <CtaProgress />
+          <span className="cta-stack">
+            <a href="#checkout" className="btn-brutalist">QUERO OS DOIS — GARANTIR MINHA VAGA</a>
+            <CtaProgress />
+          </span>
         </div>
       </section>
 
@@ -868,8 +878,10 @@ function AppV1() {
             ))}
           </div>
           <div className="text-center">
-            <a href="#checkout" className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
-            <CtaProgress />
+            <span className="cta-stack">
+              <a href="#checkout" className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
+              <CtaProgress />
+            </span>
           </div>
         </div>
       </section>
@@ -894,8 +906,10 @@ function AppV1() {
             </ul>
           </div>
           <p className="text-txts mb-8">Seu ingresso da imersão é a porta de entrada para essa oportunidade.</p>
-          <a href="#checkout" className="btn-brutalist">GARANTIR MEU INGRESSO — R$9</a>
-          <CtaProgress />
+          <span className="cta-stack">
+            <a href="#checkout" className="btn-brutalist">GARANTIR MEU INGRESSO — R$9</a>
+            <CtaProgress />
+          </span>
         </div>
       </section>
 
@@ -927,8 +941,10 @@ function AppV1() {
             Não passe mais um sábado subindo campanha manualmente. O 1° lote é a sua chance de entrar pelo menor preço da história dessa imersão.
           </p>
           <div className="mb-10"><Countdown compact /></div>
-          <a href="#checkout" className="btn-brutalist btn-brutalist-orange">GARANTIR MEU INGRESSO POR R$9</a>
-          <CtaProgress />
+          <span className="cta-stack">
+            <a href="#checkout" className="btn-brutalist btn-brutalist-orange">GARANTIR MEU INGRESSO POR R$9</a>
+            <CtaProgress />
+          </span>
           <p className="text-sm text-txts mt-6">Vagas limitadas · 1° lote · Compra segura</p>
         </div>
       </section>

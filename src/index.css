@@ -1183,11 +1183,17 @@ details.faq-item p {
 @keyframes brainPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
 
 /* ===== CtaProgress (barra abaixo de cada CTA) ===== */
+.cta-stack {
+  display: inline-block;
+  max-width: 100%;
+}
+.cta-stack .btn-brutalist { display: block; width: 100%; }
 .cta-progress {
-  max-width: 320px;
-  margin: 14px auto 0;
-  padding: 14px 8px 0;
+  width: 100%;
+  margin: 14px 0 0;
+  padding: 14px 4px 0;
   border-top: 1px solid #1f1f22;
+  box-sizing: border-box;
 }
 .cta-progress-bar {
   height: 6px;
