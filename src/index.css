@@ -981,13 +981,6 @@ details.faq-item p {
 /* ===== Obsidian Brain section ===== */
 .brain-wrap {
   position: relative;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 140, 60, 0.12);
-  background:
-    radial-gradient(circle at 50% 50%, rgba(255, 140, 60, 0.06), transparent 65%),
-    #050505;
-  overflow: hidden;
-  box-shadow: 0 30px 80px -30px rgba(255, 140, 60, 0.25), 0 0 0 1px rgba(255, 140, 60, 0.05) inset;
 }
 .obsidian-brain {
   width: 100%;

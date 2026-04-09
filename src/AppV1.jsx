@@ -527,9 +527,6 @@ function AppV1() {
             </div>
             <div className="brain-wrap reveal">
               <ObsidianBrain />
-              <div className="brain-caption">
-                <span className="brain-dot" /> cérebro Obsidian · sincronizando memória ao vivo
-              </div>
             </div>
           </div>
         </div>
