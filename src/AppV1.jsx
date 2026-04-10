@@ -501,7 +501,7 @@ function AppV1() {
           </div>
 
           <span className="cta-stack">
-            <a href="#checkout" className="btn-brutalist">GARANTIR MEU INGRESSO POR R$9</a>
+            <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist">GARANTIR MEU INGRESSO POR R$9</a>
             <CtaProgress />
           </span>
         </div>
@@ -646,7 +646,7 @@ function AppV1() {
             </div>
           </div>
           <span className="cta-stack">
-            <a href="#checkout" className="btn-brutalist">GARANTIR MINHA VAGA — R$9</a>
+            <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist">GARANTIR MINHA VAGA — R$9</a>
             <CtaProgress />
           </span>
           <p className="mt-4 text-sm text-txts">Pagamento Seguro | Acesso imediato aos bônus</p>
@@ -669,7 +669,7 @@ function AppV1() {
           </div>
           <div className="text-center">
             <span className="cta-stack">
-              <a href="#checkout" className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
+              <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
               <CtaProgress />
             </span>
           </div>
@@ -700,7 +700,7 @@ function AppV1() {
             </div>
           </div>
           <span className="cta-stack">
-            <a href="#checkout" className="btn-brutalist">QUERO AS DUAS COISAS</a>
+            <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist">QUERO AS DUAS COISAS</a>
             <CtaProgress />
           </span>
         </div>
@@ -759,7 +759,7 @@ function AppV1() {
             </div>
           </div>
           <span className="cta-stack">
-            <a href="#checkout" className="btn-brutalist">QUERO OS DOIS — GARANTIR MINHA VAGA</a>
+            <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist">QUERO OS DOIS — GARANTIR MINHA VAGA</a>
             <CtaProgress />
           </span>
         </div>
@@ -828,7 +828,7 @@ function AppV1() {
                 <p className="offer-price-sub">ou no PIX à vista</p>
               </div>
 
-              <a href="#" className="offer-cta">GARANTIR MEU INGRESSO</a>
+              <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="offer-cta">GARANTIR MEU INGRESSO</a>
 
               <div className="offer-progress">
                 <div className="offer-progress-bar"><div className="offer-progress-fill" /></div>
@@ -879,7 +879,7 @@ function AppV1() {
           </div>
           <div className="text-center">
             <span className="cta-stack">
-              <a href="#checkout" className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
+              <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
               <CtaProgress />
             </span>
           </div>
@@ -907,7 +907,7 @@ function AppV1() {
           </div>
           <p className="text-txts mb-8">Seu ingresso da imersão é a porta de entrada para essa oportunidade.</p>
           <span className="cta-stack">
-            <a href="#checkout" className="btn-brutalist">GARANTIR MEU INGRESSO — R$9</a>
+            <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist">GARANTIR MEU INGRESSO — R$9</a>
             <CtaProgress />
           </span>
         </div>
@@ -942,7 +942,7 @@ function AppV1() {
           </p>
           <div className="mb-10"><Countdown compact /></div>
           <span className="cta-stack">
-            <a href="#checkout" className="btn-brutalist btn-brutalist-orange">GARANTIR MEU INGRESSO POR R$9</a>
+            <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist btn-brutalist-orange">GARANTIR MEU INGRESSO POR R$9</a>
             <CtaProgress />
           </span>
           <p className="text-sm text-txts mt-6">Vagas limitadas · 1° lote · Compra segura</p>
