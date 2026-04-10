@@ -458,18 +458,18 @@ function AppV3() {
         </div>
       </div>
 
-      {/* HERO V3 - Stack Price */}
+      {/* HERO V3 - Stack Price (refatorado) */}
       <section className="hero-v3-section">
         <div className="hero-v3-container">
           <div className="hero-v3-left">
             <img src="/assets/LOGO.png" alt="Logo" className="h-14 md:h-16 mb-8 mx-auto md:mx-0" />
-            <p className="hero-v3-eyebrow">Imersão online ao vivo</p>
+            <p className="hero-v3-eyebrow">Imersão online ao vivo · 25 de abril</p>
             <h1 className="hero-v3-title">
-              Tudo isso por <span className="highlight-orange">menos de R$ 9</span> pra você sair operando como Tony Stark.
+              Tudo isso por menos de <span className="highlight-orange">R$ 9</span> pra você comandar sua operação inteira por voz.
             </h1>
-            <p className="hero-v3-sub">3 horas de imersão Claude Code para gestores de tráfego + bônus exclusivos. Veja o que está incluso ao lado.</p>
+            <p className="hero-v3-sub">3 horas ao vivo onde você sai operando tráfego pago por comando de voz e texto. Sem n8n. Sem código. Sem dor. Veja o que está incluso ao lado.</p>
             <div className="hero-v3-meta">
-              <div><span className="badge">Data</span><p>Sáb, 25/04</p></div>
+              <div><span className="badge">Data</span><p>25/04 (sábado)</p></div>
               <div><span className="badge">Horário</span><p>9h às 12h</p></div>
             </div>
           </div>
@@ -477,15 +477,20 @@ function AppV3() {
             <div className="hero-v3-card">
               <div className="hero-v3-card-header">LOTE 0 · OFERTA ESPECIAL</div>
               <ul className="hero-v3-list">
-                <li><span className="hero-v3-check">✓</span> 3h de imersão ao vivo comigo<span className="hero-v3-old">R$ 297</span></li>
-                <li><span className="hero-v3-check">✓</span> 3 agentes prontos (Subidor, Relator, Vigia)<span className="hero-v3-old">R$ 197</span></li>
-                <li><span className="hero-v3-check">✓</span> Cérebro Obsidian de memória infinita<span className="hero-v3-old">R$ 97</span></li>
-                <li><span className="hero-v3-check">✓</span> Aula pré-evento Claude Code em 30 min<span className="hero-v3-old">R$ 47</span></li>
-                <li><span className="hero-v3-check">✓</span> Cheatsheet 20 comandos essenciais<span className="hero-v3-old">R$ 27</span></li>
+                <li><span className="hero-v3-check">✓</span> 3h de imersão Claude Code ao vivo<span className="hero-v3-old">R$ 297</span></li>
+                <li><span className="hero-v3-check">✓</span> Comando da operação por voz e texto<span className="hero-v3-old">R$ 297</span></li>
+                <li><span className="hero-v3-check">✓</span> Script de scraping de criativos do concorrente<span className="hero-v3-old">R$ 297</span></li>
+                <li><span className="hero-v3-check">✓</span> Skill /diagnostico-conta (1 comando, 8s)<span className="hero-v3-old">R$ 197</span></li>
+                <li><span className="hero-v3-check">✓</span> Sub-agentes Subidor + Relator + Vigia prontos<span className="hero-v3-old">R$ 197</span></li>
+                <li><span className="hero-v3-check">✓</span> Cérebro Obsidian de memória infinita<span className="hero-v3-old">R$ 197</span></li>
+                <li><span className="hero-v3-check">✓</span> Geração automática de análises estratégicas<span className="hero-v3-old">R$ 147</span></li>
+                <li><span className="hero-v3-check">✓</span> Aula pré-evento "Claude Code em 30 min"<span className="hero-v3-old">R$ 97</span></li>
+                <li><span className="hero-v3-check">✓</span> Cheatsheet 30 comandos essenciais<span className="hero-v3-old">R$ 47</span></li>
+                <li><span className="hero-v3-check">✓</span> Comunidade WhatsApp dos inscritos<span className="hero-v3-old">R$ 47</span></li>
               </ul>
               <div className="hero-v3-divider" />
               <div className="hero-v3-total">
-                <p>Valor total: <span className="line-through">R$ 665</span></p>
+                <p>Valor total: <span className="line-through">R$ 1.820</span></p>
                 <p className="hero-v3-now">Hoje no Lote 0:</p>
               </div>
               <p className="hero-v3-price">

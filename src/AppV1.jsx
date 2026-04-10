@@ -470,7 +470,7 @@ function AppV1() {
           <img src="/assets/LOGO.png" alt="Logo" className="h-14 md:h-16 mb-6 mx-auto md:mx-0" />
           <HeroTitle />
           <p className="hero-subhead text-lg md:text-xl text-txts max-w-3xl md:mx-0 mx-auto mb-10">
-            Em 3 horas ao vivo, monte 3 agentes Claude Code que sobem suas campanhas, geram seus relatórios e monitoram suas contas — você só dá o comando. Método validado por gestores que operam <span className="text-white font-bold">+R$ 1M/mês em mídia</span>.
+            No próximo <span className="text-white font-bold">dia 25/04</span>, eu te mostro como comandar uma operação inteira de tráfego pago por voz e texto. Subir campanha, gerar relatório, monitorar conta, baixar criativos do concorrente, gerar análises, briefar designer — tudo num comando. <span className="text-white font-bold">Sem n8n. Sem workflow. Sem código.</span>
           </p>
 
           <div className="flex flex-wrap md:flex-nowrap items-center gap-x-8 gap-y-3 mb-10 justify-center md:justify-start">

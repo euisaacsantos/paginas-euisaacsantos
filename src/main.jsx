@@ -7,11 +7,9 @@ import AppV2 from './AppV2.jsx'
 import AppV3 from './AppV3.jsx'
 import AppV4 from './AppV4.jsx'
 import AppV5 from './AppV5.jsx'
-import AppV6 from './AppV6.jsx'
 
 const path = window.location.pathname
 const Root =
-  path.startsWith('/v6') ? AppV6 :
   path.startsWith('/v5') ? AppV5 :
   path.startsWith('/v4') ? AppV4 :
   path.startsWith('/v3') ? AppV3 :

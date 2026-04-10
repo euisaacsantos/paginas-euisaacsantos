@@ -458,40 +458,52 @@ function AppV4() {
         </div>
       </div>
 
-      {/* HERO V4 - Before vs After */}
+      {/* HERO V4 - Before vs After (refatorado) */}
       <section className="hero-v4-section">
         <div className="hero-v4-grid">
           <div className="hero-v4-before">
             <p className="hero-v4-tag">HOJE</p>
-            <p className="hero-v4-quote">23h de domingo. Você ainda subindo conjunto.</p>
+            <p className="hero-v4-quote">Você OPERA tráfego.</p>
             <ul className="hero-v4-list">
-              <li>📊 Planilha aberta às 22h</li>
-              <li>📱 Cliente cobrando no zap</li>
-              <li>🔥 Saldo zerado às 15h</li>
-              <li>🤯 n8n quebrado de novo</li>
+              <li>📊 Subir campanha na mão, todo dia</li>
+              <li>📑 Exportar CSV pro relatório do cliente</li>
+              <li>🔥 Conferir saldo das contas 5x por dia</li>
+              <li>🖼 Pegar referência do concorrente print por print</li>
+              <li>📝 Brifar designer manualmente</li>
+              <li>📈 Análise no Excel até de madrugada</li>
+              <li>🤯 n8n quebrando toda semana</li>
+              <li>📱 Cliente cobrando relatório no zap</li>
+              <li>🔁 Refazer tudo no próximo cliente</li>
+              <li>⏰ Sábado e domingo trabalhando</li>
             </ul>
           </div>
           <div className="hero-v4-after">
-            <p className="hero-v4-tag hero-v4-tag-after">SÁBADO</p>
-            <p className="hero-v4-quote">Você fala. O Claude executa. Você dorme tranquilo.</p>
+            <p className="hero-v4-tag hero-v4-tag-after">25 DE ABRIL</p>
+            <p className="hero-v4-quote">Você COMANDA tráfego.</p>
             <ul className="hero-v4-list">
-              <li>🤖 Subidor sobe sozinho</li>
-              <li>📩 Relator manda no zap</li>
-              <li>👁 Vigia monitora 24/7</li>
-              <li>🧠 Memória que nunca esquece</li>
+              <li>🎙 "Claude, sobe a campanha do cliente X"</li>
+              <li>🎙 "Manda o relatório de hoje pro João"</li>
+              <li>🎙 "Monitora a conta da loja Y"</li>
+              <li>🎙 "Baixa os criativos do concorrente Z"</li>
+              <li>🎙 "Brifa o designer com a melhor referência"</li>
+              <li>🎙 "Análise dos últimos 30 dias"</li>
+              <li>🎙 "Plano de mídia pros próximos 30 dias"</li>
+              <li>🎙 "Lembra do que funcionou em janeiro"</li>
+              <li>🧠 Memória infinita da operação</li>
+              <li>🛌 Sábado e domingo com a família</li>
             </ul>
           </div>
         </div>
         <div className="hero-v4-bottom">
           <img src="/assets/LOGO.png" alt="Logo" className="h-14 md:h-16 mb-6 mx-auto" />
           <h1 className="hero-v4-title">
-            Em 3h ao vivo, você atravessa essa ponte. <span className="highlight-orange">Pra sempre.</span>
+            Em 3h ao vivo no <span className="highlight-orange">dia 25/04</span>, você atravessa essa ponte. Pra sempre.
           </h1>
           <span className="cta-stack">
             <a href="#checkout" className="btn-brutalist btn-brutalist-orange">QUERO ATRAVESSAR — R$ 9</a>
             <CtaProgress />
           </span>
-          <p className="hero-v4-footnote">📅 Sábado, 25/04 · 9h às 12h · Online ao vivo</p>
+          <p className="hero-v4-footnote">📅 25 de abril (sábado) · 9h às 12h · Online ao vivo</p>
         </div>
       </section>
 

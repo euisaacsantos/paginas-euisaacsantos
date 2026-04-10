@@ -458,26 +458,26 @@ function AppV2() {
         </div>
       </div>
 
-      {/* HERO V2 - Antagonist Hook */}
+      {/* HERO V2 - Antagonist Hook (refatorado) */}
       <section className="hero-v2-section relative overflow-hidden">
         <div className="hero-v2-overlay" />
         <div className="hero-v2-container relative z-10">
           <img src="/assets/LOGO.png" alt="Logo" className="h-14 md:h-16 mb-8 mx-auto" />
-          <p className="hero-v2-eyebrow">Imersão online ao vivo · Sábado 25/04 · 9h às 12h</p>
+          <p className="hero-v2-eyebrow">Imersão online ao vivo · 25 de abril · 9h às 12h</p>
           <h1 className="hero-v2-title">
-            VOCÊ NÃO PRECISA MAIS<br />
-            SUBIR CAMPANHA <span className="highlight-orange">ÀS 23H.</span>
+            VOCÊ NÃO PRECISA MAIS OPERAR<br />
+            TRÁFEGO. COMECE A <span className="highlight-orange">COMANDAR.</span>
           </h1>
           <p className="hero-v2-sub">
-            Em 3 horas ao vivo, monte 3 agentes Claude Code que fazem isso por você. <strong className="text-white">Pra sempre.</strong>
+            No próximo <strong className="text-white">dia 25/04</strong>, eu te mostro como comandar uma operação inteira de tráfego pago por voz e texto. Subir campanha, gerar relatório, monitorar conta, baixar criativos do concorrente, gerar análises, briefar designer — tudo num comando. <strong className="text-white">Sem n8n. Sem workflow. Sem código.</strong>
           </p>
           <div className="hero-v2-cta">
             <span className="cta-stack">
-              <a href="#checkout" className="btn-brutalist btn-brutalist-orange">GARANTIR MINHA VAGA — R$ 9</a>
+              <a href="#checkout" className="btn-brutalist btn-brutalist-orange">QUERO COMANDAR — R$ 9</a>
               <CtaProgress />
             </span>
           </div>
-          <p className="hero-v2-footnote">📅 Sábado · 25 de abril · 9h às 12h · Online ao vivo · Vagas limitadas</p>
+          <p className="hero-v2-footnote">📅 25 de abril (sábado) · 9h às 12h · Online ao vivo · Vagas limitadas</p>
         </div>
       </section>
 
