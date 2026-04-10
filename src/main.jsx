@@ -17,6 +17,20 @@ const Root =
   path.startsWith('/v1') ? AppV1 :
   App
 
+// Forward UTMs e demais query params da URL atual para o checkout (Ticto)
+document.addEventListener('click', (e) => {
+  const a = e.target.closest && e.target.closest('a[href*="checkout.ticto.app"]')
+  if (!a) return
+  const search = window.location.search
+  if (!search) return
+  try {
+    const url = new URL(a.href)
+    new URLSearchParams(search).forEach((v, k) => url.searchParams.set(k, v))
+    e.preventDefault()
+    window.open(url.toString(), a.target || '_blank', 'noopener,noreferrer')
+  } catch (_) { /* noop */ }
+}, true)
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Root />
