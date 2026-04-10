@@ -478,6 +478,7 @@ function AppV2() {
             </span>
           </div>
           <p className="hero-v2-footnote">📅 25 de abril (sábado) · 9h às 12h · Online ao vivo · Vagas limitadas</p>
+          <div className="hero-v2-terminal"><ClaudeTerminal /></div>
         </div>
       </section>
 

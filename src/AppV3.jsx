@@ -505,6 +505,7 @@ function AppV3() {
             </div>
           </div>
         </div>
+        <div className="hero-v3-terminal-wrap"><ClaudeTerminal /></div>
       </section>
 
       {/* COUNTDOWN */}

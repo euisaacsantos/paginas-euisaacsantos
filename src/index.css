@@ -1266,33 +1266,59 @@ details.faq-item p {
 .hero-v4-title { font-size: clamp(26px, 5vw, 42px); font-weight: 900; line-height: 1.1; color: #fff; margin-bottom: 28px; }
 .hero-v4-footnote { color: #777; font-size: 13px; margin-top: 16px; }
 
-/* ===== Hero V5 — Authority / Big Number ===== */
-.hero-v5-section { background: #000; padding: 60px 20px; }
-.hero-v5-container { max-width: 1200px; margin: 0 auto; display: grid; gap: 40px; align-items: center; }
-@media (min-width: 1024px) { .hero-v5-container { grid-template-columns: 1.2fr 1fr; } }
-.hero-v5-text { text-align: center; }
-@media (min-width: 1024px) { .hero-v5-text { text-align: left; } }
+/* ===== Hero V5 — Authority / Product Depth (full bg image) ===== */
+.hero-v5-section {
+  background: #000;
+  position: relative;
+  min-height: 90vh;
+  padding: 60px 20px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+.hero-v5-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('/assets/isaacbg1.png');
+  background-size: cover;
+  background-position: center right;
+  opacity: 0.45;
+}
+.hero-v5-section::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.78) 55%, rgba(0,0,0,0.4) 100%);
+}
+.hero-v5-container { position: relative; z-index: 2; max-width: 1200px; margin: 0 auto; width: 100%; }
+.hero-v5-text { max-width: 720px; }
 .hero-v5-eyebrow { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #ff8c3c; font-weight: 800; margin-bottom: 12px; }
 .hero-v5-bignumber {
-  font-size: clamp(48px, 9vw, 96px);
+  font-size: clamp(56px, 10vw, 110px);
   font-weight: 900;
   line-height: 0.95;
-  color: #fff;
   letter-spacing: -0.04em;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   background: linear-gradient(180deg, #fff 0%, #ff8c3c 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-.hero-v5-subnumber { font-size: 16px; color: #aaa; margin: 0 auto 24px; max-width: 480px; }
-@media (min-width: 1024px) { .hero-v5-subnumber { margin-left: 0; } }
-.hero-v5-title { font-size: clamp(26px, 4vw, 38px); font-weight: 900; line-height: 1.1; color: #fff; margin-bottom: 18px; }
-.hero-v5-sub { font-size: 16px; color: #aaa; margin: 0 auto 28px; max-width: 480px; }
-@media (min-width: 1024px) { .hero-v5-sub { margin-left: 0; } }
-.hero-v5-footnote { color: #777; font-size: 13px; margin-top: 16px; }
-.hero-v5-photo { display: flex; justify-content: center; }
-.hero-v5-photo img { max-width: 100%; height: auto; border-radius: 16px; }
+.hero-v5-subnumber { font-size: 17px; color: #c8c8c8; margin: 0 0 28px; max-width: 540px; }
+.hero-v5-title { font-size: clamp(26px, 4vw, 40px); font-weight: 900; line-height: 1.1; color: #fff; margin-bottom: 18px; }
+.hero-v5-sub { font-size: 16px; color: #aaa; margin: 0 0 28px; max-width: 540px; }
+.hero-v5-footnote { color: #888; font-size: 13px; margin-top: 16px; margin-bottom: 32px; }
+.hero-v5-terminal { max-width: 520px; }
+@media (max-width: 1023px) {
+  .hero-v5-text { text-align: center; max-width: 100%; }
+  .hero-v5-text > img { margin-left: auto !important; margin-right: auto !important; }
+  .hero-v5-subnumber, .hero-v5-sub { margin-left: auto; margin-right: auto; }
+  .hero-v5-terminal { margin: 0 auto; }
+  .hero-v5-section::after {
+    background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.95) 60%, #000 100%);
+  }
+}
 
 /* ===== Hero V2 — Antagonist Hook ===== */
 .hero-v2-section {
@@ -1373,3 +1399,23 @@ details.faq-item p {
 }
 .hero-v6-sub { font-size: clamp(18px, 2.5vw, 26px); color: #aaa; margin-bottom: 40px; font-weight: 500; }
 .hero-v6-footnote { color: #666; font-size: 13px; margin-top: 18px; letter-spacing: 0.02em; }
+
+/* Hero V4 — terminal abaixo do CTA */
+.hero-v4-terminal {
+  margin: 40px auto 0;
+  max-width: 520px;
+}
+
+/* Hero V2 — terminal abaixo do CTA */
+.hero-v2-terminal {
+  margin: 40px auto 0;
+  max-width: 520px;
+}
+
+
+/* Hero V3 — terminal abaixo do grid */
+.hero-v3-terminal-wrap {
+  max-width: 520px;
+  margin: 50px auto 0;
+  padding: 0 20px;
+}

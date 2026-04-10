@@ -504,6 +504,7 @@ function AppV4() {
             <CtaProgress />
           </span>
           <p className="hero-v4-footnote">📅 25 de abril (sábado) · 9h às 12h · Online ao vivo</p>
+          <div className="hero-v4-terminal"><ClaudeTerminal /></div>
         </div>
       </section>
 

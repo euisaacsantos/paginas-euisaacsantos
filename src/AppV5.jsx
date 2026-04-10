@@ -458,26 +458,26 @@ function AppV5() {
         </div>
       </div>
 
-      {/* HERO V5 - Authority / Big Number (refatorado) */}
+      {/* HERO V5 - Authority / Product Depth (refatorado) */}
       <section className="hero-v5-section">
         <div className="hero-v5-container">
           <div className="hero-v5-text">
-            <img src="/assets/LOGO.png" alt="Logo" className="h-14 md:h-16 mb-8 mx-auto md:mx-0" />
-            <p className="hero-v5-eyebrow">Comprovado em produção</p>
-            <p className="hero-v5-bignumber">+R$ 3 Milhões</p>
-            <p className="hero-v5-subnumber">em mídia operados por comando de voz nos últimos 60 dias. Sem n8n. Sem código.</p>
+            <img src="/assets/LOGO.png" alt="Logo" className="h-14 md:h-16 mb-8" />
+            <p className="hero-v5-eyebrow">A imersão Claude Code para gestores de tráfego</p>
+            <p className="hero-v5-bignumber">+30 Skills</p>
+            <p className="hero-v5-subnumber">prontas pra você comandar uma operação inteira de tráfego pago por voz e texto. Sem n8n. Sem código. Sem dor.</p>
             <h1 className="hero-v5-title">
               No próximo <span className="highlight-orange">dia 25/04</span>, eu te mostro como.
             </h1>
-            <p className="hero-v5-sub">3 horas ao vivo onde você aprende a comandar uma operação inteira de tráfego pago por voz e texto: subir campanha, gerar relatório, baixar criativos do concorrente, fazer análise estratégica, briefar designer. Tudo num comando.</p>
+            <p className="hero-v5-sub">3 horas ao vivo onde você sai operando: subir campanha, gerar relatório, monitorar conta, baixar criativos do concorrente, gerar análises estratégicas, briefar designer. Tudo num comando.</p>
             <span className="cta-stack">
               <a href="#checkout" className="btn-brutalist btn-brutalist-orange">QUERO APRENDER — R$ 9</a>
               <CtaProgress />
             </span>
             <p className="hero-v5-footnote">📅 25 de abril (sábado) · 9h às 12h · Online ao vivo</p>
-          </div>
-          <div className="hero-v5-photo">
-            <img src="/assets/isaacbg1.png" alt="Isaac" />
+            <div className="hero-v5-terminal">
+              <ClaudeTerminal />
+            </div>
           </div>
         </div>
       </section>
