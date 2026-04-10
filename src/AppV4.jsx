@@ -483,7 +483,7 @@ function AppV4() {
           </div>
         </div>
         <div className="hero-v4-bottom">
-          <img src="/assets/LOGO.svg" alt="Logo" className="h-10 md:h-12 mb-6 mx-auto" />
+          <img src="/assets/LOGO.png" alt="Logo" className="h-14 md:h-16 mb-6 mx-auto" />
           <h1 className="hero-v4-title">
             Em 3h ao vivo, você atravessa essa ponte. <span className="highlight-orange">Pra sempre.</span>
           </h1>

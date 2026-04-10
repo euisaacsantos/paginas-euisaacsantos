@@ -462,7 +462,7 @@ function AppV3() {
       <section className="hero-v3-section">
         <div className="hero-v3-container">
           <div className="hero-v3-left">
-            <img src="/assets/LOGO.svg" alt="Logo" className="h-10 md:h-12 mb-8 mx-auto md:mx-0" />
+            <img src="/assets/LOGO.png" alt="Logo" className="h-14 md:h-16 mb-8 mx-auto md:mx-0" />
             <p className="hero-v3-eyebrow">Imersão online ao vivo</p>
             <h1 className="hero-v3-title">
               Tudo isso por <span className="highlight-orange">menos de R$ 9</span> pra você sair operando como Tony Stark.

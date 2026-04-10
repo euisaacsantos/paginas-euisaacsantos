@@ -462,7 +462,7 @@ function AppV5() {
       <section className="hero-v5-section">
         <div className="hero-v5-container">
           <div className="hero-v5-text">
-            <img src="/assets/LOGO.svg" alt="Logo" className="h-10 md:h-12 mb-8 mx-auto md:mx-0" />
+            <img src="/assets/LOGO.png" alt="Logo" className="h-14 md:h-16 mb-8 mx-auto md:mx-0" />
             <p className="hero-v5-eyebrow">Comprovado em produção</p>
             <p className="hero-v5-bignumber">+R$ 3 Milhões</p>
             <p className="hero-v5-subnumber">em mídia gerenciada por agentes Claude Code nos últimos 60 dias.</p>

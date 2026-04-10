@@ -462,7 +462,7 @@ function AppV2() {
       <section className="hero-v2-section relative overflow-hidden">
         <div className="hero-v2-overlay" />
         <div className="hero-v2-container relative z-10">
-          <img src="/assets/LOGO.svg" alt="Logo" className="h-10 md:h-12 mb-8 mx-auto" />
+          <img src="/assets/LOGO.png" alt="Logo" className="h-14 md:h-16 mb-8 mx-auto" />
           <p className="hero-v2-eyebrow">Imersão online ao vivo · Sábado 25/04 · 9h às 12h</p>
           <h1 className="hero-v2-title">
             VOCÊ NÃO PRECISA MAIS<br />

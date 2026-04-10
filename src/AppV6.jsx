@@ -461,7 +461,7 @@ function AppV6() {
       {/* HERO V6 - Curiosity Loop */}
       <section className="hero-v6-section">
         <div className="hero-v6-container">
-          <img src="/assets/LOGO.svg" alt="Logo" className="h-10 md:h-12 mb-12 mx-auto" />
+          <img src="/assets/LOGO.png" alt="Logo" className="h-14 md:h-16 mb-12 mx-auto" />
           <h1 className="hero-v6-title">
             E se hoje à noite<br />
             sua operação<br />
