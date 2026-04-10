@@ -1419,3 +1419,72 @@ details.faq-item p {
   margin: 50px auto 0;
   padding: 0 20px;
 }
+
+/* ===== Claude Terminal Mini (sem caixa, embutido na coluna de texto) ===== */
+.claude-term-mini {
+  font-family: ui-monospace, "JetBrains Mono", "Fira Code", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.55;
+  color: #d4d4d4;
+  max-width: 520px;
+}
+.claude-term-mini-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.claude-term-mini-ascii {
+  margin: 0;
+  color: #ff8c3c;
+  font-size: 10px;
+  line-height: 1.1;
+  white-space: pre;
+}
+.claude-term-mini-meta p {
+  margin: 0;
+  font-size: 11px;
+  color: #888;
+}
+.claude-term-mini-orange { color: #ff8c3c; font-weight: 700; }
+.claude-term-mini-divider {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255,140,60,0.3), transparent);
+  margin: 10px 0 12px;
+}
+.claude-term-mini-line {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.claude-term-mini-prompt { color: #ff8c3c; font-weight: 700; }
+.claude-term-mini-cmd { color: #f5f5f5; }
+.claude-term-mini-caret {
+  color: #ff8c3c;
+  animation: claudeBlink 0.9s steps(2) infinite;
+  margin-left: 2px;
+}
+.claude-term-mini-reply {
+  margin-top: 6px;
+  padding-left: 14px;
+  border-left: 1px solid rgba(255,140,60,0.18);
+  min-height: 60px;
+}
+.claude-term-mini-reply-line {
+  margin: 0 0 4px;
+  color: #c8c8c8;
+  font-size: 11.5px;
+  animation: claudeFade 0.4s ease;
+}
+
+/* posições nos heroes */
+.hero-v3-mini-term { margin-top: 24px; }
+.hero-v4-mini-term { margin: 20px auto 28px; max-width: 520px; text-align: left; }
+.hero-v5-mini-term { margin-top: 12px; max-width: 520px; }
+@media (max-width: 1023px) {
+  .hero-v5-mini-term { margin-left: auto; margin-right: auto; text-align: left; }
+}
+
+/* remover wrappers antigos */
+.hero-v3-terminal-wrap, .hero-v4-terminal, .hero-v5-terminal { display: none; }

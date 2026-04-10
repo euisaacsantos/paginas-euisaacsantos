@@ -444,6 +444,64 @@ function CtaProgress() {
   )
 }
 
+function ClaudeTerminalMini() {
+  const [scriptIdx, setScriptIdx] = useState(0)
+  const [phase, setPhase] = useState('typing')
+  const [cmdText, setCmdText] = useState('')
+  const [replyLines, setReplyLines] = useState([])
+  const script = TERMINAL_SCRIPTS[scriptIdx]
+  useEffect(() => {
+    if (phase === 'typing') {
+      if (cmdText.length < script.cmd.length) {
+        const t = setTimeout(() => setCmdText(script.cmd.slice(0, cmdText.length + 1)), 38)
+        return () => clearTimeout(t)
+      }
+      const t = setTimeout(() => setPhase('reply'), 600)
+      return () => clearTimeout(t)
+    }
+    if (phase === 'reply') {
+      if (replyLines.length < script.reply.length) {
+        const t = setTimeout(() => setReplyLines(script.reply.slice(0, replyLines.length + 1)), 420)
+        return () => clearTimeout(t)
+      }
+      const t = setTimeout(() => setPhase('erase'), 2200)
+      return () => clearTimeout(t)
+    }
+    if (phase === 'erase') {
+      const t = setTimeout(() => {
+        setCmdText('')
+        setReplyLines([])
+        setScriptIdx((i) => (i + 1) % TERMINAL_SCRIPTS.length)
+        setPhase('typing')
+      }, 200)
+      return () => clearTimeout(t)
+    }
+  }, [phase, cmdText, replyLines, script])
+  return (
+    <div className="claude-term-mini">
+      <div className="claude-term-mini-header">
+        <pre className="claude-term-mini-ascii">{` ▐▛███▜▌
+▝▜█████▛▘`}</pre>
+        <div className="claude-term-mini-meta">
+          <p><span className="claude-term-mini-orange">Claude Code</span> v2.1.96</p>
+          <p>Opus 4.6 (1M context) · Claude Max</p>
+        </div>
+      </div>
+      <div className="claude-term-mini-divider" />
+      <div className="claude-term-mini-line">
+        <span className="claude-term-mini-prompt">{'>'}</span>
+        <span className="claude-term-mini-cmd">{cmdText}</span>
+        {phase === 'typing' && <span className="claude-term-mini-caret">▍</span>}
+      </div>
+      <div className="claude-term-mini-reply">
+        {replyLines.map((l, i) => (
+          <p key={i} className="claude-term-mini-reply-line">{l}</p>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function AppV5() {
   useReveal()
   return (
@@ -464,19 +522,19 @@ function AppV5() {
           <div className="hero-v5-text">
             <img src="/assets/LOGO.png" alt="Logo" className="h-14 md:h-16 mb-8" />
             <p className="hero-v5-eyebrow">A imersão Claude Code para gestores de tráfego</p>
-            <p className="hero-v5-bignumber">+30 Skills</p>
-            <p className="hero-v5-subnumber">prontas pra você comandar uma operação inteira de tráfego pago por voz e texto. Sem n8n. Sem código. Sem dor.</p>
+            <p className="hero-v5-bignumber">Sem n8n.</p>
+            <p className="hero-v5-subnumber">A próxima geração do gestor de tráfego. Você comanda por voz e texto. O Claude Code executa.</p>
             <h1 className="hero-v5-title">
               No próximo <span className="highlight-orange">dia 25/04</span>, eu te mostro como.
             </h1>
-            <p className="hero-v5-sub">3 horas ao vivo onde você sai operando: subir campanha, gerar relatório, monitorar conta, baixar criativos do concorrente, gerar análises estratégicas, briefar designer. Tudo num comando.</p>
+            <p className="hero-v5-sub">3 horas ao vivo onde você sai operando uma agência inteira por comando: subir campanha, gerar relatório, monitorar conta, baixar criativos do concorrente, gerar análises, briefar designer. Tudo numa frase.</p>
             <span className="cta-stack">
               <a href="#checkout" className="btn-brutalist btn-brutalist-orange">QUERO APRENDER — R$ 9</a>
               <CtaProgress />
             </span>
             <p className="hero-v5-footnote">📅 25 de abril (sábado) · 9h às 12h · Online ao vivo</p>
-            <div className="hero-v5-terminal">
-              <ClaudeTerminal />
+            <div className="hero-v5-mini-term">
+              <ClaudeTerminalMini />
             </div>
           </div>
         </div>
