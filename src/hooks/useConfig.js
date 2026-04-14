@@ -11,9 +11,9 @@ const FALLBACK_LOTES = [
 
 const FALLBACK_MESA_BASE = {
   total: 15,
-  checkout: 'https://checkout.ticto.app/OE7DEE344',
-  offer_code: 'OE7DEE344',
-  preco: 497,
+  checkout: 'https://checkout.ticto.app/OCA2A0776',
+  offer_code: 'OCA2A0776',
+  preco: 397,
 }
 
 function buildConfig(lotes, mesaBase, vendasImersao, vendasMesa) {

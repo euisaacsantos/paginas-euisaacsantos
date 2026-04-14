@@ -11,6 +11,7 @@
     "seed": "node scripts/seed.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.103.0",
     "dotenv": "^17.4.2",
     "ioredis": "^5.10.1",
     "react": "^19.2.4",

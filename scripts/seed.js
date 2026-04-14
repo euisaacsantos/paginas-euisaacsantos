@@ -12,9 +12,9 @@ const LOTES = [
 
 const MESA = {
   total: 15,
-  preco: 497,
-  checkout: 'https://checkout.ticto.app/OE7DEE344',
-  offer_code: 'OE7DEE344',
+  preco: 397,
+  checkout: 'https://checkout.ticto.app/OCA2A0776',
+  offer_code: 'OCA2A0776',
 }
 
 async function main() {

@@ -81,7 +81,7 @@ const mesaBlocks = [
 
 const mesaPraQuem = [
   { v: true, t: 'Você já sabe que vai travar sozinho quando sair da imersão' },
-  { v: true, t: 'Você valoriza 2 semanas do seu tempo mais do que R$497' },
+  { v: true, t: 'Você valoriza 2 semanas do seu tempo mais do que R$397' },
   { v: true, t: 'Você quer sair da semana com o Jarvis rodando, não só entendido' },
   { v: false, t: 'Você curte descobrir tudo sozinho no tentativa-e-erro' },
   { v: false, t: 'Você ainda não sabe se vai implementar de verdade' },
@@ -263,7 +263,7 @@ function AppObrigado() {
                 </div>
                 <p className="offer-price-main">
                   <span className="offer-price-cur">R$</span>
-                  <span className="offer-price-num">497</span>
+                  <span className="offer-price-num">{mesa.preco}</span>
                   <sup className="offer-price-cents">,00</sup>
                 </p>
                 <p className="offer-price-sub">ou 12x de R$ 49,70</p>
@@ -378,7 +378,7 @@ function AppObrigado() {
             O mapa você já garantiu. A implementação assistida tá a um clique — e a {mesa.restantes} vagas de distância.
           </p>
           <span className="cta-stack">
-            <a href={mesa.checkout} data-fallback-offer={mesa.offer_code} className="btn-brutalist btn-brutalist-orange cta-delayed">GARANTIR MINHA VAGA NA MESA — R$497</a>
+            <a href={mesa.checkout} data-fallback-offer={mesa.offer_code} className="btn-brutalist btn-brutalist-orange cta-delayed">GARANTIR MINHA VAGA NA MESA — R${mesa.preco}</a>
             <VagasBar mesa={mesa} />
           </span>
           <p className="text-sm text-txts mt-6">Essa oferta não reabre · Fechou a aba, sumiu</p>
