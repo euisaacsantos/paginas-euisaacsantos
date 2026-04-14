@@ -198,8 +198,17 @@ export default async function handler(req, res) {
     const status = (body.status || body.order_status || body.transaction?.status || '')
       .toString()
       .toLowerCase()
-    const validStatuses = ['approved', 'paid', 'authorized', 'aprovado', 'pago']
-    if (status && !validStatuses.includes(status)) {
+
+    const purchaseStatuses  = ['approved', 'paid', 'authorized', 'aprovado', 'pago']
+    const pixStatuses       = ['waiting_payment', 'pix_generated', 'aguardando_pagamento', 'pending', 'pendente', 'pix']
+    const abandonStatuses   = ['abandoned', 'abandoned_cart', 'abandono', 'checkout_abandoned', 'cancelled', 'cancelado']
+
+    const isPurchase = purchaseStatuses.includes(status)
+    const isPix      = pixStatuses.includes(status)
+    const isAbandon  = abandonStatuses.includes(status)
+
+    // Evento desconhecido — ignora sem retentar
+    if (status && !isPurchase && !isPix && !isAbandon) {
       return respond(200, { ignored: true, reason: `status=${status}` })
     }
 
@@ -241,6 +250,67 @@ export default async function handler(req, res) {
     }
 
     const customer = extractCustomer(body)
+
+    // ── PIX gerado ou abandono de checkout ─────────────────────────────────
+    // Grava em cct_leads_pendentes (sem incrementar Redis/CAPI).
+    // Se o mesmo transactionId já existe como compra aprovada, ignora.
+    // Se já existe como lead pendente, faz upsert (atualiza kind se subiu de grau).
+    if (isPix || isAbandon) {
+      const kind = isPix ? 'pix_generated' : 'abandoned_cart'
+      const utms = extractUtms(body)
+      const valor = extractValor(body) ?? (loteMatch ? loteMatch.preco : mesaConfig.preco) ?? 0
+      const cpf = extractCpf(body)
+      const sessionId = extractSrcSessionId(body)
+
+      // Verifica se já existe compra aprovada — não sobrescreve com lead
+      const { data: vendaExistente } = await supabase
+        .from('cct_vendas')
+        .select('id')
+        .eq('ticto_transaction_id', String(transactionId))
+        .maybeSingle()
+
+      if (vendaExistente) {
+        return respond(200, { ok: true, ignored: true, reason: 'already_purchased', transaction_id: transactionId })
+      }
+
+      // PIX expira em 30 min; abandono em 24h
+      const expiresAt = new Date()
+      expiresAt.setMinutes(expiresAt.getMinutes() + (isPix ? 30 : 60 * 24))
+
+      const { error: upsertError } = await supabase
+        .from('cct_leads_pendentes')
+        .upsert(
+          {
+            kind,
+            ticto_transaction_id: String(transactionId),
+            offer_code: offerCode,
+            produto_tipo: produtoTipo,
+            lote_id: loteId,
+            email: customer.email,
+            telefone: customer.telefone,
+            nome: customer.nome,
+            cpf: cpf || null,
+            valor,
+            utm_source:   utms.utm_source   || null,
+            utm_medium:   utms.utm_medium   || null,
+            utm_campaign: utms.utm_campaign || null,
+            utm_content:  utms.utm_content  || null,
+            utm_term:     utms.utm_term     || null,
+            fbclid:       utms.fbclid       || null,
+            session_id:   sessionId         || null,
+            expires_at:   expiresAt.toISOString(),
+            raw_payload:  body,
+          },
+          { onConflict: 'ticto_transaction_id' }
+        )
+
+      if (upsertError) {
+        console.error('[ticto-webhook] erro upsert leads_pendentes:', upsertError)
+        return respond(500, { error: 'leads_pendentes insert failed', details: upsertError.message }, upsertError.message)
+      }
+
+      return respond(200, { ok: true, kind, transaction_id: transactionId })
+    }
     const utms = extractUtms(body)
     const valor = extractValor(body) ?? (loteMatch ? loteMatch.preco : mesaConfig.preco) ?? 0
 
@@ -370,6 +440,16 @@ export default async function handler(req, res) {
         insertError.message
       )
     }
+
+    // Marca lead pendente como convertido (fire-and-forget — não bloqueia resposta)
+    supabase
+      .from('cct_leads_pendentes')
+      .update({ converted_at: new Date().toISOString() })
+      .eq('ticto_transaction_id', String(transactionId))
+      .is('converted_at', null)
+      .then(({ error: e }) => {
+        if (e) console.warn('[ticto-webhook] falha ao marcar lead convertido:', e.message)
+      })
 
     let vendasRedis = null
     if (incrementoRedis) {
