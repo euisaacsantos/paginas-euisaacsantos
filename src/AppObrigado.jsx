@@ -136,7 +136,7 @@ function AppObrigado() {
           <h1 className="vsl-hero-title">
             Assista esse vídeo <span className="highlight-orange">antes de sair</span>.
           </h1>
-          <p className="vsl-hero-sub">
+          <p className="vsl-hero-sub vsl-hero-sub--oneline">
             Tem uma coisa que eu só explico aqui — e some quando você fechar essa página.
           </p>
 
@@ -187,9 +187,9 @@ function AppObrigado() {
           <h2 className="reveal section-title text-center mb-14">
             A Mesa é pra você se<span className="highlight-orange">…</span>
           </h2>
-          <ul className="space-y-4 max-w-2xl mx-auto">
+          <ul className="space-y-4 max-w-2xl mx-auto w-fit">
             {mesaPraQuem.map((item, i) => (
-              <li key={i} className="flex gap-4 items-start">
+              <li key={i} className="flex gap-4 items-start justify-start">
                 <span className={`text-2xl font-black shrink-0 ${item.v ? 'text-accent' : 'text-txts'}`}>
                   {item.v ? '✓' : '✗'}
                 </span>
@@ -249,7 +249,7 @@ function AppObrigado() {
             {/* RIGHT */}
             <div className="offer-right">
               <div className="offer-brand flex justify-center">
-                <img src="/assets/logo%20png%20mesa%20de%20comando.png" alt="Mesa de Comando" className="h-12 md:h-14" />
+                <img src="/assets/mesa%20de%20comando%20logo.svg" alt="Mesa de Comando" className="h-20 md:h-24" />
               </div>
 
               <div className="offer-price">
@@ -306,7 +306,7 @@ function AppObrigado() {
           <p className="uppercase tracking-widest text-sm font-bold eyebrow mb-3">Aviso honesto</p>
           <h2 className="reveal section-title mb-6">Essa página <span className="highlight-orange">só aparece agora.</span></h2>
           <p className="text-lg text-txts mb-8">
-            A Mesa de Comando não está vendida em nenhum outro lugar. Só pra quem acabou de comprar o ingresso, só nessa tela. Fechou a aba, perdeu o acesso.
+            A Mesa de Comando não está vendida em nenhum outro lugar. Só pra quem acabou de comprar o ingresso, só nessa tela.<br className="hidden md:inline" /> Fechou a aba, perdeu o acesso.
           </p>
           <VagasBar mesa={mesa} />
           <div className="mt-8">
