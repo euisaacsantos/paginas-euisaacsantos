@@ -54,6 +54,8 @@ export default async function handler(req, res) {
     const campaignId  = req.query.campaign_id || null
     const adsetId     = req.query.adset_id || null
     const datePreset  = req.query.date_preset || 'lifetime'
+    const since       = req.query.since || null   // YYYY-MM-DD (range customizado)
+    const until       = req.query.until || null
 
     // ── Insights ──────────────────────────────────────────────────────────────
     const filters = []
@@ -66,9 +68,11 @@ export default async function handler(req, res) {
     const p = new URLSearchParams({
       level,
       fields: buildInsightFields(level),
-      date_preset: datePreset,
       limit: '500',
       access_token: token,
+      ...(since && until
+        ? { time_range: JSON.stringify({ since, until }) }
+        : { date_preset: datePreset }),
       ...(filters.length && { filtering: JSON.stringify(filters) }),
     })
 

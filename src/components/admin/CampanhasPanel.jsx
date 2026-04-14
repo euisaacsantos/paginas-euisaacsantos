@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import DateRangePicker from './DateRangePicker.jsx'
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 const fmtBRL  = (n) => (Number(n) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 })
@@ -310,14 +311,24 @@ export default function CampanhasPanel({ token, onSpendTotal }) {
   const [loading, setLoading]         = useState(true)
   const [err, setErr]                 = useState(null)
   const [datePreset, setDatePreset]   = useState('lifetime')
-  const [expanded, setExpanded]       = useState({})   // campaign_id → adset rows | true=loading
-  const [adExpanded, setAdExpanded]   = useState({})   // adset_id → ad rows | true=loading
+  const [customRange, setCustomRange] = useState(null)  // { start, end, since, until }
+  const [pickerOpen, setPickerOpen]   = useState(false)
+  const [expanded, setExpanded]       = useState({})
+  const [adExpanded, setAdExpanded]   = useState({})
+
+  // Monta os params de data para todas as chamadas à API
+  function dateParams() {
+    if (customRange?.since && customRange?.until) {
+      return `since=${customRange.since}&until=${customRange.until}`
+    }
+    return `date_preset=${datePreset}`
+  }
 
   const load = useCallback(async () => {
     setLoading(true); setErr(null); setExpanded({}); setAdExpanded({})
     try {
       const [r1, r2] = await Promise.all([
-        fetch(`/api/dashboard/meta-ads?token=${encodeURIComponent(token)}&level=campaign&date_preset=${datePreset}`),
+        fetch(`/api/dashboard/meta-ads?token=${encodeURIComponent(token)}&level=campaign&${dateParams()}`),
         fetch(`/api/dashboard/atribuicao?token=${encodeURIComponent(token)}`),
       ])
       const [j1, j2] = await Promise.all([r1.json(), r2.json()])
@@ -325,16 +336,14 @@ export default function CampanhasPanel({ token, onSpendTotal }) {
       if (!r2.ok) throw new Error(j2.error || `Atribuição ${r2.status}`)
       setCampaigns(j1.rows || [])
       setAtrib(j2)
-      // Informa spend total ao pai
       if (onSpendTotal) {
-        const total = (j1.rows || []).reduce((s, r) => s + r.spend, 0)
-        onSpendTotal(total)
+        onSpendTotal((j1.rows || []).reduce((s, r) => s + r.spend, 0))
       }
     } catch (e) {
       setErr(e.message)
     }
     setLoading(false)
-  }, [token, datePreset, onSpendTotal])
+  }, [token, datePreset, customRange, onSpendTotal])
 
   useEffect(() => { load() }, [load])
 
@@ -347,7 +356,7 @@ export default function CampanhasPanel({ token, onSpendTotal }) {
     }
     setExpanded((e) => ({ ...e, [cid]: 'loading' }))
     try {
-      const r = await fetch(`/api/dashboard/meta-ads?token=${encodeURIComponent(token)}&level=adset&campaign_id=${cid}&date_preset=${datePreset}`)
+      const r = await fetch(`/api/dashboard/meta-ads?token=${encodeURIComponent(token)}&level=adset&campaign_id=${cid}&${dateParams()}`)
       const j = await r.json()
       setExpanded((e) => ({ ...e, [cid]: j.rows || [] }))
     } catch {
@@ -364,7 +373,7 @@ export default function CampanhasPanel({ token, onSpendTotal }) {
     }
     setAdExpanded((e) => ({ ...e, [aid]: 'loading' }))
     try {
-      const r = await fetch(`/api/dashboard/meta-ads?token=${encodeURIComponent(token)}&level=ad&adset_id=${aid}&campaign_id=${campaignId}&date_preset=${datePreset}`)
+      const r = await fetch(`/api/dashboard/meta-ads?token=${encodeURIComponent(token)}&level=ad&adset_id=${aid}&campaign_id=${campaignId}&${dateParams()}`)
       const j = await r.json()
       setAdExpanded((e) => ({ ...e, [aid]: j.rows || [] }))
     } catch {
@@ -393,18 +402,63 @@ export default function CampanhasPanel({ token, onSpendTotal }) {
         <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', color: '#ff8c3c', textTransform: 'uppercase' }}>
           Campanhas · [VENDAS][IMERSAO]
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-          {['lifetime', 'this_month', 'last_30d', 'this_week'].map((dp) => (
-            <button key={dp} onClick={() => setDatePreset(dp)} style={{
-              background: datePreset === dp ? 'rgba(255,140,60,0.2)' : 'rgba(255,255,255,0.04)',
-              border: `1px solid ${datePreset === dp ? 'rgba(255,140,60,0.4)' : 'rgba(255,255,255,0.08)'}`,
-              borderRadius: 6, color: datePreset === dp ? '#ff8c3c' : '#71717a',
-              fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700,
-              padding: '5px 10px', cursor: 'pointer',
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', position: 'relative' }}>
+          {/* Presets */}
+          {[
+            ['lifetime',   'Total'],
+            ['this_month', 'Este mês'],
+            ['last_30d',   'Últimos 30d'],
+            ['this_week',  'Esta semana'],
+          ].map(([dp, label]) => {
+            const active = !customRange && datePreset === dp
+            return (
+              <button key={dp} onClick={() => { setCustomRange(null); setDatePreset(dp) }} style={{
+                background: active ? 'rgba(255,140,60,0.2)' : 'rgba(255,255,255,0.04)',
+                border: `1px solid ${active ? 'rgba(255,140,60,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                borderRadius: 6, color: active ? '#ff8c3c' : '#71717a',
+                fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700,
+                padding: '5px 10px', cursor: 'pointer',
+              }}>
+                {label}
+              </button>
+            )
+          })}
+
+          {/* Botão de range customizado */}
+          <button onClick={() => setPickerOpen((o) => !o)} style={{
+            background: customRange ? 'rgba(255,140,60,0.2)' : 'rgba(255,255,255,0.04)',
+            border: `1px solid ${customRange ? 'rgba(255,140,60,0.5)' : 'rgba(255,255,255,0.08)'}`,
+            borderRadius: 6,
+            color: customRange ? '#ff8c3c' : '#71717a',
+            fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700,
+            padding: '5px 10px', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}>
+            <span>📅</span>
+            {customRange
+              ? `${customRange.since} → ${customRange.until}`
+              : 'Período'}
+          </button>
+
+          {/* Picker dropdown */}
+          {pickerOpen && (
+            <DateRangePicker
+              value={{ start: customRange?.start, end: customRange?.end }}
+              onChange={(range) => { setCustomRange(range); setPickerOpen(false) }}
+              onClose={() => setPickerOpen(false)}
+            />
+          )}
+
+          {/* Clear range */}
+          {customRange && (
+            <button onClick={() => { setCustomRange(null); setDatePreset('lifetime') }} style={{
+              background: 'transparent', border: 'none', color: '#52525b',
+              fontFamily: "'JetBrains Mono', monospace", fontSize: 11, cursor: 'pointer', padding: '5px 4px',
             }}>
-              {dp === 'lifetime' ? 'Total' : dp === 'this_month' ? 'Este mês' : dp === 'last_30d' ? 'Últimos 30d' : 'Esta semana'}
+              ✕
             </button>
-          ))}
+          )}
+
           <button onClick={load} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6, color: '#71717a', fontFamily: "'JetBrains Mono', monospace", fontSize: 11, padding: '5px 10px', cursor: 'pointer' }}>
             ↻
           </button>
