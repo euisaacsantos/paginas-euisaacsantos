@@ -1,0 +1,41 @@
+# =====================================================================
+# Não versionar
+# =====================================================================
+
+# Variáveis sensíveis
+.env
+.env.local
+.env.*.local
+
+# Cache da skill master
+.cache/
+node_modules/
+.DS_Store
+
+# Estado runtime
+.claude/.first-run-done
+.claude/state/
+
+# Credenciais
+*.pem
+*.key
+gdrive-credentials.json
+gdrive-token.json
+
+# Snapshots de criativos espionados (pesados, regenera quando precisar)
+obsidian-vault/criativos/concorrentes/**/*.jpg
+obsidian-vault/criativos/concorrentes/**/*.mp4
+
+# Logs
+*.log
+logs/
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp

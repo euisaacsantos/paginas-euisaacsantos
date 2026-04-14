@@ -20,7 +20,7 @@ function useReveal() {
 function VagasBar({ mesa }) {
   const pct = mesa.pct_vendido
   return (
-    <div className="cta-progress">
+    <div className="cta-progress cta-delayed">
       <div className="cta-progress-bar"><div className="cta-progress-fill" style={{ width: `${pct}%` }} /></div>
       <div className="cta-progress-label">
         <strong>MESA DE COMANDO</strong>
@@ -143,6 +143,7 @@ function AppObrigado() {
           <VslPlayer />
 
           <div className="mesa-choice cta-delayed">
+            <VagasBar mesa={mesa} />
             <a
               href={mesa.checkout}
               data-fallback-offer={mesa.offer_code}
@@ -248,7 +249,7 @@ function AppObrigado() {
             {/* RIGHT */}
             <div className="offer-right">
               <div className="offer-brand flex justify-center">
-                <img src="/assets/LOGO.png" alt="Mesa de Comando" className="h-12 md:h-14" />
+                <img src="/assets/logo%20png%20mesa%20de%20comando.png" alt="Mesa de Comando" className="h-12 md:h-14" />
               </div>
 
               <div className="offer-price">
@@ -266,7 +267,7 @@ function AppObrigado() {
 
               <a href={mesa.checkout} data-fallback-offer={mesa.offer_code} className="offer-cta cta-delayed">QUERO MINHA VAGA NA MESA</a>
 
-              <div className="offer-progress">
+              <div className="offer-progress cta-delayed">
                 <div className="offer-progress-bar"><div className="offer-progress-fill" style={{ width: `${mesa.pct_vendido}%` }} /></div>
                 <div className="offer-progress-label">
                   <strong>VAGAS</strong>

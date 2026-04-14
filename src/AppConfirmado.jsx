@@ -131,7 +131,7 @@ function AppConfirmado() {
       <section className="py-12 md:py-16 px-5 text-center" style={{ backgroundColor: '#09090B' }}>
         <p className="uppercase tracking-widest text-sm text-txts mb-6">Faltam</p>
         <Countdown />
-        <p className="text-sm text-txts mt-6">…pra você sair com 3 agentes rodando na sua máquina.</p>
+        <p className="text-sm text-txts mt-6">…pra você sair com as 5 skills rodando na sua máquina.</p>
       </section>
 
       {/* COMO VAI FUNCIONAR */}
@@ -143,7 +143,7 @@ function AppConfirmado() {
             {[
               ['01', 'Agora', 'A aula preparatória já tá liberada. Enquanto sábado não chega, ela te deixa fluente no Claude Code em 30 minutos.'],
               ['02', 'Lembretes no WhatsApp', 'Ao longo da semana chegam mensagens automáticas avisando: o dia antes, na véspera e 15 minutos antes da sala abrir. Zero chance de esquecer.'],
-              ['03', 'Sábado 9h', 'Abro a sala 8h45. A gente começa 9h em ponto e sai meio-dia com 3 agentes + cérebro Obsidian rodando na sua máquina.'],
+              ['03', 'Sábado 9h', 'Abro a sala 8h45. A gente começa 9h em ponto e sai meio-dia com as 5 skills + Skill Master + Obsidian rodando na sua máquina.'],
             ].map(([n, t, d]) => (
               <div key={n} className="reveal tech-card ident-card text-left">
                 <p className="text-5xl font-black highlight-orange mb-4">{n}</p>

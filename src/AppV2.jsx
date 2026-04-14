@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import { useConfig } from './hooks/useConfig.js'
 
 function useTypewriter(fullText, speed = 45, start = true) {
   const [i, setI] = useState(0)
@@ -40,25 +41,9 @@ function TypeHeading({ text, highlight, className = '', style }) {
 }
 
 function HeroTitle() {
-  const full = 'Pare de subir campanha. Comece a COMANDAR.'
-  const typed = useTypewriter(full, 22)
-  const raizStart = full.indexOf('COMANDAR')
-  const raizEnd = raizStart + 'COMANDAR'.length
-  const before = typed.slice(0, Math.min(typed.length, raizStart))
-  const raiz = typed.slice(Math.min(typed.length, raizStart), Math.min(typed.length, raizEnd))
-  const after = typed.slice(Math.min(typed.length, raizEnd))
-  const done = typed.length >= full.length
   return (
-    <h1 className="mb-4 md:mb-6 font-black leading-[1.05] tracking-tight hero-title-v1 relative" style={{ whiteSpace: 'pre-line' }}>
-      <span aria-hidden="true" className="invisible">
-        {'Pare de subir campanha.\nComece a\n'}<span className="highlight-orange">COMANDAR</span>.
-      </span>
-      <span className="absolute inset-0">
-        {before.replace('Comece', '\nComece').replace(/ $/, '\n')}
-        <span className="highlight-orange">{raiz}</span>
-        {after}
-        <span className={`typewriter-caret ${done ? 'blink' : ''}`}>|</span>
-      </span>
+    <h1 className="mb-4 md:mb-6 font-black leading-[1.05] tracking-tight hero-title-v1" style={{ whiteSpace: 'pre-line' }}>
+      <span className="highlight-orange">Claude Code</span>{' operando suas contas.\nComo um gestor sênior.\nEnquanto você dorme.'}
     </h1>
   )
 }
@@ -131,22 +116,23 @@ const identCards = [
 ]
 
 const dia1 = [
-  'Abertura "Jarvis": você vê um agente Claude Code operando uma conta de Ads por comando de voz, ao vivo',
-  'Construção do Agente Subidor: sobe campanha por comando, valida criativo e escolhe público',
-  'Como conectar Claude Code ao Meta Ads via MCP (sem precisar programar)',
-  'O cérebro Obsidian: agente que nunca esquece nada da sua operação (visual hipnótico ao vivo)',
-  'Você sai do bloco com o Subidor rodando na sua máquina',
+  'Abertura Jarvis: você vê o sistema operando uma conta real por voz e WhatsApp, ao vivo',
+  'Instalação da stack: Claude Code, Obsidian (vault pré-montado), Google Drive e Evolution Go (WhatsApp)',
+  'Skill 1 /subir-campanha: briefing + criativos do Drive, clonando campanha que já funciona',
+  'Skill 2 /vigia-24h: monitoramento em background que avisa você no WhatsApp antes do cliente ligar',
+  'Você sai do bloco com 2 skills rodando e Obsidian populado com contexto dos seus clientes',
 ]
 const dia2 = [
-  'Construção do Agente Relator: puxa dados toda manhã e envia relatório no WhatsApp do cliente automaticamente',
-  'Construção do Agente Vigia: monitora CPA/ROAS em tempo real e alerta quando algo quebra',
-  'Skill mestre /diagnostico-conta: um único comando que analisa qualquer conta de Ads',
-  'Como empacotar tudo isso como diferencial premium e cobrar 2x mais dos seus clientes',
-  'Você sai da imersão com 3 agentes + 1 cérebro Obsidian rodando — sem ter escrito 1 linha de código',
+  'Skill 3 /relatorio-cliente: relatório narrativo com contexto do negócio, enviado via WhatsApp',
+  'Skill 4 /diagnostico-conta: análise estruturada com olho de sênior (escala, pausa, testa)',
+  'Skill 5 /espionar-concorrente: um navegador autônomo varrendo a biblioteca de anúncios em background',
+  'Skill Master: linguagem natural interpretada. Você fala o que quer, ela roteia pra skill certa',
+  'Como empacotar isso como diferencial premium e cobrar 2x mais dos seus clientes',
+  'Você sai da imersão com as 5 skills, a Skill Master, Obsidian e Evolution Go rodando',
 ]
 
 const faq = [
-  ['Como funciona a imersão?', 'A imersão Claude para Gestores de Tráfego acontece ao vivo no sábado 25 de abril, das 9h às 12h, via plataforma online. Você recebe o link no e-mail após a inscrição.'],
+  ['Como funciona a imersão?', 'A imersão Claude para Gestores de Tráfego acontece ao vivo no sábado 25 de abril, das 9h às 12h, via Zoom. O link chega direto no seu WhatsApp após a inscrição, junto com os lembretes antes do início.'],
   ['Preciso saber programar?', 'Não. Claude Code é por comando em português. Se você sabe escrever pra um humano, sabe usar. A aula preparatória te deixa pronto em 30 minutos.'],
   ['Funciona com Meta Ads e Google Ads?', 'Sim, ambos. A integração é feita via MCP (Model Context Protocol) — vou te mostrar como configurar passo a passo durante a imersão.'],
   ['E se eu não puder assistir no dia?', 'A imersão é 100% ao vivo. Se você quiser garantir a gravação vitalícia + templates prontos, no checkout tem um pacote especial por +R$27 que inclui tudo isso.'],
@@ -432,13 +418,13 @@ function ObsidianBrain() {
   return <canvas ref={ref} className="obsidian-brain" />
 }
 
-function CtaProgress() {
+function CtaProgress({ lote, pct }) {
   return (
     <div className="cta-progress">
-      <div className="cta-progress-bar"><div className="cta-progress-fill" /></div>
+      <div className="cta-progress-bar"><div className="cta-progress-fill" style={{ width: `${pct}%` }} /></div>
       <div className="cta-progress-label">
-        <strong>LOTE 0</strong>
-        <span>74% dos ingressos vendidos</span>
+        <strong>{(lote?.nome || 'LOTE').toUpperCase()}</strong>
+        <span>{pct}% dos ingressos vendidos</span>
       </div>
     </div>
   )
@@ -446,39 +432,73 @@ function CtaProgress() {
 
 function AppV2() {
   useReveal()
+  const { config } = useConfig()
+  const lote = config.imersao.lote_atual
+  const pct = config.imersao.pct_vendido
+  const checkoutUrl = lote.checkout
+
   return (
     <div className="min-h-screen">
       {/* TOP BAR */}
       <div className="topbar">
         <div className="topbar-inner">
-          <span className="topbar-item"><span className="topbar-fire">🔥</span> LOTE 0 · <strong>R$ 9</strong></span>
+          <span className="topbar-item"><span className="topbar-fire">🔥</span> {lote.nome.toUpperCase()} · <strong>R$ {lote.preco}</strong></span>
           <span className="topbar-sep">|</span>
-          <span className="topbar-item">74% das vagas preenchidas</span>
-          <div className="topbar-progress"><div className="topbar-progress-fill" /></div>
+          <span className="topbar-item">{pct}% das vagas preenchidas</span>
+          <div className="topbar-progress"><div className="topbar-progress-fill" style={{ width: `${pct}%` }} /></div>
         </div>
       </div>
 
-      {/* HERO V2 - Antagonist Hook (refatorado) */}
-      <section className="hero-v2-section relative overflow-hidden">
-        <div className="hero-v2-overlay" />
-        <div className="hero-v2-container relative z-10">
-          <img src="/assets/LOGO.png" alt="Logo" className="h-14 md:h-16 mb-8 mx-auto" />
-          <p className="hero-v2-eyebrow">Imersão online ao vivo · 25 de abril · 9h às 12h</p>
-          <h1 className="hero-v2-title">
-            VOCÊ NÃO PRECISA MAIS OPERAR<br />
-            TRÁFEGO. COMECE A <span className="highlight-orange">COMANDAR.</span>
-          </h1>
-          <p className="hero-v2-sub">
-            No próximo <strong className="text-white">dia 25/04</strong>, eu te mostro como comandar uma operação inteira de tráfego pago por voz e texto. Subir campanha, gerar relatório, monitorar conta, baixar criativos do concorrente, gerar análises, briefar designer — tudo num comando. <strong className="text-white">Sem n8n. Sem workflow. Sem código.</strong>
+      {/* HERO */}
+      <section className="hero-section relative overflow-hidden">
+        <div className="hero-term-abs hidden lg:block">
+          <ClaudeTerminal />
+        </div>
+        <img src="/assets/clawd mascot.png" alt="" className="clawd-float hidden lg:block" />
+        <img src="/assets/clawd mascot.png" alt="" className="clawd-float clawd-float--2 hidden lg:block" />
+<div className="hero-container px-5 pt-12 pb-6 md:pt-24 md:pb-8 text-center md:text-left relative z-10">
+        <div className="hero-text-col">
+          <img src="/assets/LOGO.png" alt="Logo" className="h-14 md:h-16 mb-6 mx-auto md:mx-0" />
+          <HeroTitle />
+          <p className="hero-subhead text-lg md:text-xl text-txts max-w-3xl md:mx-0 mx-auto mb-10">
+            No próximo <span className="text-white font-bold">dia 25/04</span>, em 3 horas ao vivo, eu te mostro como instalar o Claude Code na sua máquina e deixar ele operando suas contas como um gestor sênior faria. Pausando conjunto que não converte, escalando criativo vencedor, monitorando saldo, gerando relatório decente. <span className="text-white font-bold">Sem n8n. Sem workflow.</span>
           </p>
-          <div className="hero-v2-cta">
-            <span className="cta-stack">
-              <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist btn-brutalist-orange">QUERO COMANDAR — R$ 9</a>
-              <CtaProgress />
-            </span>
+
+          <div className="flex flex-wrap md:flex-nowrap items-center gap-x-8 gap-y-3 mb-10 justify-center md:justify-start">
+            <div className="flex items-center gap-3">
+              <span className="badge">Data</span>
+              <p className="text-base font-black whitespace-nowrap">Sábado, 25 de abril</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="badge">Horário</span>
+              <p className="text-base font-black whitespace-nowrap">9h às 12h</p>
+            </div>
           </div>
-          <p className="hero-v2-footnote">📅 25 de abril (sábado) · 9h às 12h · Online ao vivo · Vagas limitadas</p>
-          <div className="hero-v2-terminal"><ClaudeTerminal /></div>
+
+          <div className="grid grid-cols-3 gap-3 mb-8 max-w-lg md:mx-0 mx-auto">
+            {(() => {
+              const todos = config.imersao.lotes
+              const idx = todos.findIndex((l) => l.id === lote.id)
+              const visiveis = todos.slice(idx, idx + 3)
+              while (visiveis.length < 3 && idx > 0) visiveis.unshift(todos[idx - visiveis.length])
+              return visiveis.map((l, i) => (
+                <div key={l.id} className={`lote-card ${l.id === lote.id ? 'lote-card--active' : ''}`}>
+                  {l.id === lote.id && <span className="lote-fire">🔥</span>}
+                  <span className="lote-label">{l.nome}</span>
+                  <span className="lote-price">R$ {l.preco}</span>
+                </div>
+              ))
+            })()}
+          </div>
+
+          <span className="cta-stack">
+            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="btn-brutalist">GARANTIR MEU INGRESSO POR R${lote.preco}</a>
+            <CtaProgress lote={lote} pct={pct} />
+          </span>
+        </div>
+        <div className="flex justify-center lg:hidden mt-2">
+          <ClaudeTerminal />
+        </div>
         </div>
       </section>
 
@@ -553,7 +573,7 @@ function AppV2() {
                 <span className="timeline-dot" />
               </div>
               <div className="timeline-card">
-                <span className="badge mb-3">BLOCO 01 — FUNDAÇÃO + SUBIDOR · 9h às 10h30</span>
+                <span className="badge mb-3">BLOCO 01 — FUNDAÇÃO + 2 PRIMEIRAS SKILLS · 9h às 10h30</span>
                 <p className="text-txts mt-2 mb-5 italic border-l-2 border-accent pl-4">
                   Você muda de ferramenta, paga novo SaaS, contrata mais gente… mas o operacional continua engolindo seu dia. Não é sobre fazer mais. É sobre comandar.
                 </p>
@@ -573,7 +593,7 @@ function AppV2() {
                 <span className="timeline-dot" />
               </div>
               <div className="timeline-card">
-                <span className="badge mb-3">BLOCO 02 — RELATOR + VIGIA + SKILL MESTRE · 10h30 às 12h</span>
+                <span className="badge mb-3">BLOCO 02 — 3 SKILLS + SKILL MASTER · 10h30 às 12h</span>
                 <p className="text-txts mt-2 mb-5 italic border-l-2 border-accent pl-4">
                   Seu n8n não vai conseguir fazer isso. Workflow visual ficou pra trás. A próxima geração é agente que entende contexto, lembra da sua operação e age sozinho.
                 </p>
@@ -593,7 +613,7 @@ function AppV2() {
                 <span className="timeline-dot timeline-dot--end" />
               </div>
               <div className="timeline-end-text">
-                <strong>Você sai com 3 agentes + 1 cérebro Obsidian rodando.</strong>
+                <strong>Você sai com as 5 skills, a Skill Master e o Obsidian rodando.</strong>
               </div>
             </li>
           </ol>
@@ -611,14 +631,14 @@ function AppV2() {
               <p className="text-txts text-sm">Pra você chegar quente no sábado mesmo se nunca usou Claude Code antes. Acesso imediato após a inscrição.</p>
             </div>
             <div className="reveal tech-card ident-card text-left">
-              <span className="badge mb-4">Templates prontos</span>
-              <h3 className="text-xl font-black mt-4 mb-3">Cheatsheet PDF + Template do Subidor</h3>
-              <p className="text-txts text-sm">20 comandos essenciais do Claude Code para gestor de tráfego + template do primeiro agente entregue antes da imersão.</p>
+              <span className="badge mb-4">Kit de Skills</span>
+              <h3 className="text-xl font-black mt-4 mb-3">5 Skills + Skill Master</h3>
+              <p className="text-txts text-sm">Subir campanha, vigia 24h, relatório, diagnóstico e espionar concorrente. Mais a Skill Master que interpreta linguagem natural e orquestra tudo.</p>
             </div>
           </div>
           <span className="cta-stack">
-            <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist">GARANTIR MINHA VAGA — R$9</a>
-            <CtaProgress />
+            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="btn-brutalist">GARANTIR MINHA VAGA — R${lote.preco}</a>
+            <CtaProgress lote={lote} pct={pct} />
           </span>
           <p className="mt-4 text-sm text-txts">Pagamento Seguro | Acesso imediato aos bônus</p>
         </div>
@@ -640,8 +660,8 @@ function AppV2() {
           </div>
           <div className="text-center">
             <span className="cta-stack">
-              <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
-              <CtaProgress />
+              <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
+              <CtaProgress lote={lote} pct={pct} />
             </span>
           </div>
         </div>
@@ -656,7 +676,7 @@ function AppV2() {
             Você não opera só pra sobreviver. Quando seu Subidor, Relator e Vigia estão rodando, você não só ganha de volta seu sábado — você passa a ter uma oferta que ninguém da sua cidade tem.
           </p>
           <p className="text-lg text-txts max-w-3xl mx-auto mb-14">
-            Os mesmos 3 agentes que tiram você do operacional viram diferencial competitivo pra cobrar 2x mais dos seus clientes. Mesma construção, dois resultados.
+            As mesmas skills que tiram você do operacional viram diferencial competitivo pra cobrar 2x mais dos seus clientes. Mesma construção, dois resultados.
           </p>
           <div className="grid md:grid-cols-2 gap-6 mb-12 text-left">
             <div className="reveal tech-card ident-card">
@@ -671,8 +691,8 @@ function AppV2() {
             </div>
           </div>
           <span className="cta-stack">
-            <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist">QUERO AS DUAS COISAS</a>
-            <CtaProgress />
+            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="btn-brutalist">QUERO AS DUAS COISAS</a>
+            <CtaProgress lote={lote} pct={pct} />
           </span>
         </div>
       </section>
@@ -715,23 +735,23 @@ function AppV2() {
       <section className="py-20 md:py-28 bg-bgs border-y border-bgt">
         <div className="max-w-5xl mx-auto px-5 text-center">
           <p className="uppercase tracking-widest text-sm font-bold eyebrow mb-3">E tem mais</p>
-          <h2 className="reveal section-title mb-6">Liberte sua operação… e dê o próximo passo<br /><span className="highlight-orange">com a comunidade</span></h2>
+          <h2 className="reveal section-title mb-6">Liberte sua operação… e dê o próximo passo<br /><span className="highlight-orange">com a Mentoria</span></h2>
           <p className="text-lg text-txts max-w-3xl mx-auto mb-14">
-            Em 3 horas você sai com 3 agentes rodando. Mas se você quiser ir além — ter biblioteca de skills crescendo toda semana, lives de novos agentes, suporte direto e templates por nicho — durante a imersão nós vamos abrir uma oportunidade exclusiva: a Comunidade Claude Code para Tráfego.
+            Em 3 horas você sai com as 5 skills e a Skill Master rodando. Mas se você quiser ir além — ter biblioteca de skills crescendo toda semana, lives de novas automações, suporte direto e templates por nicho — durante a imersão nós vamos abrir uma oportunidade exclusiva: a Mentoria Gestor de Tráfego Automático.
           </p>
           <div className="grid md:grid-cols-2 gap-6 mb-12 text-left">
             <div className="reveal tech-card ident-card">
               <span className="badge mb-4">Imersão</span>
-              <p className="mt-4">Sai com 3 agentes + cérebro Obsidian rodando na sua máquina</p>
+              <p className="mt-4">Sai com 5 skills + Skill Master + Obsidian rodando na sua máquina</p>
             </div>
             <div className="reveal tech-card ident-card">
-              <span className="badge mb-4">Comunidade</span>
-              <p className="mt-4">Acesso exclusivo à Comunidade Claude Code para Tráfego com condições únicas pra quem estiver ao vivo</p>
+              <span className="badge mb-4">Mentoria</span>
+              <p className="mt-4">Acesso exclusivo à Mentoria Gestor de Tráfego Automático, com condições únicas pra quem estiver ao vivo.</p>
             </div>
           </div>
           <span className="cta-stack">
-            <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist">QUERO OS DOIS — GARANTIR MINHA VAGA</a>
-            <CtaProgress />
+            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="btn-brutalist">QUERO OS DOIS — GARANTIR MINHA VAGA</a>
+            <CtaProgress lote={lote} pct={pct} />
           </span>
         </div>
       </section>
@@ -748,7 +768,7 @@ function AppV2() {
               <div className="offer-features">
                 {[
                   { t: '3h ao vivo', d: 'Construção prática comigo', i: '⏱' },
-                  { t: '3 Agentes prontos', d: 'Subidor + Relator + Vigia', i: '◎' },
+                  { t: '5 Skills + Skill Master', d: 'Ciclo operacional completo', i: '◎' },
                   { t: 'Cérebro Obsidian', d: 'Memória que nunca esquece', i: '✦' },
                   { t: 'Bônus inclusos', d: 'Aula prep + cheatsheet', i: '♡' },
                 ].map((f, i) => (
@@ -793,19 +813,19 @@ function AppV2() {
                 </div>
                 <p className="offer-price-main">
                   <span className="offer-price-cur">R$</span>
-                  <span className="offer-price-num">9</span>
+                  <span className="offer-price-num">{lote.preco}</span>
                   <sup className="offer-price-cents">,00</sup>
                 </p>
                 <p className="offer-price-sub">ou no PIX à vista</p>
               </div>
 
-              <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="offer-cta">GARANTIR MEU INGRESSO</a>
+              <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="offer-cta">GARANTIR MEU INGRESSO</a>
 
               <div className="offer-progress">
-                <div className="offer-progress-bar"><div className="offer-progress-fill" /></div>
+                <div className="offer-progress-bar"><div className="offer-progress-fill" style={{ width: `${pct}%` }} /></div>
                 <div className="offer-progress-label">
-                  <strong>LOTE 0</strong>
-                  <span>74% dos ingressos vendidos</span>
+                  <strong>{lote.nome.toUpperCase()}</strong>
+                  <span>{pct}% dos ingressos vendidos</span>
                 </div>
               </div>
             </div>
@@ -822,7 +842,7 @@ function AppV2() {
             {[
               ['01','Inscreva-se','Clique no botão, garanta sua vaga pelo checkout com cartão ou PIX.'],
               ['02','Receba o acesso','Você recebe imediatamente a aula preparatória, o cheatsheet e o link da imersão.'],
-              ['03','Construa ao vivo','Sábado 9h, abre o Claude Code comigo e sai com 3 agentes rodando na sua máquina.'],
+              ['03','Construa ao vivo','Sábado 9h, abre o Claude Code comigo e sai com as 5 skills rodando na sua máquina.'],
             ].map(([n,t,d])=>(
               <div key={n} className="reveal tech-card ident-card text-left">
                 <p className="text-5xl font-black highlight-orange mb-4">{n}</p>
@@ -850,8 +870,8 @@ function AppV2() {
           </div>
           <div className="text-center">
             <span className="cta-stack">
-              <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
-              <CtaProgress />
+              <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
+              <CtaProgress lote={lote} pct={pct} />
             </span>
           </div>
         </div>
@@ -863,10 +883,10 @@ function AppV2() {
           <p className="uppercase tracking-widest text-sm font-bold eyebrow mb-3">Exclusivo para participantes</p>
           <h2 className="reveal section-title mb-6">Uma oportunidade que só existe<br /><span className="highlight-orange">dentro da imersão</span></h2>
           <p className="text-lg text-txts mb-10">
-            Durante a imersão de sábado, vamos abrir as portas para quem quiser dar o próximo passo: a Comunidade Claude Code para Tráfego.
+            Durante a imersão de sábado, vamos abrir as portas para quem quiser dar o próximo passo: a Mentoria Gestor de Tráfego Automático.
           </p>
           <div className="reveal tech-card ident-card text-left mb-10">
-            <span className="badge mb-4">Comunidade Claude Code para Tráfego</span>
+            <span className="badge mb-4">Mentoria Gestor de Tráfego Automático</span>
             <p className="text-txts mt-4 mb-6">
               Biblioteca de skills crescendo toda semana, lives de novos agentes, templates por nicho, suporte direto comigo e acesso ao Jarvis Mode completo. As inscrições serão abertas exclusivamente durante a imersão, apenas para quem estiver presente — com condições únicas que não estarão disponíveis em nenhum outro momento.
             </p>
@@ -878,8 +898,8 @@ function AppV2() {
           </div>
           <p className="text-txts mb-8">Seu ingresso da imersão é a porta de entrada para essa oportunidade.</p>
           <span className="cta-stack">
-            <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist">GARANTIR MEU INGRESSO — R$9</a>
-            <CtaProgress />
+            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="btn-brutalist">GARANTIR MEU INGRESSO — R${lote.preco}</a>
+            <CtaProgress lote={lote} pct={pct} />
           </span>
         </div>
       </section>
@@ -913,8 +933,8 @@ function AppV2() {
           </p>
           <div className="mb-10"><Countdown compact /></div>
           <span className="cta-stack">
-            <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist btn-brutalist-orange">GARANTIR MEU INGRESSO POR R$9</a>
-            <CtaProgress />
+            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="btn-brutalist btn-brutalist-orange">GARANTIR MEU INGRESSO POR R${lote.preco}</a>
+            <CtaProgress lote={lote} pct={pct} />
           </span>
           <p className="text-sm text-txts mt-6">Vagas limitadas · 1° lote · Compra segura</p>
         </div>

@@ -132,18 +132,19 @@ const identCards = [
 ]
 
 const dia1 = [
-  'Abertura "Jarvis": você vê um agente Claude Code operando uma conta de Ads por comando de voz, ao vivo',
-  'Construção do Agente Subidor: sobe campanha por comando, valida criativo e escolhe público',
-  'Como conectar Claude Code ao Meta Ads via MCP (sem precisar programar)',
-  'O cérebro Obsidian: agente que nunca esquece nada da sua operação (visual hipnótico ao vivo)',
-  'Você sai do bloco com o Subidor rodando na sua máquina',
+  'Abertura Jarvis: você vê o sistema operando uma conta real por voz e WhatsApp, ao vivo',
+  'Instalação da stack: Claude Code, Obsidian (vault pré-montado), Google Drive e Evolution Go (WhatsApp)',
+  'Skill 1 /subir-campanha: briefing + criativos do Drive, clonando campanha que já funciona',
+  'Skill 2 /vigia-24h: monitoramento em background que avisa você no WhatsApp antes do cliente ligar',
+  'Você sai do bloco com 2 skills rodando e Obsidian populado com contexto dos seus clientes',
 ]
 const dia2 = [
-  'Construção do Agente Relator: puxa dados toda manhã e envia relatório no WhatsApp do cliente automaticamente',
-  'Construção do Agente Vigia: monitora CPA/ROAS em tempo real e alerta quando algo quebra',
-  'Skill mestre /diagnostico-conta: um único comando que analisa qualquer conta de Ads',
-  'Como empacotar tudo isso como diferencial premium e cobrar 2x mais dos seus clientes',
-  'Você sai da imersão com 3 agentes + 1 cérebro Obsidian rodando — sem ter escrito 1 linha de código',
+  'Skill 3 /relatorio-cliente: relatório narrativo com contexto do negócio, enviado via WhatsApp',
+  'Skill 4 /diagnostico-conta: análise estruturada com olho de sênior (escala, pausa, testa)',
+  'Skill 5 /espionar-concorrente: um navegador autônomo varrendo a biblioteca de anúncios em background',
+  'Skill Master: linguagem natural interpretada. Você fala o que quer, ela roteia pra skill certa',
+  'Como empacotar isso como diferencial premium e cobrar 2x mais dos seus clientes',
+  'Você sai da imersão com as 5 skills, a Skill Master, Obsidian e Evolution Go rodando',
 ]
 
 const faq = [
@@ -588,7 +589,7 @@ function AppV1() {
                 <span className="timeline-dot" />
               </div>
               <div className="timeline-card">
-                <span className="badge mb-3">BLOCO 01 — FUNDAÇÃO + SUBIDOR · 9h às 10h30</span>
+                <span className="badge mb-3">BLOCO 01 — FUNDAÇÃO + 2 PRIMEIRAS SKILLS · 9h às 10h30</span>
                 <p className="text-txts mt-2 mb-5 italic border-l-2 border-accent pl-4">
                   Você muda de ferramenta, paga novo SaaS, contrata mais gente… mas o operacional continua engolindo seu dia. Não é sobre fazer mais. É sobre comandar.
                 </p>
@@ -608,7 +609,7 @@ function AppV1() {
                 <span className="timeline-dot" />
               </div>
               <div className="timeline-card">
-                <span className="badge mb-3">BLOCO 02 — RELATOR + VIGIA + SKILL MESTRE · 10h30 às 12h</span>
+                <span className="badge mb-3">BLOCO 02 — 3 SKILLS + SKILL MASTER · 10h30 às 12h</span>
                 <p className="text-txts mt-2 mb-5 italic border-l-2 border-accent pl-4">
                   Seu n8n não vai conseguir fazer isso. Workflow visual ficou pra trás. A próxima geração é agente que entende contexto, lembra da sua operação e age sozinho.
                 </p>
@@ -628,7 +629,7 @@ function AppV1() {
                 <span className="timeline-dot timeline-dot--end" />
               </div>
               <div className="timeline-end-text">
-                <strong>Você sai com 3 agentes + 1 cérebro Obsidian rodando.</strong>
+                <strong>Você sai com as 5 skills, a Skill Master e o Obsidian rodando.</strong>
               </div>
             </li>
           </ol>
@@ -646,9 +647,9 @@ function AppV1() {
               <p className="text-txts text-sm">Pra você chegar quente no sábado mesmo se nunca usou Claude Code antes. Acesso imediato após a inscrição.</p>
             </div>
             <div className="reveal tech-card ident-card text-left">
-              <span className="badge mb-4">Templates prontos</span>
-              <h3 className="text-xl font-black mt-4 mb-3">Cheatsheet PDF + Template do Subidor</h3>
-              <p className="text-txts text-sm">20 comandos essenciais do Claude Code para gestor de tráfego + template do primeiro agente entregue antes da imersão.</p>
+              <span className="badge mb-4">Kit de Skills</span>
+              <h3 className="text-xl font-black mt-4 mb-3">5 Skills + Skill Master</h3>
+              <p className="text-txts text-sm">Subir campanha, vigia 24h, relatório, diagnóstico e espionar concorrente. Mais a Skill Master que interpreta linguagem natural e orquestra tudo.</p>
             </div>
           </div>
           <span className="cta-stack">
@@ -691,7 +692,7 @@ function AppV1() {
             Você não opera só pra sobreviver. Quando seu Subidor, Relator e Vigia estão rodando, você não só ganha de volta seu sábado — você passa a ter uma oferta que ninguém da sua cidade tem.
           </p>
           <p className="text-lg text-txts max-w-3xl mx-auto mb-14">
-            Os mesmos 3 agentes que tiram você do operacional viram diferencial competitivo pra cobrar 2x mais dos seus clientes. Mesma construção, dois resultados.
+            As mesmas skills que tiram você do operacional viram diferencial competitivo pra cobrar 2x mais dos seus clientes. Mesma construção, dois resultados.
           </p>
           <div className="grid md:grid-cols-2 gap-6 mb-12 text-left">
             <div className="reveal tech-card ident-card">
@@ -750,18 +751,18 @@ function AppV1() {
       <section className="py-20 md:py-28 bg-bgs border-y border-bgt">
         <div className="max-w-5xl mx-auto px-5 text-center">
           <p className="uppercase tracking-widest text-sm font-bold eyebrow mb-3">E tem mais</p>
-          <h2 className="reveal section-title mb-6">Liberte sua operação… e dê o próximo passo<br /><span className="highlight-orange">com a comunidade</span></h2>
+          <h2 className="reveal section-title mb-6">Liberte sua operação… e dê o próximo passo<br /><span className="highlight-orange">com a Mentoria</span></h2>
           <p className="text-lg text-txts max-w-3xl mx-auto mb-14">
-            Em 3 horas você sai com 3 agentes rodando. Mas se você quiser ir além — ter biblioteca de skills crescendo toda semana, lives de novos agentes, suporte direto e templates por nicho — durante a imersão nós vamos abrir uma oportunidade exclusiva: a Comunidade Claude Code para Tráfego.
+            Em 3 horas você sai com as 5 skills e a Skill Master rodando. Mas se você quiser ir além — ter biblioteca de skills crescendo toda semana, lives de novas automações, suporte direto e templates por nicho — durante a imersão nós vamos abrir uma oportunidade exclusiva: a Mentoria Gestor de Tráfego Automático.
           </p>
           <div className="grid md:grid-cols-2 gap-6 mb-12 text-left">
             <div className="reveal tech-card ident-card">
               <span className="badge mb-4">Imersão</span>
-              <p className="mt-4">Sai com 3 agentes + cérebro Obsidian rodando na sua máquina</p>
+              <p className="mt-4">Sai com 5 skills + Skill Master + Obsidian rodando na sua máquina</p>
             </div>
             <div className="reveal tech-card ident-card">
-              <span className="badge mb-4">Comunidade</span>
-              <p className="mt-4">Acesso exclusivo à Comunidade Claude Code para Tráfego com condições únicas pra quem estiver ao vivo</p>
+              <span className="badge mb-4">Mentoria</span>
+              <p className="mt-4">Acesso exclusivo à Mentoria Gestor de Tráfego Automático, com condições únicas pra quem estiver ao vivo.</p>
             </div>
           </div>
           <span className="cta-stack">
@@ -783,7 +784,7 @@ function AppV1() {
               <div className="offer-features">
                 {[
                   { t: '3h ao vivo', d: 'Construção prática comigo', i: '⏱' },
-                  { t: '3 Agentes prontos', d: 'Subidor + Relator + Vigia', i: '◎' },
+                  { t: '5 Skills + Skill Master', d: 'Ciclo operacional completo', i: '◎' },
                   { t: 'Cérebro Obsidian', d: 'Memória que nunca esquece', i: '✦' },
                   { t: 'Bônus inclusos', d: 'Aula prep + cheatsheet', i: '♡' },
                 ].map((f, i) => (
@@ -857,7 +858,7 @@ function AppV1() {
             {[
               ['01','Inscreva-se','Clique no botão, garanta sua vaga pelo checkout com cartão ou PIX.'],
               ['02','Receba o acesso','Você recebe imediatamente a aula preparatória, o cheatsheet e o link da imersão.'],
-              ['03','Construa ao vivo','Sábado 9h, abre o Claude Code comigo e sai com 3 agentes rodando na sua máquina.'],
+              ['03','Construa ao vivo','Sábado 9h, abre o Claude Code comigo e sai com as 5 skills rodando na sua máquina.'],
             ].map(([n,t,d])=>(
               <div key={n} className="reveal tech-card ident-card text-left">
                 <p className="text-5xl font-black highlight-orange mb-4">{n}</p>
@@ -898,10 +899,10 @@ function AppV1() {
           <p className="uppercase tracking-widest text-sm font-bold eyebrow mb-3">Exclusivo para participantes</p>
           <h2 className="reveal section-title mb-6">Uma oportunidade que só existe<br /><span className="highlight-orange">dentro da imersão</span></h2>
           <p className="text-lg text-txts mb-10">
-            Durante a imersão de sábado, vamos abrir as portas para quem quiser dar o próximo passo: a Comunidade Claude Code para Tráfego.
+            Durante a imersão de sábado, vamos abrir as portas para quem quiser dar o próximo passo: a Mentoria Gestor de Tráfego Automático.
           </p>
           <div className="reveal tech-card ident-card text-left mb-10">
-            <span className="badge mb-4">Comunidade Claude Code para Tráfego</span>
+            <span className="badge mb-4">Mentoria Gestor de Tráfego Automático</span>
             <p className="text-txts mt-4 mb-6">
               Biblioteca de skills crescendo toda semana, lives de novos agentes, templates por nicho, suporte direto comigo e acesso ao Jarvis Mode completo. As inscrições serão abertas exclusivamente durante a imersão, apenas para quem estiver presente — com condições únicas que não estarão disponíveis em nenhum outro momento.
             </p>
