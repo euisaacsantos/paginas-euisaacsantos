@@ -263,45 +263,8 @@ export default async function handler(req, res) {
       })
     }
 
-    // INSERT
-    const { error: insertError } = await supabase
-      .from('cct_vendas')
-      .insert({
-        ticto_transaction_id: String(transactionId),
-        status: status || 'approved',
-        offer_code: offerCode,
-        produto_tipo: produtoTipo,
-        lote_id: loteId,
-        valor,
-        email: customer.email,
-        telefone: customer.telefone,
-        nome: customer.nome,
-        utm_source: utms.utm_source || sessaoData?.utm_source || null,
-        utm_medium: utms.utm_medium || sessaoData?.utm_medium || null,
-        utm_campaign: utms.utm_campaign || sessaoData?.utm_campaign || null,
-        utm_content: utms.utm_content || sessaoData?.utm_content || null,
-        utm_term: utms.utm_term || sessaoData?.utm_term || null,
-        fbclid: utms.fbclid || sessaoData?.fbclid || null,
-        session_id: sessaoData?.session_id || null,
-        external_id: sessaoData?.external_id || null,
-        raw_payload: body,
-      })
-
-    if (insertError) {
-      console.error('[ticto-webhook] erro INSERT:', insertError)
-      return respond(
-        500,
-        { error: 'supabase insert failed', details: insertError.message },
-        insertError.message
-      )
-    }
-
-    let vendasRedis = null
-    if (incrementoRedis) {
-      vendasRedis = await r.incr(incrementoRedis)
-    }
-
-    // Purchase CAPI (server-side) — dispara pra Meta com user_data enriquecido.
+    // Purchase CAPI (server-side) ANTES do INSERT — resultado vai direto nas colunas
+    // meta_capi_* do cct_vendas, dashboard consulta sem parsear JSON do raw.
     // Fonte primária = cct_sessoes_checkout (gravado no click); fallback = payload Ticto.
     let capiResult = null
     try {
@@ -359,6 +322,49 @@ export default async function handler(req, res) {
     } catch (capiErr) {
       console.error('[ticto-webhook] falha Purchase CAPI:', capiErr.message)
       capiResult = { sent: false, error: capiErr.message }
+    }
+
+    // INSERT cct_vendas com resultado CAPI nas colunas dedicadas
+    const { error: insertError } = await supabase
+      .from('cct_vendas')
+      .insert({
+        ticto_transaction_id: String(transactionId),
+        status: status || 'approved',
+        offer_code: offerCode,
+        produto_tipo: produtoTipo,
+        lote_id: loteId,
+        valor,
+        email: customer.email,
+        telefone: customer.telefone,
+        nome: customer.nome,
+        utm_source: utms.utm_source || sessaoData?.utm_source || null,
+        utm_medium: utms.utm_medium || sessaoData?.utm_medium || null,
+        utm_campaign: utms.utm_campaign || sessaoData?.utm_campaign || null,
+        utm_content: utms.utm_content || sessaoData?.utm_content || null,
+        utm_term: utms.utm_term || sessaoData?.utm_term || null,
+        fbclid: utms.fbclid || sessaoData?.fbclid || null,
+        session_id: sessaoData?.session_id || null,
+        external_id: sessaoData?.external_id || null,
+        meta_capi_sent: capiResult?.sent === true,
+        meta_capi_fbtrace_id: capiResult?.fbtrace_id || null,
+        meta_capi_error: capiResult?.sent === false
+          ? { reason: capiResult.reason, status: capiResult.status, error: capiResult.error }
+          : null,
+        raw_payload: body,
+      })
+
+    if (insertError) {
+      console.error('[ticto-webhook] erro INSERT:', insertError)
+      return respond(
+        500,
+        { error: 'supabase insert failed', details: insertError.message },
+        insertError.message
+      )
+    }
+
+    let vendasRedis = null
+    if (incrementoRedis) {
+      vendasRedis = await r.incr(incrementoRedis)
     }
 
     return respond(200, {
