@@ -43,10 +43,10 @@ async function fetchAll(url) {
 export default async function handler(req, res) {
   if (!requireAdmin(req, res)) return
 
-  const token   = process.env.META_ACCESS_TOKEN
+  const token   = process.env.META_ADS_ACCESS_TOKEN
   const acctId  = process.env.META_ADS_ACCOUNT_ID
   if (!token || !acctId) {
-    return res.status(500).json({ error: 'META_ACCESS_TOKEN ou META_ADS_ACCOUNT_ID ausentes' })
+    return res.status(500).json({ error: 'META_ADS_ACCESS_TOKEN ou META_ADS_ACCOUNT_ID ausentes' })
   }
 
   try {
