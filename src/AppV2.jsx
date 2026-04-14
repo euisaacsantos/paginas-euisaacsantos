@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useConfig } from './hooks/useConfig.js'
+import { useLiveVendas } from './hooks/useLiveVendas.js'
+import LiveToast from './components/LiveToast.jsx'
 
 function useTypewriter(fullText, speed = 45, start = true) {
   const [i, setI] = useState(0)
@@ -432,10 +434,12 @@ function CtaProgress({ lote, pct }) {
 
 function AppV2() {
   useReveal()
-  const { config } = useConfig()
+  const { config, setVendasLive, vendasIniciais } = useConfig()
   const lote = config.imersao.lote_atual
   const pct = config.imersao.pct_vendido
   const checkoutUrl = lote.checkout
+  const [liveEvent, setLiveEvent] = useState(null)
+  useLiveVendas({ onIncrement: setLiveEvent, onUpdate: setVendasLive, initial: vendasIniciais })
 
   return (
     <div className="min-h-screen">
@@ -479,15 +483,28 @@ function AppV2() {
             {(() => {
               const todos = config.imersao.lotes
               const idx = todos.findIndex((l) => l.id === lote.id)
-              const visiveis = todos.slice(idx, idx + 3)
-              while (visiveis.length < 3 && idx > 0) visiveis.unshift(todos[idx - visiveis.length])
-              return visiveis.map((l, i) => (
-                <div key={l.id} className={`lote-card ${l.id === lote.id ? 'lote-card--active' : ''}`}>
-                  {l.id === lote.id && <span className="lote-fire">🔥</span>}
-                  <span className="lote-label">{l.nome}</span>
-                  <span className="lote-price">R$ {l.preco}</span>
-                </div>
-              ))
+              let visiveis
+              if (idx <= 0) {
+                visiveis = todos.slice(0, 3)
+              } else if (idx >= todos.length - 1) {
+                visiveis = todos.slice(Math.max(0, todos.length - 3))
+              } else {
+                visiveis = [todos[idx - 1], todos[idx], todos[idx + 1]]
+              }
+              return visiveis.map((l) => {
+                const isAtivo = l.id === lote.id
+                const isPast = l.id < lote.id
+                return (
+                  <div
+                    key={l.id}
+                    className={`lote-card ${isAtivo ? 'lote-card--active' : ''} ${isPast ? 'lote-card--past' : ''}`}
+                  >
+                    {isAtivo && <span className="lote-fire">🔥</span>}
+                    <span className="lote-label">{l.nome}</span>
+                    <span className="lote-price">R$ {l.preco}</span>
+                  </div>
+                )
+              })
             })()}
           </div>
 
@@ -945,6 +962,8 @@ function AppV2() {
         <img src="/assets/LOGO.png" alt="Logo" className="h-8 mx-auto mb-4 opacity-80" />
         <p className="text-txts text-sm">© 2026 Isaac Santos. Todos os direitos reservados.</p>
       </footer>
+
+      <LiveToast event={liveEvent} />
     </div>
   )
 }

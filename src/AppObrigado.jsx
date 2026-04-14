@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useConfig } from './hooks/useConfig.js'
+import { useLiveVendas } from './hooks/useLiveVendas.js'
+import LiveToast from './components/LiveToast.jsx'
 
 function useReveal() {
   useEffect(() => {
@@ -110,8 +112,10 @@ function useCtaReveal(delayMs) {
 function AppObrigado() {
   useReveal()
   useCtaReveal(CTA_DELAY_MS)
-  const { config } = useConfig()
+  const { config, setVendasLive, vendasIniciais } = useConfig()
   const mesa = config.mesa
+  const [liveEvent, setLiveEvent] = useState(null)
+  useLiveVendas({ onIncrement: setLiveEvent, onUpdate: setVendasLive, initial: vendasIniciais })
 
   return (
     <div className="min-h-screen">
@@ -386,6 +390,8 @@ function AppObrigado() {
         <img src="/assets/LOGO.png" alt="Logo" className="h-8 mx-auto mb-4 opacity-80" />
         <p className="text-txts text-sm">© 2026 Isaac Santos. Todos os direitos reservados.</p>
       </footer>
+
+      <LiveToast event={liveEvent} />
     </div>
   )
 }
