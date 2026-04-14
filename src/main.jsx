@@ -6,6 +6,7 @@ import AppV1 from './AppV1.jsx'
 import AppV2 from './AppV2.jsx'
 import AppObrigado from './AppObrigado.jsx'
 import AppConfirmado from './AppConfirmado.jsx'
+import { trackPageView } from './lib/meta-tracking.js'
 
 const path = window.location.pathname
 const Root =
@@ -34,3 +35,6 @@ createRoot(document.getElementById('root')).render(
     <Root />
   </StrictMode>,
 )
+
+// PageView Meta Ads (Pixel client + CAPI server, dedup via event_id)
+trackPageView()

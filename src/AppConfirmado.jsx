@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { trackContact } from './lib/meta-tracking.js'
 
 function useReveal() {
   useEffect(() => {
@@ -227,7 +228,7 @@ function AppConfirmado() {
           <p className="text-txts mb-8">
             Manda mensagem no WhatsApp que eu respondo rápido. Sem formulário, sem ticket.
           </p>
-          <a href={WHATSAPP_SUPORTE} target="_blank" rel="noopener noreferrer" className="btn-whatsapp btn-whatsapp--small">
+          <a href={WHATSAPP_SUPORTE} target="_blank" rel="noopener noreferrer" onClick={() => trackContact('Suporte WhatsApp')} className="btn-whatsapp btn-whatsapp--small">
             <WhatsAppLogo size={18} />
             FALAR COMIGO NO WHATSAPP
           </a>
