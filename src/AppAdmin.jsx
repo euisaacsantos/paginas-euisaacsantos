@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import CampanhasPanel from './components/admin/CampanhasPanel.jsx'
+import LeadsPendentesPanel from './components/admin/LeadsPendentesPanel.jsx'
 
 // Hook de responsividade
 function useIsMobile() {
@@ -928,7 +929,10 @@ function Dashboard({ token, onLogout }) {
         {/* ── Linha 5: campanhas Meta Ads ── */}
         <CampanhasPanel token={token} onSpendTotal={setSpendTotal} />
 
-        {/* ── Linha 6: tabela de vendas ── */}
+        {/* ── Linha 6: leads pendentes (PIX + abandono) ── */}
+        <LeadsPendentesPanel token={token} />
+
+        {/* ── Linha 7: tabela de vendas ── */}
         <VendasTable token={token} />
 
       </div>
