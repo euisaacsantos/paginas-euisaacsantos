@@ -25,13 +25,32 @@ function buildInsightFields(level) {
 async function fetchAll(url) {
   const rows = []
   let next = url
+  let page = 0
   while (next) {
     const res = await fetch(next)
     const json = await res.json()
     if (!res.ok) throw Object.assign(new Error('Meta API error'), { meta: json })
-    rows.push(...(json.data || []))
-    next = json.paging?.next || null
+    const chunk = json.data || []
+    rows.push(...chunk)
+    page++
+    // Insights usa paging.next (URL completa com cursor after=)
+    // Se não vier next, tenta construir com cursor
+    const nextUrl = json.paging?.next || null
+    const afterCursor = json.paging?.cursors?.after || null
+    if (nextUrl) {
+      next = nextUrl
+    } else if (afterCursor && chunk.length > 0) {
+      // Monta próxima página com cursor
+      const u = new URL(next)
+      u.searchParams.set('after', afterCursor)
+      next = u.toString()
+    } else {
+      next = null
+    }
+    // Segurança: max 20 páginas (~10k registros)
+    if (page >= 20) break
   }
+  console.log(`[meta-ads] fetchAll: ${rows.length} rows em ${page} páginas`)
   return rows
 }
 
@@ -75,7 +94,12 @@ export default async function handler(req, res) {
       ...(filters.length && { filtering: JSON.stringify(filters) }),
     })
 
-    let insightsRows = await fetchAll(`${GRAPH}/${act(acctId)}/insights?${p}`)
+    const insightsUrl = `${GRAPH}/${act(acctId)}/insights?${p}`
+    console.log('[meta-ads] url:', insightsUrl.replace(token, 'TOKEN'))
+
+    let insightsRows = await fetchAll(insightsUrl)
+    console.log(`[meta-ads] total antes do filtro: ${insightsRows.length}`)
+    console.log('[meta-ads] nomes:', insightsRows.map(r => r.campaign_name).slice(0, 5))
 
     // Filtra pelo prefixo client-side (evita problema com [] no filtro da API)
     if (level === 'campaign') {
@@ -83,6 +107,7 @@ export default async function handler(req, res) {
       insightsRows = insightsRows.filter(
         (r) => r.campaign_name && r.campaign_name.toLowerCase().includes(prefix)
       )
+      console.log(`[meta-ads] total após filtro prefixo: ${insightsRows.length}`)
     }
 
     // ── Thumbnails (só no nível de anúncio) ────────────────────────────────
