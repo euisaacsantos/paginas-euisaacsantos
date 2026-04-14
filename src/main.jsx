@@ -16,19 +16,95 @@ const Root =
   path.startsWith('/v1') ? AppV1 :
   App
 
-// Forward UTMs e demais query params da URL atual para o checkout (Ticto)
+// Tracking ponta-a-ponta:
+// 1. PageView já gera external_id (UUID persistente em localStorage)
+// 2. No click do CTA Ticto: gera session_id único, POST /api/session-start
+//    (grava fbp/fbc/utms/ip/ua/geo no Supabase), e propaga ?src=sess_<uuid>
+//    pro checkout. O webhook Ticto usa esse session_id pra fazer lookup
+//    e enriquecer o Purchase CAPI.
+function cctGetCookie(name) {
+  const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'))
+  return m ? decodeURIComponent(m[1]) : null
+}
+function cctGetExternalId() {
+  try {
+    let id = localStorage.getItem('cct_ext_id')
+    if (!id) {
+      id = (crypto.randomUUID && crypto.randomUUID()) ||
+           ('ext_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11))
+      localStorage.setItem('cct_ext_id', id)
+    }
+    return id
+  } catch {
+    return null
+  }
+}
+function cctBuildFbc() {
+  try {
+    const fbclid = new URL(window.location.href).searchParams.get('fbclid')
+    return fbclid ? `fb.1.${Date.now()}.${fbclid}` : null
+  } catch {
+    return null
+  }
+}
+function cctParseUtms() {
+  try {
+    const p = new URLSearchParams(window.location.search)
+    return {
+      utm_source: p.get('utm_source') || null,
+      utm_medium: p.get('utm_medium') || null,
+      utm_campaign: p.get('utm_campaign') || null,
+      utm_content: p.get('utm_content') || null,
+      utm_term: p.get('utm_term') || null,
+      fbclid: p.get('fbclid') || null,
+    }
+  } catch {
+    return {}
+  }
+}
+
 document.addEventListener('click', (e) => {
   const a = e.target.closest && e.target.closest('a[href*="checkout.ticto.app"]')
   if (!a) return
-  const search = window.location.search
-  if (!search) return
   try {
+    const sessionId = (crypto.randomUUID && crypto.randomUUID()) ||
+      ('sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11))
+    const externalId = cctGetExternalId()
+    const fbp = cctGetCookie('_fbp') || null
+    const fbc = cctGetCookie('_fbc') || cctBuildFbc()
+    const utms = cctParseUtms()
+
+    // fire-and-forget: keepalive garante envio mesmo se navegar
+    fetch('/api/session-start', {
+      method: 'POST',
+      keepalive: true,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session_id: sessionId,
+        external_id: externalId,
+        fbp,
+        fbc,
+        ...utms,
+        landing_url: window.location.href,
+      }),
+    }).catch(() => {})
+
+    // monta URL Ticto: mantém UTMs originais + sobrescreve src com session_id
     const url = new URL(a.href)
-    new URLSearchParams(search).forEach((v, k) => url.searchParams.set(k, v))
+    const search = window.location.search
+    if (search) {
+      new URLSearchParams(search).forEach((v, k) => url.searchParams.set(k, v))
+    }
+    url.searchParams.set('src', `sess_${sessionId}`)
+    // sck livre — Isaac pode usar se quiser rastrear outra coisa
+
     e.preventDefault()
     window.open(url.toString(), a.target || '_blank', 'noopener,noreferrer')
   } catch (_) { /* noop */ }
 }, true)
+
+// garante que external_id já existe antes do primeiro PageView
+cctGetExternalId()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

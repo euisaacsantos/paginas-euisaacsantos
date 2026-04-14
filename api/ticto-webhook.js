@@ -1,5 +1,6 @@
 import { getRedis } from './_redis.js'
 import { getSupabase } from './_supabase.js'
+import { sendCapiEvent, splitName } from './_meta-capi.js'
 
 // Extrai o primeiro valor truthy de uma lista de paths no objeto
 function pick(obj, paths) {
@@ -88,6 +89,32 @@ function extractValor(body) {
   const n = Number(raw)
   if (!Number.isFinite(n)) return null
   return n >= 10000 ? n / 100 : n
+}
+
+// Session lookup: src=sess_<uuid> propagado do click no CTA pro checkout Ticto.
+// fbp/fbc/ip/ua/geo vêm do Supabase (cct_sessoes_checkout), não mais do payload.
+function extractSrcSessionId(body) {
+  const src = pick(body, ['tracking.src', 'src'])
+  if (!src) return null
+  const s = String(src)
+  return s.startsWith('sess_') ? s.slice(5) : null
+}
+function extractCpf(body) {
+  return pick(body, ['customer.cpf', 'customer.document', 'customer.cnpj', 'buyer.cpf'])
+}
+function extractGeoFromPayload(body) {
+  return {
+    city: pick(body, ['customer.address.city', 'customer.city', 'address.city']),
+    region: pick(body, ['customer.address.state', 'customer.state', 'address.state']),
+    country: pick(body, ['customer.address.country', 'customer.country', 'address.country']),
+    zip: pick(body, ['customer.address.zip_code', 'customer.zip_code', 'customer.zip']),
+  }
+}
+function extractClientIpUa(body) {
+  return {
+    ip: pick(body, ['customer.ip', 'customer.ip_address', 'client_ip_address', 'ip']),
+    ua: pick(body, ['customer.user_agent', 'user_agent', 'client_user_agent']),
+  }
 }
 
 function sanitizeHeaders(headers) {
@@ -208,6 +235,19 @@ export default async function handler(req, res) {
     const utms = extractUtms(body)
     const valor = extractValor(body) ?? (loteMatch ? loteMatch.preco : mesaConfig.preco) ?? 0
 
+    // Lookup de sessão (src=sess_<uuid> propagado do click no CTA)
+    // Traz fbp/fbc/ip/ua/geo/external_id gravados no momento do click.
+    let sessaoData = null
+    const sessionId = extractSrcSessionId(body)
+    if (sessionId) {
+      const { data: sess } = await supabase
+        .from('cct_sessoes_checkout')
+        .select('*')
+        .eq('session_id', sessionId)
+        .maybeSingle()
+      if (sess) sessaoData = sess
+    }
+
     // Duplicata
     const { data: existing } = await supabase
       .from('cct_vendas')
@@ -236,12 +276,14 @@ export default async function handler(req, res) {
         email: customer.email,
         telefone: customer.telefone,
         nome: customer.nome,
-        utm_source: utms.utm_source,
-        utm_medium: utms.utm_medium,
-        utm_campaign: utms.utm_campaign,
-        utm_content: utms.utm_content,
-        utm_term: utms.utm_term,
-        fbclid: utms.fbclid,
+        utm_source: utms.utm_source || sessaoData?.utm_source || null,
+        utm_medium: utms.utm_medium || sessaoData?.utm_medium || null,
+        utm_campaign: utms.utm_campaign || sessaoData?.utm_campaign || null,
+        utm_content: utms.utm_content || sessaoData?.utm_content || null,
+        utm_term: utms.utm_term || sessaoData?.utm_term || null,
+        fbclid: utms.fbclid || sessaoData?.fbclid || null,
+        session_id: sessaoData?.session_id || null,
+        external_id: sessaoData?.external_id || null,
         raw_payload: body,
       })
 
@@ -259,6 +301,66 @@ export default async function handler(req, res) {
       vendasRedis = await r.incr(incrementoRedis)
     }
 
+    // Purchase CAPI (server-side) — dispara pra Meta com user_data enriquecido.
+    // Fonte primária = cct_sessoes_checkout (gravado no click); fallback = payload Ticto.
+    let capiResult = null
+    try {
+      const { fn, ln } = splitName(customer.nome)
+      const payloadIpUa = extractClientIpUa(body)
+      const payloadGeo = extractGeoFromPayload(body)
+
+      const fbp = sessaoData?.fbp || null
+      const fbc = sessaoData?.fbc || null
+      const client_ip_address = sessaoData?.client_ip_address || payloadIpUa.ip || null
+      const client_user_agent = sessaoData?.client_user_agent || payloadIpUa.ua || null
+      const city = sessaoData?.city || payloadGeo.city || null
+      const region = sessaoData?.region || payloadGeo.region || null
+      const country = sessaoData?.country || payloadGeo.country || null
+      const zip = payloadGeo.zip || null
+      // external_id: prefere UUID da sessão (amarra com PageView/AddToCart), fallback CPF
+      const external_id = sessaoData?.external_id || extractCpf(body) || null
+
+      const contentName = loteMatch
+        ? loteMatch.nome
+        : produtoTipo === 'mesa'
+        ? 'Mesa de Comando'
+        : 'Order Bump'
+
+      capiResult = await sendCapiEvent({
+        event_name: 'Purchase',
+        event_id: `purchase_${transactionId}`,
+        event_source_url: pick(body, ['checkout_url', 'source_url']) || undefined,
+        user_data: {
+          email: customer.email,
+          phone: customer.telefone,
+          fn,
+          ln,
+          external_id,
+          fbp,
+          fbc,
+          client_ip_address,
+          client_user_agent,
+          city,
+          region,
+          country,
+          zip,
+        },
+        custom_data: {
+          currency: 'BRL',
+          value: Number(valor) || 0,
+          content_name: contentName,
+          content_type: 'product',
+          ...(loteMatch && { content_ids: [String(loteMatch.offer_code)] }),
+        },
+      })
+      if (!capiResult.sent) {
+        console.warn('[ticto-webhook] Purchase CAPI não enviado:', capiResult)
+      }
+    } catch (capiErr) {
+      console.error('[ticto-webhook] falha Purchase CAPI:', capiErr.message)
+      capiResult = { sent: false, error: capiErr.message }
+    }
+
     return respond(200, {
       ok: true,
       kind: produtoTipo,
@@ -266,6 +368,7 @@ export default async function handler(req, res) {
       transaction_id: transactionId,
       supabase_saved: true,
       redis_vendas: vendasRedis,
+      capi_purchase: capiResult,
     })
   } catch (err) {
     console.error('[api/ticto-webhook]', err)

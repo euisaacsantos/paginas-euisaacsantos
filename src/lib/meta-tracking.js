@@ -22,6 +22,23 @@ function newEventId() {
   return 'eid_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
 }
 
+// External ID estável por visitante (UUID em localStorage).
+// Mesma chave usada em main.jsx ao montar sessão de checkout — garante
+// que Meta amarra PageView/AddToCart/Contact/Purchase no mesmo usuário.
+export function getExternalId() {
+  try {
+    let id = localStorage.getItem('cct_ext_id')
+    if (!id) {
+      id = (crypto.randomUUID && crypto.randomUUID()) ||
+           ('ext_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11))
+      localStorage.setItem('cct_ext_id', id)
+    }
+    return id
+  } catch {
+    return null
+  }
+}
+
 /**
  * Dispara evento Meta Ads em client (Pixel) + server (CAPI) simultaneamente.
  * Mesmo event_id nos dois lados garante dedup no Events Manager.
@@ -31,6 +48,7 @@ export function sendCAPI(eventName, customData) {
     const eventId = newEventId()
     const fbp = getCookie('_fbp')
     const fbc = getCookie('_fbc') || buildFbcFromUrl()
+    const externalId = getExternalId()
 
     // Client Pixel
     if (typeof window.fbq === 'function') {
@@ -48,6 +66,7 @@ export function sendCAPI(eventName, customData) {
         user_data_client: {
           ...(fbp && { fbp }),
           ...(fbc && { fbc }),
+          ...(externalId && { external_id: externalId }),
         },
         ...(customData && { custom_data: customData }),
       }),
