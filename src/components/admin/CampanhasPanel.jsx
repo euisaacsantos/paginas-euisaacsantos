@@ -310,7 +310,7 @@ export default function CampanhasPanel({ token, onSpendTotal }) {
   const [atrib, setAtrib]             = useState(null)
   const [loading, setLoading]         = useState(true)
   const [err, setErr]                 = useState(null)
-  const [datePreset, setDatePreset]   = useState('lifetime')
+  const [datePreset, setDatePreset]   = useState('maximum')
   const [customRange, setCustomRange] = useState(null)  // { start, end, since, until }
   const [pickerOpen, setPickerOpen]   = useState(false)
   const [expanded, setExpanded]       = useState({})
@@ -408,7 +408,7 @@ export default function CampanhasPanel({ token, onSpendTotal }) {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', position: 'relative' }}>
           {/* Presets */}
           {[
-            ['lifetime',   'Total'],
+            ['maximum',    'Total'],
             ['this_month', 'Este mês'],
             ['last_30d',   'Últimos 30d'],
             ['this_week',  'Esta semana'],

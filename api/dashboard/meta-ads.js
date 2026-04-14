@@ -53,7 +53,7 @@ export default async function handler(req, res) {
     const level       = req.query.level || 'campaign'
     const campaignId  = req.query.campaign_id || null
     const adsetId     = req.query.adset_id || null
-    const datePreset  = req.query.date_preset || 'lifetime'
+    const datePreset  = req.query.date_preset || 'maximum'
     const since       = req.query.since || null   // YYYY-MM-DD (range customizado)
     const until       = req.query.until || null
 
