@@ -75,9 +75,12 @@ export default async function handler(req, res) {
     const datePreset  = req.query.date_preset || null  // null = usa time_range amplo
     const since       = req.query.since || null          // YYYY-MM-DD (range customizado)
     const until       = req.query.until || null
-    // "Total": range de 3 anos atrás até hoje (máximo permitido pela Meta é 37 meses)
+    // "Total": 36 meses atrás até hoje (Meta permite até 37 meses; margem de 1 mês)
     const todayISO    = new Date().toISOString().slice(0, 10)
-    const defaultRange = { since: '2023-01-01', until: todayISO }
+    const sinceDate   = new Date()
+    sinceDate.setMonth(sinceDate.getMonth() - 36)
+    const sinceISO    = sinceDate.toISOString().slice(0, 10)
+    const defaultRange = { since: sinceISO, until: todayISO }
 
     // ── Insights ──────────────────────────────────────────────────────────────
     // Filtro de nome de campanha é feito CLIENT-SIDE após receber os dados —
