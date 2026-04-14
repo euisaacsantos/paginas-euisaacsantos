@@ -87,6 +87,7 @@ create table cct_sessoes_checkout (
   city text,
   region text,
   country text,
+  zip text,                           -- added: postal code dos headers Vercel
   utm_source text,
   utm_medium text,
   utm_campaign text,
@@ -102,13 +103,34 @@ create table cct_sessoes_checkout (
 
 Cada linha é um **clique em CTA que levou ao checkout** (não é visita — é intenção de compra). `session_id` é o primary key propagado pra Ticto via `?src=sess_<uuid>`.
 
+**⚠️ Geo vem URI-encoded dos headers Vercel** (ex: `S%C3%A3o%20Jos%C3%A9`). Os endpoints fazem `decodeURIComponent` antes de gravar, pra que SHA-256 bata com lado Meta.
+
 ### `cct_vendas`
 
 Colunas de tracking acrescidas:
 - `session_id uuid` (FK lógica pra `cct_sessoes_checkout`)
 - `external_id text` (UUID do visitante — mesmo dos eventos browser)
+- `meta_capi_sent boolean` — resultado do Purchase CAPI (true se Meta aceitou)
+- `meta_capi_fbtrace_id text` — trace ID Meta, usado pra abrir ticket de suporte
+- `meta_capi_error jsonb` — `{reason, status, error}` quando CAPI falha
 
 Demais colunas pré-existentes: `ticto_transaction_id`, `status`, `offer_code`, `produto_tipo`, `lote_id`, `valor`, `email/telefone/nome`, UTMs, `fbclid`, `raw_payload`, `created_at`.
+
+**SQL das adições (já rodadas):**
+```sql
+alter table cct_vendas
+  add column session_id uuid,
+  add column external_id text,
+  add column meta_capi_sent boolean,
+  add column meta_capi_fbtrace_id text,
+  add column meta_capi_error jsonb;
+
+create index on cct_vendas (session_id);
+create index on cct_vendas (external_id);
+create index on cct_vendas (meta_capi_sent);
+
+alter table cct_sessoes_checkout add column zip text;
+```
 
 ### `cct_webhook_raw`
 
@@ -160,16 +182,18 @@ Público. Chamado pelo browser pra cada evento (PageView/AddToCart/Contact).
 
 Protegido via `?token=<TICTO_WEBHOOK_SECRET>`.
 
-**Behavior:**
+**Behavior (ordem importa — CAPI roda ANTES do INSERT):**
 1. Valida token → `401` se inválido
 2. Filtra status (`approved/paid/authorized/aprovado/pago`)
 3. Extrai `offer_code` + `transaction_id` → `200 ignored` se faltar
 4. Se `tracking.src === "sess_<uuid>"` → SELECT `cct_sessoes_checkout`
-5. Checa duplicata por `ticto_transaction_id`
-6. INSERT `cct_vendas` com `session_id/external_id` da sessão (quando achada)
-7. INCR Redis `imersao:vendas` ou `mesa:vendas` conforme `offer_code`
-8. Dispara Purchase CAPI com `user_data` mesclado (sessão + payload Ticto)
+5. Checa duplicata por `ticto_transaction_id` → `200 duplicate` se já existe
+6. **Dispara Purchase CAPI** (com sessão + payload mesclados) → guarda `capiResult`
+7. INSERT `cct_vendas` com `session_id`, `external_id` da sessão **+** `meta_capi_sent/fbtrace_id/error` do capiResult
+8. INCR Redis `imersao:vendas` ou `mesa:vendas` conforme `offer_code`
 9. Sempre grava `cct_webhook_raw` (inclusive em erro)
+
+**Falha de CAPI não bloqueia venda** — INSERT acontece mesmo com `meta_capi_sent=false`. Erro detalhado fica em `meta_capi_error` pra reenvio manual posterior.
 
 ## Event IDs
 
@@ -248,14 +272,65 @@ curl -sX POST "https://workshop.growthtap.com.br/api/ticto-webhook?token=$TICTO_
 
 ## Como debugar
 
-| Onde olhar | O que veriflicar |
+| Onde olhar | O que verificar |
 |---|---|
-| Supabase → `cct_sessoes_checkout` | Sessão gravou? tem fbp/fbc/ip/ua? |
-| Supabase → `cct_vendas` | Venda tem `session_id` e `external_id` preenchidos? |
+| Supabase → `cct_sessoes_checkout` | Sessão gravou? tem fbp/fbc/ip/ua/geo/zip sem URL-encoding? |
+| Supabase → `cct_vendas` | Venda tem `session_id`/`external_id` + `meta_capi_sent=true`? |
 | Supabase → `cct_webhook_raw` | Payload cru da Ticto (pra ver se `tracking.src` chegou como `sess_<uuid>`) |
 | Vercel dashboard → Functions logs | Erros de `[session-start]`, `[ticto-webhook]`, `[meta-capi]` |
 | Meta Events Manager → Test Events | Ver eventos chegando, match quality, dedup |
 | Meta Events Manager → Diagnostics | Warnings de `event_id` duplicado, campos faltando |
+
+### Queries úteis de auditoria
+
+**Status Purchase CAPI por venda:**
+
+```sql
+select
+  created_at, produto_tipo, lote_id, valor, email,
+  meta_capi_sent, meta_capi_fbtrace_id, meta_capi_error,
+  session_id, external_id
+from cct_vendas
+order by created_at desc
+limit 20;
+```
+
+**Taxa de envio CAPI:**
+
+```sql
+select
+  count(*) total,
+  count(*) filter (where meta_capi_sent) as ok,
+  count(*) filter (where meta_capi_sent = false) as erro,
+  round(
+    count(*) filter (where meta_capi_sent) * 100.0 / nullif(count(*), 0), 2
+  ) as pct_sucesso
+from cct_vendas;
+```
+
+**Vendas com erro CAPI pra reenvio manual:**
+
+```sql
+select
+  ticto_transaction_id, email, valor, meta_capi_error, created_at
+from cct_vendas
+where meta_capi_sent = false
+order by created_at desc;
+```
+
+**Cruzar venda com sessão (rastreio completo):**
+
+```sql
+select
+  v.ticto_transaction_id, v.email, v.valor,
+  v.meta_capi_sent, v.meta_capi_fbtrace_id,
+  s.fbp, s.fbc, s.client_ip_address, s.city, s.region, s.country, s.zip,
+  s.utm_source, s.utm_campaign, s.fbclid
+from cct_vendas v
+left join cct_sessoes_checkout s on s.session_id = v.session_id
+order by v.created_at desc
+limit 10;
+```
 
 ## Edge cases
 

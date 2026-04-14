@@ -58,14 +58,23 @@ function extractCustomer(body) {
   }
 }
 
+// Ticto preenche UTMs vazios com string literal "Não Informado" — normaliza pra null
+function normalizeUtm(v) {
+  if (v === null || v === undefined) return null
+  const s = String(v).trim()
+  if (!s) return null
+  const lower = s.toLowerCase()
+  if (['não informado', 'nao informado', 'not informed', 'none', 'null', 'undefined', 'n/a'].includes(lower)) return null
+  return s
+}
 function extractUtms(body) {
   return {
-    utm_source: pick(body, ['tracking.utm_source', 'utm.source', 'utm_source']),
-    utm_medium: pick(body, ['tracking.utm_medium', 'utm.medium', 'utm_medium']),
-    utm_campaign: pick(body, ['tracking.utm_campaign', 'utm.campaign', 'utm_campaign']),
-    utm_content: pick(body, ['tracking.utm_content', 'utm.content', 'utm_content']),
-    utm_term: pick(body, ['tracking.utm_term', 'utm.term', 'utm_term']),
-    fbclid: pick(body, ['tracking.fbclid', 'fbclid', 'utm.fbclid']),
+    utm_source: normalizeUtm(pick(body, ['tracking.utm_source', 'utm.source', 'utm_source'])),
+    utm_medium: normalizeUtm(pick(body, ['tracking.utm_medium', 'utm.medium', 'utm_medium'])),
+    utm_campaign: normalizeUtm(pick(body, ['tracking.utm_campaign', 'utm.campaign', 'utm_campaign'])),
+    utm_content: normalizeUtm(pick(body, ['tracking.utm_content', 'utm.content', 'utm_content'])),
+    utm_term: normalizeUtm(pick(body, ['tracking.utm_term', 'utm.term', 'utm_term'])),
+    fbclid: normalizeUtm(pick(body, ['tracking.fbclid', 'fbclid', 'utm.fbclid'])),
   }
 }
 
