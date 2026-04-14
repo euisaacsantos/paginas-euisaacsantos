@@ -58,10 +58,9 @@ export default async function handler(req, res) {
     const until       = req.query.until || null
 
     // ── Insights ──────────────────────────────────────────────────────────────
+    // Filtro de nome de campanha é feito CLIENT-SIDE após receber os dados —
+    // os colchetes em [VENDAS][IMERSAO] causam problemas no filtro server-side da Meta.
     const filters = []
-    if (level === 'campaign') {
-      filters.push({ field: 'campaign.name', operator: 'CONTAIN', value: CAMP_PREFIX })
-    }
     if (campaignId) filters.push({ field: 'campaign.id', operator: 'EQUAL', value: campaignId })
     if (adsetId)    filters.push({ field: 'adset.id',    operator: 'EQUAL', value: adsetId })
 
@@ -76,7 +75,15 @@ export default async function handler(req, res) {
       ...(filters.length && { filtering: JSON.stringify(filters) }),
     })
 
-    const insightsRows = await fetchAll(`${GRAPH}/${act(acctId)}/insights?${p}`)
+    let insightsRows = await fetchAll(`${GRAPH}/${act(acctId)}/insights?${p}`)
+
+    // Filtra pelo prefixo client-side (evita problema com [] no filtro da API)
+    if (level === 'campaign') {
+      const prefix = CAMP_PREFIX.toLowerCase()
+      insightsRows = insightsRows.filter(
+        (r) => r.campaign_name && r.campaign_name.toLowerCase().includes(prefix)
+      )
+    }
 
     // ── Thumbnails (só no nível de anúncio) ────────────────────────────────
     let thumbMap = {}
