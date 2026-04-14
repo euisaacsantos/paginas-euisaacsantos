@@ -10,17 +10,20 @@ function pick(obj, paths) {
   return null
 }
 
+// Ticto v2: item.offer_code (singular)
 function extractOfferCode(body) {
   return (
     pick(body, [
-      'offer_code',
+      'item.offer_code',
+      'item.offer.code',
+      'items.0.offer_code',
+      'items.0.offer.code',
       'offer.code',
+      'offer_code',
       'product.offer_code',
       'transaction.offer_code',
-      'items.0.offer.code',
-      'items.0.offer_code',
     ]) ||
-    (body.checkout_url && String(body.checkout_url).split('/').pop()) ||
+    (body.checkout_url && String(body.checkout_url).split('/').pop().split('?')[0]) ||
     null
   )
 }
@@ -28,6 +31,7 @@ function extractOfferCode(body) {
 function extractTransactionId(body) {
   return pick(body, [
     'transaction.hash',
+    'order.transaction_hash',
     'transaction.id',
     'order.hash',
     'order.id',
@@ -41,6 +45,7 @@ function extractCustomer(body) {
   return {
     email: pick(body, ['customer.email', 'email', 'buyer.email', 'cliente.email']),
     telefone: pick(body, [
+      'customer.phone.number',
       'customer.phone',
       'customer.phone_number',
       'customer.cellphone',
@@ -54,16 +59,21 @@ function extractCustomer(body) {
 
 function extractUtms(body) {
   return {
-    utm_source: pick(body, ['utm.source', 'utm_source', 'tracking.utm_source']),
-    utm_medium: pick(body, ['utm.medium', 'utm_medium', 'tracking.utm_medium']),
-    utm_campaign: pick(body, ['utm.campaign', 'utm_campaign', 'tracking.utm_campaign']),
-    utm_content: pick(body, ['utm.content', 'utm_content', 'tracking.utm_content']),
-    utm_term: pick(body, ['utm.term', 'utm_term', 'tracking.utm_term']),
-    fbclid: pick(body, ['fbclid', 'tracking.fbclid', 'utm.fbclid']),
+    utm_source: pick(body, ['tracking.utm_source', 'utm.source', 'utm_source']),
+    utm_medium: pick(body, ['tracking.utm_medium', 'utm.medium', 'utm_medium']),
+    utm_campaign: pick(body, ['tracking.utm_campaign', 'utm.campaign', 'utm_campaign']),
+    utm_content: pick(body, ['tracking.utm_content', 'utm.content', 'utm_content']),
+    utm_term: pick(body, ['tracking.utm_term', 'utm.term', 'utm_term']),
+    fbclid: pick(body, ['tracking.fbclid', 'fbclid', 'utm.fbclid']),
   }
 }
 
-function extractValor(body, offerCode) {
+function extractValor(body) {
+  // Ticto v2: order.paid_amount em CENTAVOS
+  if (body.order?.paid_amount != null) {
+    const n = Number(body.order.paid_amount)
+    if (Number.isFinite(n)) return n / 100
+  }
   const raw = pick(body, [
     'amount',
     'value',
@@ -71,13 +81,43 @@ function extractValor(body, offerCode) {
     'total',
     'transaction.amount',
     'order.total',
+    'item.price',
     'items.0.price',
   ])
   if (raw === null) return null
   const n = Number(raw)
   if (!Number.isFinite(n)) return null
-  // Ticto às vezes manda em centavos; heurística: se > 10x o esperado do Lote 0, divide por 100
-  return n > 10000 ? n / 100 : n
+  return n >= 10000 ? n / 100 : n
+}
+
+function sanitizeHeaders(headers) {
+  const keep = {}
+  for (const [k, v] of Object.entries(headers || {})) {
+    const key = k.toLowerCase()
+    if (key === 'authorization' || key === 'cookie') continue
+    keep[key] = typeof v === 'string' && v.length > 500 ? v.slice(0, 500) + '...' : v
+  }
+  return keep
+}
+
+async function logRaw(supabase, { body, query, headers, responseStatus, responseBody, error }) {
+  try {
+    // Remove token da query log
+    const q = { ...(query || {}) }
+    if (q.token) q.token = '***'
+    await supabase.from('cct_webhook_raw').insert({
+      endpoint: 'ticto-webhook',
+      method: 'POST',
+      query: q,
+      headers: sanitizeHeaders(headers),
+      body: body || null,
+      response_status: responseStatus,
+      response_body: responseBody,
+      processing_error: error || null,
+    })
+  } catch (e) {
+    console.error('[ticto-webhook] falha ao gravar raw log:', e.message)
+  }
 }
 
 export default async function handler(req, res) {
@@ -90,25 +130,56 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'unauthorized' })
   }
 
-  try {
-    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {}
+  let supabase
+  const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {}
 
+  // Respond helper — grava raw log + envia resposta
+  async function respond(status, payload, error) {
+    try {
+      if (supabase) {
+        await logRaw(supabase, {
+          body,
+          query: req.query,
+          headers: req.headers,
+          responseStatus: status,
+          responseBody: payload,
+          error,
+        })
+      }
+    } catch {}
+    return res.status(status).json(payload)
+  }
+
+  try {
+    supabase = getSupabase()
+  } catch (err) {
+    // Sem Supabase não dá pra logar, retorna 500 pra Ticto retentar
+    console.error('[ticto-webhook] Supabase indisponível:', err.message)
+    return res.status(500).json({ error: 'supabase unavailable' })
+  }
+
+  try {
     const status = (body.status || body.order_status || body.transaction?.status || '')
       .toString()
       .toLowerCase()
     const validStatuses = ['approved', 'paid', 'authorized', 'aprovado', 'pago']
     if (status && !validStatuses.includes(status)) {
-      return res.status(200).json({ ignored: true, reason: `status=${status}` })
+      return respond(200, { ignored: true, reason: `status=${status}` })
     }
 
     const offerCode = extractOfferCode(body)
-    if (!offerCode) {
-      return res.status(400).json({ error: 'offer_code ausente no payload', body })
-    }
-
     const transactionId = extractTransactionId(body)
-    if (!transactionId) {
-      return res.status(400).json({ error: 'transaction id ausente no payload', body })
+
+    if (!offerCode || !transactionId) {
+      const missing = []
+      if (!offerCode) missing.push('offer_code')
+      if (!transactionId) missing.push('transaction_id')
+      // 200 pra Ticto NÃO retentar — o payload cru fica salvo em cct_webhook_raw pra análise
+      return respond(
+        200,
+        { ignored: true, reason: `campos ausentes: ${missing.join(', ')}` },
+        `extraction failed: missing ${missing.join(', ')}`
+      )
     }
 
     const r = getRedis()
@@ -119,11 +190,8 @@ export default async function handler(req, res) {
     const lotes = JSON.parse(imersaoConfigStr || '[]')
     const mesaConfig = JSON.parse(mesaConfigStr || '{}')
 
-    // Classifica produto pelo offer_code
     const loteMatch = lotes.find((l) => l.offer_code === offerCode)
-    let produtoTipo
-    let loteId = null
-    let incrementoRedis = null
+    let produtoTipo, loteId = null, incrementoRedis = null
 
     if (loteMatch) {
       produtoTipo = 'imersao'
@@ -133,38 +201,29 @@ export default async function handler(req, res) {
       produtoTipo = 'mesa'
       incrementoRedis = 'mesa:vendas'
     } else {
-      // offer_code desconhecido — provavelmente é order bump ou produto não mapeado
       produtoTipo = 'order_bump'
-      // não incrementa contador Redis (contadores são só pra lote/mesa)
     }
 
     const customer = extractCustomer(body)
     const utms = extractUtms(body)
-    const valor = extractValor(body, offerCode) ?? (loteMatch ? loteMatch.preco : mesaConfig.preco) ?? 0
+    const valor = extractValor(body) ?? (loteMatch ? loteMatch.preco : mesaConfig.preco) ?? 0
 
-    const supabase = getSupabase()
-
-    // 1. Checa duplicata explicitamente
-    const { data: existing, error: selectError } = await supabase
+    // Duplicata
+    const { data: existing } = await supabase
       .from('cct_vendas')
       .select('id')
       .eq('ticto_transaction_id', String(transactionId))
       .maybeSingle()
 
-    if (selectError) {
-      console.error('[ticto-webhook] erro SELECT Supabase:', selectError)
-    }
-
     if (existing) {
-      return res.status(200).json({
+      return respond(200, {
         ok: true,
         duplicate: true,
         transaction_id: transactionId,
-        message: 'transação já registrada, ignorando',
       })
     }
 
-    // 2. INSERT (transação nova)
+    // INSERT
     const { error: insertError } = await supabase
       .from('cct_vendas')
       .insert({
@@ -187,17 +246,20 @@ export default async function handler(req, res) {
       })
 
     if (insertError) {
-      console.error('[ticto-webhook] erro INSERT Supabase:', insertError)
-      return res.status(500).json({ error: 'supabase insert failed', details: insertError.message })
+      console.error('[ticto-webhook] erro INSERT:', insertError)
+      return respond(
+        500,
+        { error: 'supabase insert failed', details: insertError.message },
+        insertError.message
+      )
     }
 
-    // 3. Redis — incrementa apenas quando insert foi bem sucedido (transação NOVA)
     let vendasRedis = null
     if (incrementoRedis) {
       vendasRedis = await r.incr(incrementoRedis)
     }
 
-    return res.status(200).json({
+    return respond(200, {
       ok: true,
       kind: produtoTipo,
       lote: loteId,
@@ -207,6 +269,6 @@ export default async function handler(req, res) {
     })
   } catch (err) {
     console.error('[api/ticto-webhook]', err)
-    res.status(500).json({ error: err.message })
+    return respond(500, { error: err.message }, err.message)
   }
 }
