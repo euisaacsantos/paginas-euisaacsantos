@@ -72,9 +72,12 @@ export default async function handler(req, res) {
     const level       = req.query.level || 'campaign'
     const campaignId  = req.query.campaign_id || null
     const adsetId     = req.query.adset_id || null
-    const datePreset  = req.query.date_preset || 'lifetime'
-    const since       = req.query.since || null   // YYYY-MM-DD (range customizado)
+    const datePreset  = req.query.date_preset || null  // null = usa time_range amplo
+    const since       = req.query.since || null          // YYYY-MM-DD (range customizado)
     const until       = req.query.until || null
+    // "Total": range de 3 anos atrás até hoje (máximo permitido pela Meta é 37 meses)
+    const todayISO    = new Date().toISOString().slice(0, 10)
+    const defaultRange = { since: '2023-01-01', until: todayISO }
 
     // ── Insights ──────────────────────────────────────────────────────────────
     // Filtro de nome de campanha é feito CLIENT-SIDE após receber os dados —
@@ -90,7 +93,9 @@ export default async function handler(req, res) {
       access_token: token,
       ...(since && until
         ? { time_range: JSON.stringify({ since, until }) }
-        : { date_preset: datePreset }),
+        : datePreset
+        ? { date_preset: datePreset }
+        : { time_range: JSON.stringify(defaultRange) }),
       ...(filters.length && { filtering: JSON.stringify(filters) }),
     })
 
