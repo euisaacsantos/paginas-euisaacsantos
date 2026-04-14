@@ -1,4 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import CampanhasPanel from './components/admin/CampanhasPanel.jsx'
+
+// Hook de responsividade
+function useIsMobile() {
+  const [mob, setMob] = useState(() => window.innerWidth < 768)
+  useEffect(() => {
+    const fn = () => setMob(window.innerWidth < 768)
+    window.addEventListener('resize', fn)
+    return () => window.removeEventListener('resize', fn)
+  }, [])
+  return mob
+}
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 const TOKEN_KEY = 'cct_admin_token'
@@ -653,11 +665,13 @@ function VendasTable({ token }) {
 
 // ─── Dashboard principal ───────────────────────────────────────────────────────
 function Dashboard({ token, onLogout }) {
+  const isMobile = useIsMobile()
   const [overview, setOverview] = useState(null)
   const [diasData, setDiasData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState(null)
   const [lastUpdate, setLastUpdate] = useState(null)
+  const [spendTotal, setSpendTotal] = useState(null)
 
   const load = useCallback(async () => {
     try {
@@ -767,7 +781,7 @@ function Dashboard({ token, onLogout }) {
       <div style={{ maxWidth: 1400, margin: '0 auto', padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 20 }}>
 
         {/* ── Linha 1: 3 hero cards ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 16 }}>
 
           {/* Lote atual */}
           <HeroCard
@@ -852,8 +866,8 @@ function Dashboard({ token, onLogout }) {
           })()}
         </div>
 
-        {/* ── Linha 2: 4 mini cards ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
+        {/* ── Linha 2: 6 mini cards (2 novos: Investimento + CPA Real) ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(6, 1fr)', gap: 14 }}>
           <MiniCard
             label="Imersão (total)"
             value={kpis?.vendas_imersao ?? '—'}
@@ -874,6 +888,18 @@ function Dashboard({ token, onLogout }) {
             color={kpis?.vendas_mesa >= 10 ? '#22c55e' : '#eab308'}
           />
           <MiniCard
+            label="Investimento Ads"
+            value={spendTotal != null ? (Number(spendTotal) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 }) : '—'}
+            sub="soma das campanhas [VENDAS][IMERSAO]"
+            color="#ff8c3c"
+          />
+          <MiniCard
+            label="CPA Real"
+            value={spendTotal != null && vendas > 0 ? (Number(spendTotal) / vendas).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 }) : '—'}
+            sub="invest. / ingressos DB"
+            color={spendTotal != null && vendas > 0 && (spendTotal / vendas) <= 50 ? '#22c55e' : '#eab308'}
+          />
+          <MiniCard
             label="CAPI OK"
             value={kpis ? `${kpis.capi_sucesso_pct}%` : '—'}
             sub="eventos enviados com sucesso"
@@ -883,7 +909,7 @@ function Dashboard({ token, onLogout }) {
         </div>
 
         {/* ── Linha 3: gráfico diário + funil ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr', gap: 16 }}>
           <div style={{ background: '#0e0e12', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: '24px 28px' }}>
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', color: '#ff8c3c', marginBottom: 20, textTransform: 'uppercase' }}>
               Vendas por dia · últimos 14 dias
@@ -894,12 +920,15 @@ function Dashboard({ token, onLogout }) {
         </div>
 
         {/* ── Linha 4: lotes + metas ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
           <LotesChart lotes={lotesBreakdown} />
           <MetasPanel token={token} />
         </div>
 
-        {/* ── Linha 5: tabela de vendas ── */}
+        {/* ── Linha 5: campanhas Meta Ads ── */}
+        <CampanhasPanel token={token} onSpendTotal={setSpendTotal} />
+
+        {/* ── Linha 6: tabela de vendas ── */}
         <VendasTable token={token} />
 
       </div>
