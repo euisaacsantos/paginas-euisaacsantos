@@ -6,10 +6,12 @@ import AppV1 from './AppV1.jsx'
 import AppV2 from './AppV2.jsx'
 import AppObrigado from './AppObrigado.jsx'
 import AppConfirmado from './AppConfirmado.jsx'
+import AppAdmin from './AppAdmin.jsx'
 import { trackPageView } from './lib/meta-tracking.js'
 
 const path = window.location.pathname
 const Root =
+  path.startsWith('/admin') ? AppAdmin :
   path.startsWith('/confirmado') ? AppConfirmado :
   path.startsWith('/obrigado') ? AppObrigado :
   path.startsWith('/v2') ? AppV2 :
