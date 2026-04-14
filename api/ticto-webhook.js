@@ -316,7 +316,7 @@ export default async function handler(req, res) {
       const city = sessaoData?.city || payloadGeo.city || null
       const region = sessaoData?.region || payloadGeo.region || null
       const country = sessaoData?.country || payloadGeo.country || null
-      const zip = payloadGeo.zip || null
+      const zip = sessaoData?.zip || payloadGeo.zip || null
       // external_id: prefere UUID da sessão (amarra com PageView/AddToCart), fallback CPF
       const external_id = sessaoData?.external_id || extractCpf(body) || null
 

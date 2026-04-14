@@ -19,10 +19,17 @@ export default async function handler(req, res) {
     const ip = (ipRaw || '').toString().split(',')[0].trim() || undefined
     const userAgent = (req.headers['user-agent'] || '').toString() || undefined
 
-    // Geo headers Vercel
-    const city = req.headers['x-vercel-ip-city']
-    const region = req.headers['x-vercel-ip-country-region']
-    const country = req.headers['x-vercel-ip-country']
+    // Geo headers Vercel — decode URI-encoding (ex: "S%C3%A3o%20Paulo")
+    // pra hash bater com o lado Meta (que espera UTF-8 puro).
+    const decodeHeader = (v) => {
+      if (!v) return null
+      const s = Array.isArray(v) ? v[0] : String(v)
+      try { return decodeURIComponent(s) } catch { return s }
+    }
+    const city = decodeHeader(req.headers['x-vercel-ip-city'])
+    const region = decodeHeader(req.headers['x-vercel-ip-country-region'])
+    const country = decodeHeader(req.headers['x-vercel-ip-country'])
+    const zip = decodeHeader(req.headers['x-vercel-ip-postal-code'])
 
     const user_data = {
       ...(user_data_client?.fbp && { fbp: user_data_client.fbp }),
@@ -33,6 +40,7 @@ export default async function handler(req, res) {
       ...(city && { city }),
       ...(region && { region }),
       ...(country && { country }),
+      ...(zip && { zip }),
     }
 
     const result = await sendCapiEvent({

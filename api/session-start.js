@@ -39,14 +39,21 @@ export default async function handler(req, res) {
     return res.status(400).json({ ok: false, error: 'fbp ou external_id obrigatório' })
   }
 
-  // Headers Vercel: IP, UA, geo
+  // Headers Vercel: IP, UA, geo. Geo vem URI-encoded (ex: "S%C3%A3o%20Paulo"),
+  // decode pra garantir que hash SHA-256 bata com o lado Meta.
+  const decodeHeader = (v) => {
+    if (!v) return null
+    const s = Array.isArray(v) ? v[0] : String(v)
+    try { return decodeURIComponent(s) } catch { return s }
+  }
   const ipHeader = req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || ''
   const ipRaw = Array.isArray(ipHeader) ? ipHeader[0] : ipHeader
   const client_ip_address = (ipRaw || '').toString().split(',')[0].trim() || null
   const client_user_agent = (req.headers['user-agent'] || '').toString() || null
-  const city = req.headers['x-vercel-ip-city'] || null
-  const region = req.headers['x-vercel-ip-country-region'] || null
-  const country = req.headers['x-vercel-ip-country'] || null
+  const city = decodeHeader(req.headers['x-vercel-ip-city'])
+  const region = decodeHeader(req.headers['x-vercel-ip-country-region'])
+  const country = decodeHeader(req.headers['x-vercel-ip-country'])
+  const zip = decodeHeader(req.headers['x-vercel-ip-postal-code'])
 
   try {
     const supabase = getSupabase()
@@ -69,9 +76,10 @@ export default async function handler(req, res) {
       fbc: fbc || null,
       client_ip_address,
       client_user_agent,
-      city: city ? String(city) : null,
-      region: region ? String(region) : null,
-      country: country ? String(country) : null,
+      city,
+      region,
+      country,
+      zip,
       utm_source: utm_source || null,
       utm_medium: utm_medium || null,
       utm_campaign: utm_campaign || null,
