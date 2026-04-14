@@ -62,6 +62,9 @@ export default async function handler(req, res) {
     let capiTotal = 0
     const vendas = vendasRows || []
 
+    // Contagem de vendas por lote_id (imersão)
+    const vendasPorLote = {}
+
     for (const v of vendas) {
       const valor = Number(v.valor) || 0
       kpis.faturamento_total += valor
@@ -69,6 +72,8 @@ export default async function handler(req, res) {
       if (v.produto_tipo === 'imersao') {
         kpis.vendas_imersao += 1
         kpis.faturamento_por_produto.imersao += valor
+        const lid = v.lote_id != null ? String(v.lote_id) : 'sem_lote'
+        vendasPorLote[lid] = (vendasPorLote[lid] || 0) + 1
       } else if (v.produto_tipo === 'mesa') {
         kpis.vendas_mesa += 1
         kpis.faturamento_por_produto.mesa += valor
@@ -97,6 +102,20 @@ export default async function handler(req, res) {
     kpis.capi_sucesso_pct =
       capiTotal > 0 ? Math.round((capiOk / capiTotal) * 100) : 0
 
+    // Breakdown por lote com % e vendas absolutas
+    const lotes_breakdown = lotes.map((l) => {
+      const vendidas = vendasPorLote[String(l.id)] || 0
+      return {
+        id: l.id,
+        nome: l.nome,
+        preco: l.preco,
+        vagas_max: l.vagas_max,
+        vendidas,
+        pct: l.vagas_max > 0 ? Math.round((vendidas / l.vagas_max) * 100) : 0,
+        encerrado: vendidas >= l.vagas_max,
+      }
+    })
+
     res.setHeader('Cache-Control', 'no-store')
     res.status(200).json({
       lote_atual: loteAtual
@@ -109,6 +128,7 @@ export default async function handler(req, res) {
             pct_vendido: pctLote,
           }
         : null,
+      lotes_breakdown,
       kpis,
       contadores_redis: {
         imersao: vendasImersaoRedis,

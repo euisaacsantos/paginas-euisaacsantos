@@ -155,6 +155,58 @@ function MiniCard({ label, value, sub, color, badge }) {
   )
 }
 
+// ─── Gráfico horizontal de lotes ──────────────────────────────────────────────
+function LotesChart({ lotes }) {
+  if (!lotes || lotes.length === 0) return null
+  return (
+    <div style={{ background: '#0e0e12', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: '24px 28px' }}>
+      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', color: '#ff8c3c', marginBottom: 20, textTransform: 'uppercase' }}>
+        Vendas por lote
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {lotes.map((l) => {
+          const color = l.encerrado ? '#22c55e' : l.pct >= 60 ? '#eab308' : '#ff8c3c'
+          return (
+            <div key={l.id}>
+              {/* Label row */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#e4e4e7' }}>{l.nome}</span>
+                  <span style={{ fontSize: 10, color: '#52525b' }}>R${l.preco}</span>
+                  {l.encerrado && (
+                    <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 7px', borderRadius: 10, background: 'rgba(34,197,94,0.15)', color: '#22c55e' }}>
+                      encerrado
+                    </span>
+                  )}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                  <span style={{ fontSize: 18, fontWeight: 900, color }}>
+                    {l.pct}%
+                  </span>
+                  <span style={{ fontSize: 11, color: '#52525b' }}>
+                    {l.vendidas}/{l.vagas_max}
+                  </span>
+                </div>
+              </div>
+              {/* Barra horizontal */}
+              <div style={{ height: 10, background: 'rgba(255,255,255,0.06)', borderRadius: 10, overflow: 'hidden' }}>
+                <div style={{
+                  height: '100%',
+                  width: `${l.pct}%`,
+                  background: color,
+                  borderRadius: 10,
+                  transition: 'width 0.5s ease',
+                  boxShadow: `0 0 8px ${color}55`,
+                }} />
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // ─── Gráfico de barras SVG ─────────────────────────────────────────────────────
 function BarChart({ dias, metaDiaria }) {
   const W = 700, H = 180, PAD = { top: 16, right: 12, bottom: 32, left: 36 }
@@ -637,6 +689,7 @@ function Dashboard({ token, onLogout }) {
   const lote = overview?.lote_atual
   const mesa = overview?.mesa_config
   const redis = overview?.contadores_redis
+  const lotesBreakdown = overview?.lotes_breakdown || []
 
   // Meta total de ingressos (não temos ainda sem buscar metas, usamos fallback)
   // Buscamos metaDiaria do endpoint de metas (lazy)
@@ -749,25 +802,54 @@ function Dashboard({ token, onLogout }) {
           </HeroCard>
 
           {/* Meta do dia */}
-          <HeroCard
-            label={`Meta do dia · ${dias}d até 25/04`}
-            value={metaDiaria != null ? `${metaDiaria}/dia` : '—'}
-            sub={metaDiaria != null
-              ? `hoje: ${vendasHoje} vendas · faltam ${restantes} ingressos`
-              : 'configure ingressos_meta_total nas metas'}
-            accent={vendasHoje >= (metaDiaria || 0) ? '#22c55e' : '#eab308'}
-          >
-            {metaDiaria != null && (
-              <div style={{ marginTop: 14 }}>
-                <ProgressBar
-                  value={vendasHoje}
-                  max={metaDiaria}
-                  color={vendasHoje >= metaDiaria ? '#22c55e' : vendasHoje >= metaDiaria * 0.5 ? '#eab308' : '#ef4444'}
-                  showLabel
-                />
+          {(() => {
+            const barColor = metaDiaria == null ? '#eab308'
+              : vendasHoje >= metaDiaria ? '#22c55e'
+              : vendasHoje >= metaDiaria * 0.5 ? '#eab308'
+              : '#ef4444'
+            const pct = metaDiaria > 0 ? Math.min(100, Math.round((vendasHoje / metaDiaria) * 100)) : 0
+            return (
+              <div style={{
+                background: '#0e0e12',
+                border: `1px solid ${barColor}33`,
+                borderRadius: 16, padding: '24px 28px',
+                boxShadow: `inset 0 0 40px ${barColor}08`,
+              }}>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', color: barColor, marginBottom: 10, textTransform: 'uppercase' }}>
+                  Meta do dia · {dias}d até 25/04
+                </div>
+
+                {metaDiaria == null ? (
+                  <div style={{ fontSize: 14, color: '#52525b', lineHeight: 1.5 }}>
+                    Configure <code style={{ color: '#ff8c3c' }}>ingressos_meta_total</code> nas metas abaixo
+                  </div>
+                ) : (
+                  <>
+                    {/* Número principal */}
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 4 }}>
+                      <span style={{ fontSize: 40, fontWeight: 900, color: '#fff', lineHeight: 1 }}>{vendasHoje}</span>
+                      <span style={{ fontSize: 18, color: '#52525b', fontWeight: 700 }}>de {metaDiaria}</span>
+                      <span style={{ fontSize: 22, fontWeight: 900, color: barColor, marginLeft: 4 }}>{pct}%</span>
+                    </div>
+
+                    {/* Subtexto */}
+                    <div style={{ fontSize: 12, color: '#71717a', marginBottom: 14 }}>
+                      vendas hoje · faltam <span style={{ color: '#e4e4e7', fontWeight: 700 }}>{restantes}</span> ingressos no total
+                    </div>
+
+                    {/* Barra */}
+                    <div style={{ height: 8, background: 'rgba(255,255,255,0.07)', borderRadius: 8, overflow: 'hidden' }}>
+                      <div style={{
+                        height: '100%', width: `${pct}%`, background: barColor,
+                        borderRadius: 8, transition: 'width 0.5s ease',
+                        boxShadow: `0 0 8px ${barColor}66`,
+                      }} />
+                    </div>
+                  </>
+                )}
               </div>
-            )}
-          </HeroCard>
+            )
+          })()}
         </div>
 
         {/* ── Linha 2: 4 mini cards ── */}
@@ -800,7 +882,7 @@ function Dashboard({ token, onLogout }) {
           />
         </div>
 
-        {/* ── Linha 3: gráfico + funil ── */}
+        {/* ── Linha 3: gráfico diário + funil ── */}
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16 }}>
           <div style={{ background: '#0e0e12', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: '24px 28px' }}>
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', color: '#ff8c3c', marginBottom: 20, textTransform: 'uppercase' }}>
@@ -811,8 +893,11 @@ function Dashboard({ token, onLogout }) {
           <FunnelCard kpis={kpis} />
         </div>
 
-        {/* ── Linha 4: metas ── */}
-        <MetasPanel token={token} />
+        {/* ── Linha 4: lotes + metas ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <LotesChart lotes={lotesBreakdown} />
+          <MetasPanel token={token} />
+        </div>
 
         {/* ── Linha 5: tabela de vendas ── */}
         <VendasTable token={token} />
