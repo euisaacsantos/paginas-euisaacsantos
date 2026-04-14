@@ -332,7 +332,10 @@ export default function CampanhasPanel({ token, onSpendTotal }) {
         fetch(`/api/dashboard/atribuicao?token=${encodeURIComponent(token)}`),
       ])
       const [j1, j2] = await Promise.all([r1.json(), r2.json()])
-      if (!r1.ok) throw new Error(j1.error || `Meta Ads ${r1.status}`)
+      if (!r1.ok) {
+        const detail = j1.details?.error?.message || j1.details?.error?.error_user_msg || JSON.stringify(j1.details || j1)
+        throw new Error(`${j1.error}: ${detail}`)
+      }
       if (!r2.ok) throw new Error(j2.error || `Atribuição ${r2.status}`)
       setCampaigns(j1.rows || [])
       setAtrib(j2)
