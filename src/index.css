@@ -1488,3 +1488,357 @@ details.faq-item p {
 
 /* remover wrappers antigos */
 .hero-v3-terminal-wrap, .hero-v4-terminal, .hero-v5-terminal { display: none; }
+
+/* ===== Progress topbar (página /obrigado) ===== */
+.progress-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(9, 9, 11, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 140, 60, 0.15);
+}
+.progress-topbar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.progress-topbar-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-family: ui-monospace, "JetBrains Mono", monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.progress-topbar-step { color: #9a9a9a; font-weight: 700; }
+.progress-topbar-pct { color: #ff8c3c; font-weight: 800; }
+.progress-topbar-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-topbar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff8c3c 0%, #ff6b1a 100%);
+  border-radius: 999px;
+  box-shadow: 0 0 14px rgba(255, 140, 60, 0.5);
+  transition: width 0.6s ease;
+}
+
+/* ===== Hero VSL (página /obrigado) ===== */
+.vsl-hero {
+  background:
+    radial-gradient(ellipse at top, rgba(255, 140, 60, 0.06) 0%, transparent 50%),
+    #09090B;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.vsl-hero-container {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 20px 20px 32px;
+  text-align: center;
+}
+.vsl-hero-logo {
+  height: 36px;
+  margin: 0 auto 14px;
+}
+.vsl-hero-eyebrow {
+  font-family: ui-monospace, "JetBrains Mono", monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 11px;
+  font-weight: 800;
+  color: #ff8c3c;
+  margin-bottom: 10px;
+}
+.vsl-hero-title {
+  font-size: clamp(26px, 5.2vw, 44px);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #fff;
+  margin-bottom: 10px;
+}
+.vsl-hero-sub {
+  font-size: clamp(14px, 2.2vw, 17px);
+  color: #a8a8a8;
+  max-width: 620px;
+  margin: 0 auto 18px;
+  line-height: 1.45;
+}
+.vsl-hero-hint {
+  font-family: ui-monospace, "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: #666;
+  margin-top: 16px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (min-width: 768px) {
+  .vsl-hero-container {
+    padding: 32px 20px 48px;
+  }
+  .vsl-hero-logo { height: 44px; margin-bottom: 18px; }
+  .vsl-hero-sub { margin-bottom: 24px; }
+}
+
+/* ===== CTAs com delay de 30s (página /obrigado) ===== */
+.cta-delayed {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+body.ctas-visible .cta-delayed {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* ===== Mesa choice — botões sim/não abaixo do vídeo ===== */
+.mesa-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-top: 28px;
+}
+.btn-mesa-sim {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 560px;
+  padding: 20px 28px;
+  background: linear-gradient(135deg, #ff8c3c 0%, #ff6b1a 100%);
+  color: #0a0a0a;
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 14px;
+  box-shadow: 0 18px 50px rgba(255, 140, 60, 0.38), inset 0 1px 0 rgba(255,255,255,0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+.btn-mesa-sim::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+  transform: translateX(-120%);
+  animation: btnShine 3.2s ease-in-out infinite;
+}
+@keyframes btnShine {
+  0%, 60% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+.btn-mesa-sim:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 24px 60px rgba(255, 140, 60, 0.55), inset 0 1px 0 rgba(255,255,255,0.3);
+}
+.btn-mesa-nao {
+  color: #888;
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(255,255,255,0.2);
+  padding: 8px 12px;
+  transition: color 0.2s ease;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btn-mesa-nao:hover {
+  color: #c8c8c8;
+  text-decoration-color: rgba(255,255,255,0.4);
+}
+@media (min-width: 768px) {
+  .btn-mesa-sim {
+    padding: 24px 40px;
+    font-size: 18px;
+  }
+  .mesa-choice { gap: 18px; margin-top: 36px; }
+}
+
+/* ===== Progress 100% done variant ===== */
+.progress-topbar-pct--done { color: #22c55e; }
+
+/* ===== Botão WhatsApp (página /confirmado) ===== */
+.btn-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 18px 32px;
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: #fff;
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  border-radius: 14px;
+  text-decoration: none;
+  text-transform: uppercase;
+  box-shadow: 0 14px 40px rgba(37, 211, 102, 0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.btn-whatsapp:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 50px rgba(37, 211, 102, 0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.btn-whatsapp-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+.btn-whatsapp--small {
+  padding: 14px 24px;
+  font-size: 14px;
+}
+@media (min-width: 768px) {
+  .btn-whatsapp {
+    padding: 22px 44px;
+    font-size: 18px;
+  }
+}
+
+/* ===== Meta row da página /confirmado ===== */
+.confirmado-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 28px;
+  padding: 16px 20px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.confirmado-meta-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 100px;
+}
+.confirmado-meta-label {
+  font-family: ui-monospace, "JetBrains Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ff8c3c;
+  font-weight: 800;
+}
+.confirmado-meta-value {
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  text-align: center;
+}
+.confirmado-meta-sep {
+  width: 1px;
+  height: 28px;
+  background: rgba(255,255,255,0.08);
+  display: none;
+}
+@media (min-width: 768px) {
+  .confirmado-meta-sep { display: block; }
+  .confirmado-meta { gap: 24px; }
+  .confirmado-meta-value { font-size: 15px; }
+}
+
+/* ===== Checklist de preparação ===== */
+.preparar-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(34,197,94,0.2) 0%, rgba(22,163,74,0.15) 100%);
+  color: #22c55e;
+  font-weight: 900;
+  font-size: 14px;
+  flex-shrink: 0;
+  border: 1px solid rgba(34,197,94,0.3);
+}
+
+/* ===== VSL Player (páginas /obrigado, /v1/obrigado) ===== */
+.vsl-wrap {
+  max-width: 880px;
+  margin: 0 auto;
+}
+.vsl-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 140, 60, 0.22);
+  box-shadow: 0 24px 80px rgba(255, 140, 60, 0.08), inset 0 0 0 1px rgba(255,255,255,0.03);
+  background: #0a0a0a;
+}
+.vsl-frame iframe,
+.vsl-frame video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.vsl-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background:
+    radial-gradient(ellipse at center, rgba(255, 140, 60, 0.08) 0%, transparent 60%),
+    #0a0a0a;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+.vsl-placeholder:hover { background: radial-gradient(ellipse at center, rgba(255, 140, 60, 0.15) 0%, transparent 60%), #0a0a0a; }
+.vsl-play {
+  width: 88px;
+  height: 88px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff8c3c 0%, #ff6b1a 100%);
+  color: #0a0a0a;
+  font-size: 36px;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 12px 40px rgba(255, 140, 60, 0.45);
+  padding-left: 6px;
+}
+.vsl-placeholder-text {
+  color: #fff;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.vsl-placeholder-sub {
+  color: #777;
+  font-size: 12px;
+  font-family: ui-monospace, "JetBrains Mono", monospace;
+}
+

@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import { useConfig } from './hooks/useConfig.js'
 
 function useTypewriter(fullText, speed = 45, start = true) {
   const [i, setI] = useState(0)
@@ -146,7 +147,7 @@ const dia2 = [
 ]
 
 const faq = [
-  ['Como funciona a imersão?', 'A imersão Claude para Gestores de Tráfego acontece ao vivo no sábado 25 de abril, das 9h às 12h, via plataforma online. Você recebe o link no e-mail após a inscrição.'],
+  ['Como funciona a imersão?', 'A imersão Claude para Gestores de Tráfego acontece ao vivo no sábado 25 de abril, das 9h às 12h, via Zoom. O link chega direto no seu WhatsApp após a inscrição, junto com os lembretes antes do início.'],
   ['Preciso saber programar?', 'Não. Claude Code é por comando em português. Se você sabe escrever pra um humano, sabe usar. A aula preparatória te deixa pronto em 30 minutos.'],
   ['Funciona com Meta Ads e Google Ads?', 'Sim, ambos. A integração é feita via MCP (Model Context Protocol) — vou te mostrar como configurar passo a passo durante a imersão.'],
   ['E se eu não puder assistir no dia?', 'A imersão é 100% ao vivo. Se você quiser garantir a gravação vitalícia + templates prontos, no checkout tem um pacote especial por +R$27 que inclui tudo isso.'],
@@ -432,13 +433,13 @@ function ObsidianBrain() {
   return <canvas ref={ref} className="obsidian-brain" />
 }
 
-function CtaProgress() {
+function CtaProgress({ lote, pct }) {
   return (
     <div className="cta-progress">
-      <div className="cta-progress-bar"><div className="cta-progress-fill" /></div>
+      <div className="cta-progress-bar"><div className="cta-progress-fill" style={{ width: `${pct}%` }} /></div>
       <div className="cta-progress-label">
-        <strong>LOTE 0</strong>
-        <span>74% dos ingressos vendidos</span>
+        <strong>{(lote?.nome || 'LOTE').toUpperCase()}</strong>
+        <span>{pct}% dos ingressos vendidos</span>
       </div>
     </div>
   )
@@ -446,15 +447,20 @@ function CtaProgress() {
 
 function AppV1() {
   useReveal()
+  const { config } = useConfig()
+  const lote = config.imersao.lote_atual
+  const pct = config.imersao.pct_vendido
+  const checkoutUrl = lote.checkout
+
   return (
     <div className="min-h-screen">
       {/* TOP BAR */}
       <div className="topbar">
         <div className="topbar-inner">
-          <span className="topbar-item"><span className="topbar-fire">🔥</span> LOTE 0 · <strong>R$ 9</strong></span>
+          <span className="topbar-item"><span className="topbar-fire">🔥</span> {lote.nome.toUpperCase()} · <strong>R$ {lote.preco}</strong></span>
           <span className="topbar-sep">|</span>
-          <span className="topbar-item">74% das vagas preenchidas</span>
-          <div className="topbar-progress"><div className="topbar-progress-fill" /></div>
+          <span className="topbar-item">{pct}% das vagas preenchidas</span>
+          <div className="topbar-progress"><div className="topbar-progress-fill" style={{ width: `${pct}%` }} /></div>
         </div>
       </div>
 
@@ -485,24 +491,24 @@ function AppV1() {
           </div>
 
           <div className="grid grid-cols-3 gap-3 mb-8 max-w-lg md:mx-0 mx-auto">
-            <div className="lote-card lote-card--active">
-              <span className="lote-fire">🔥</span>
-              <span className="lote-label">Lote 0</span>
-              <span className="lote-price">R$ 9</span>
-            </div>
-            <div className="lote-card">
-              <span className="lote-label">1° Lote</span>
-              <span className="lote-price">R$ 15</span>
-            </div>
-            <div className="lote-card">
-              <span className="lote-label">2° Lote</span>
-              <span className="lote-price">R$ 19</span>
-            </div>
+            {(() => {
+              const todos = config.imersao.lotes
+              const idx = todos.findIndex((l) => l.id === lote.id)
+              const visiveis = todos.slice(idx, idx + 3)
+              while (visiveis.length < 3 && idx > 0) visiveis.unshift(todos[idx - visiveis.length])
+              return visiveis.map((l, i) => (
+                <div key={l.id} className={`lote-card ${l.id === lote.id ? 'lote-card--active' : ''}`}>
+                  {l.id === lote.id && <span className="lote-fire">🔥</span>}
+                  <span className="lote-label">{l.nome}</span>
+                  <span className="lote-price">R$ {l.preco}</span>
+                </div>
+              ))
+            })()}
           </div>
 
           <span className="cta-stack">
-            <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist">GARANTIR MEU INGRESSO POR R$9</a>
-            <CtaProgress />
+            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="btn-brutalist">GARANTIR MEU INGRESSO POR R${lote.preco}</a>
+            <CtaProgress lote={lote} pct={pct} />
           </span>
         </div>
         <div className="flex justify-center lg:hidden mt-2">
@@ -646,8 +652,8 @@ function AppV1() {
             </div>
           </div>
           <span className="cta-stack">
-            <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist">GARANTIR MINHA VAGA — R$9</a>
-            <CtaProgress />
+            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="btn-brutalist">GARANTIR MINHA VAGA — R${lote.preco}</a>
+            <CtaProgress lote={lote} pct={pct} />
           </span>
           <p className="mt-4 text-sm text-txts">Pagamento Seguro | Acesso imediato aos bônus</p>
         </div>
@@ -669,8 +675,8 @@ function AppV1() {
           </div>
           <div className="text-center">
             <span className="cta-stack">
-              <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
-              <CtaProgress />
+              <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
+              <CtaProgress lote={lote} pct={pct} />
             </span>
           </div>
         </div>
@@ -700,8 +706,8 @@ function AppV1() {
             </div>
           </div>
           <span className="cta-stack">
-            <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist">QUERO AS DUAS COISAS</a>
-            <CtaProgress />
+            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="btn-brutalist">QUERO AS DUAS COISAS</a>
+            <CtaProgress lote={lote} pct={pct} />
           </span>
         </div>
       </section>
@@ -759,8 +765,8 @@ function AppV1() {
             </div>
           </div>
           <span className="cta-stack">
-            <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist">QUERO OS DOIS — GARANTIR MINHA VAGA</a>
-            <CtaProgress />
+            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="btn-brutalist">QUERO OS DOIS — GARANTIR MINHA VAGA</a>
+            <CtaProgress lote={lote} pct={pct} />
           </span>
         </div>
       </section>
@@ -822,19 +828,19 @@ function AppV1() {
                 </div>
                 <p className="offer-price-main">
                   <span className="offer-price-cur">R$</span>
-                  <span className="offer-price-num">9</span>
+                  <span className="offer-price-num">{lote.preco}</span>
                   <sup className="offer-price-cents">,00</sup>
                 </p>
                 <p className="offer-price-sub">ou no PIX à vista</p>
               </div>
 
-              <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="offer-cta">GARANTIR MEU INGRESSO</a>
+              <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="offer-cta">GARANTIR MEU INGRESSO</a>
 
               <div className="offer-progress">
-                <div className="offer-progress-bar"><div className="offer-progress-fill" /></div>
+                <div className="offer-progress-bar"><div className="offer-progress-fill" style={{ width: `${pct}%` }} /></div>
                 <div className="offer-progress-label">
-                  <strong>LOTE 0</strong>
-                  <span>74% dos ingressos vendidos</span>
+                  <strong>{lote.nome.toUpperCase()}</strong>
+                  <span>{pct}% dos ingressos vendidos</span>
                 </div>
               </div>
             </div>
@@ -879,8 +885,8 @@ function AppV1() {
           </div>
           <div className="text-center">
             <span className="cta-stack">
-              <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
-              <CtaProgress />
+              <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
+              <CtaProgress lote={lote} pct={pct} />
             </span>
           </div>
         </div>
@@ -907,8 +913,8 @@ function AppV1() {
           </div>
           <p className="text-txts mb-8">Seu ingresso da imersão é a porta de entrada para essa oportunidade.</p>
           <span className="cta-stack">
-            <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist">GARANTIR MEU INGRESSO — R$9</a>
-            <CtaProgress />
+            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="btn-brutalist">GARANTIR MEU INGRESSO — R${lote.preco}</a>
+            <CtaProgress lote={lote} pct={pct} />
           </span>
         </div>
       </section>
@@ -942,8 +948,8 @@ function AppV1() {
           </p>
           <div className="mb-10"><Countdown compact /></div>
           <span className="cta-stack">
-            <a href="https://checkout.ticto.app/OF2C85B97" target="_blank" rel="noopener noreferrer" className="btn-brutalist btn-brutalist-orange">GARANTIR MEU INGRESSO POR R$9</a>
-            <CtaProgress />
+            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="btn-brutalist btn-brutalist-orange">GARANTIR MEU INGRESSO POR R${lote.preco}</a>
+            <CtaProgress lote={lote} pct={pct} />
           </span>
           <p className="text-sm text-txts mt-6">Vagas limitadas · 1° lote · Compra segura</p>
         </div>
