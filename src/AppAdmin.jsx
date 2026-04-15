@@ -15,7 +15,12 @@ function useIsMobile() {
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 const TOKEN_KEY = 'cct_admin_token'
-const EVENT_DATE = new Date('2026-04-25T09:00:00-03:00')
+const EVENT_DATE = new Date('2026-05-02T09:00:00-03:00')
+
+// Data atual em BRT (UTC-3, sem horário de verão no Brasil)
+function todayBRT() {
+  return new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString().slice(0, 10)
+}
 
 function getTokenFromUrl() {
   try { return new URLSearchParams(window.location.search).get('token') } catch { return null }
@@ -275,7 +280,7 @@ function BarChart({ dias, metaDiaria }) {
         {/* Barras */}
         {dias.map((d, i) => {
           const x = PAD.left + i * gap + gap / 2
-          const isToday = d.date === new Date().toISOString().slice(0, 10)
+          const isToday = d.date === todayBRT()
 
           const hImersao = (d.imersao / maxVal) * innerH
           const hMesa = (d.mesa / maxVal) * innerH
@@ -433,6 +438,85 @@ const META_LABELS = {
   mentoria_preco: 'Mentoria preço (R$)',
   faturamento_total_meta: 'Faturamento TOTAL meta',
   roas_meta: 'ROAS meta',
+}
+
+// ─── Donut PIX vs Cartão ───────────────────────────────────────────────────────
+function DonutCard({ pagamento }) {
+  const pix    = pagamento?.pix    || 0
+  const cartao = pagamento?.cartao || 0
+  const total  = pix + cartao
+  if (total === 0) {
+    return (
+      <div style={{ background: '#0e0e12', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: '24px 28px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', color: '#ff8c3c', textTransform: 'uppercase', marginBottom: 16 }}>PIX vs Cartão</div>
+        <div style={{ color: '#3f3f46', fontSize: 12 }}>Sem dados</div>
+      </div>
+    )
+  }
+
+  const pixPct    = Math.round((pix    / total) * 100)
+  const cartaoPct = 100 - pixPct
+
+  // SVG donut: circunferência = 2π × r (r=40)
+  const r = 40, cx = 56, cy = 56
+  const circ = 2 * Math.PI * r
+  const pixDash    = (pix    / total) * circ
+  const cartaoDash = (cartao / total) * circ
+  // PIX começa no topo (−90°), cartão começa depois do PIX
+  const pixOffset    = -circ / 4
+  const cartaoOffset = pixOffset - pixDash
+
+  return (
+    <div style={{ background: '#0e0e12', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: '24px 28px' }}>
+      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', color: '#ff8c3c', textTransform: 'uppercase', marginBottom: 20 }}>
+        PIX vs Cartão
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+        <svg width={112} height={112} viewBox="0 0 112 112" style={{ flexShrink: 0 }}>
+          {/* Trilha */}
+          <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={14} />
+          {/* Cartão (cinza-azulado) */}
+          <circle cx={cx} cy={cy} r={r} fill="none"
+            stroke="#6366f1" strokeWidth={14}
+            strokeDasharray={`${cartaoDash} ${circ - cartaoDash}`}
+            strokeDashoffset={cartaoOffset}
+            strokeLinecap="butt"
+            style={{ transition: 'stroke-dasharray 0.5s' }}
+          />
+          {/* PIX (verde) */}
+          <circle cx={cx} cy={cy} r={r} fill="none"
+            stroke="#22c55e" strokeWidth={14}
+            strokeDasharray={`${pixDash} ${circ - pixDash}`}
+            strokeDashoffset={pixOffset}
+            strokeLinecap="butt"
+            style={{ transition: 'stroke-dasharray 0.5s' }}
+          />
+          {/* Centro */}
+          <text x={cx} y={cy - 6} textAnchor="middle" fill="#e4e4e7" fontSize={16} fontWeight={700} fontFamily="'JetBrains Mono', monospace">{total}</text>
+          <text x={cx} y={cy + 12} textAnchor="middle" fill="#52525b" fontSize={9} fontFamily="'JetBrains Mono', monospace">vendas</text>
+        </svg>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 3 }}>
+              <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#22c55e', flexShrink: 0 }} />
+              <span style={{ fontSize: 10, fontWeight: 700, color: '#52525b', letterSpacing: '0.08em', textTransform: 'uppercase' }}>PIX</span>
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: '#22c55e', lineHeight: 1 }}>{pix}</div>
+            <div style={{ fontSize: 11, color: '#3f3f46', marginTop: 2 }}>{pixPct}% das vendas</div>
+          </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 3 }}>
+              <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#6366f1', flexShrink: 0 }} />
+              <span style={{ fontSize: 10, fontWeight: 700, color: '#52525b', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Cartão</span>
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: '#6366f1', lineHeight: 1 }}>{cartao}</div>
+            <div style={{ fontSize: 11, color: '#3f3f46', marginTop: 2 }}>{cartaoPct}% das vendas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function MetasPanel({ token }) {
@@ -705,6 +789,7 @@ function Dashboard({ token, onLogout }) {
   const mesa = overview?.mesa_config
   const redis = overview?.contadores_redis
   const lotesBreakdown = overview?.lotes_breakdown || []
+  const pagamento = overview?.pagamento
 
   // Meta total de ingressos (não temos ainda sem buscar metas, usamos fallback)
   // Buscamos metaDiaria do endpoint de metas (lazy)
@@ -725,7 +810,7 @@ function Dashboard({ token, onLogout }) {
   const metaDiaria = (dias > 0 && restantes != null) ? Math.ceil(restantes / dias) : null
 
   // Vendas hoje do gráfico
-  const hoje = diasData?.find((d) => d.date === new Date().toISOString().slice(0, 10))
+  const hoje = diasData?.find((d) => d.date === todayBRT())
   const vendasHoje = hoje?.imersao || 0
 
   // Lote: vagas restantes
@@ -831,7 +916,7 @@ function Dashboard({ token, onLogout }) {
                 boxShadow: `inset 0 0 40px ${barColor}08`,
               }}>
                 <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', color: barColor, marginBottom: 10, textTransform: 'uppercase' }}>
-                  Meta do dia · {dias}d até 25/04
+                  Meta do dia · {dias}d até 02/05
                 </div>
 
                 {metaDiaria == null ? (
@@ -909,14 +994,15 @@ function Dashboard({ token, onLogout }) {
           />
         </div>
 
-        {/* ── Linha 3: gráfico diário + funil ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr', gap: 16 }}>
+        {/* ── Linha 3: gráfico diário + donut + funil ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr 1fr', gap: 16 }}>
           <div style={{ background: '#0e0e12', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: '24px 28px' }}>
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', color: '#ff8c3c', marginBottom: 20, textTransform: 'uppercase' }}>
               Vendas por dia · últimos 14 dias
             </div>
             <BarChart dias={diasData} metaDiaria={metaDiaria} />
           </div>
+          <DonutCard pagamento={pagamento} />
           <FunnelCard kpis={kpis} />
         </div>
 

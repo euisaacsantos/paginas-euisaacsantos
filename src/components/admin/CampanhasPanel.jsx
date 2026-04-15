@@ -129,6 +129,16 @@ function MetricRow({ row, attrib, level, isExpanded, onToggle, depth = 0, datePr
           }}>
             {name}
           </span>
+          {/* Badge status campanha */}
+          {level === 'campaign' && row.effective_status && row.effective_status !== 'ACTIVE' && (
+            <span style={{
+              fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 4,
+              background: 'rgba(82,82,91,0.25)', color: '#71717a',
+              flexShrink: 0, letterSpacing: '0.05em',
+            }}>
+              {row.effective_status === 'PAUSED' ? 'PAUSADA' : row.effective_status}
+            </span>
+          )}
           {/* Link externo (ad level) */}
           {level === 'ad' && row.ad_manager_url && (
             <a
@@ -454,7 +464,7 @@ export default function CampanhasPanel({ token, onSpendTotal }) {
 
           {/* Clear range */}
           {customRange && (
-            <button onClick={() => { setCustomRange(null); setDatePreset('lifetime') }} style={{
+            <button onClick={() => { setCustomRange(null); setDatePreset('') }} style={{
               background: 'transparent', border: 'none', color: '#52525b',
               fontFamily: "'JetBrains Mono', monospace", fontSize: 11, cursor: 'pointer', padding: '5px 4px',
             }}>

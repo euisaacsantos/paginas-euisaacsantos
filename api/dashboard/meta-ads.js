@@ -33,32 +33,66 @@ async function fetchAll(url) {
     const chunk = json.data || []
     rows.push(...chunk)
     page++
-    // Insights usa paging.next (URL completa com cursor after=)
-    // Se não vier next, tenta construir com cursor
     const nextUrl = json.paging?.next || null
     const afterCursor = json.paging?.cursors?.after || null
     if (nextUrl) {
       next = nextUrl
     } else if (afterCursor && chunk.length > 0) {
-      // Monta próxima página com cursor
       const u = new URL(next)
       u.searchParams.set('after', afterCursor)
       next = u.toString()
     } else {
       next = null
     }
-    // Segurança: max 20 páginas (~10k registros)
     if (page >= 20) break
   }
-  console.log(`[meta-ads] fetchAll: ${rows.length} rows em ${page} páginas`)
   return rows
+}
+
+function normalizeRow(r, thumbMap, acctId) {
+  const actions    = r.actions || []
+  const spend      = Number(r.spend)                || 0
+  const impressions= Number(r.impressions)           || 0
+  const cpm        = Number(r.cpm)                   || 0
+  const linkClicks = Number(r.inline_link_clicks)    || 0
+  const linkCtr    = Number(r.inline_link_click_ctr) || 0
+  const pageViews  = getAction(actions, 'landing_page_view')
+  const checkout   = getAction(actions, 'initiate_checkout')
+  const purchMeta  = getAction(actions, 'purchase', 'offsite_conversion.fb_pixel_purchase')
+  const adId       = r.ad_id || null
+
+  return {
+    id:            adId || r.adset_id || r.campaign_id,
+    campaign_id:   r.campaign_id   || null,
+    campaign_name: r.campaign_name || null,
+    adset_id:      r.adset_id      || null,
+    adset_name:    r.adset_name    || null,
+    ad_id:         adId,
+    ad_name:       r.ad_name       || null,
+    status:        r.status        || null,
+    effective_status: r.effective_status || null,
+    spend,
+    impressions,
+    cpm,
+    link_clicks:   linkClicks,
+    link_ctr:      linkCtr,
+    page_views:    pageViews,
+    checkout,
+    purchases_meta: purchMeta,
+    connect_rate:  linkClicks > 0 ? pageViews / linkClicks : 0,
+    checkout_rate: pageViews  > 0 ? checkout  / pageViews  : 0,
+    thumbnail:     adId ? (thumbMap[adId] || null) : null,
+    ad_manager_url: adId
+      ? `https://www.facebook.com/adsmanager/manage/ads?act=${acctId}&selected_ad_ids=${adId}`
+      : null,
+  }
 }
 
 // GET /api/dashboard/meta-ads?token=X
 //   &level=campaign|adset|ad
 //   &campaign_id=   (obrigatório para adset/ad)
 //   &adset_id=      (obrigatório para ad)
-//   &date_preset=lifetime|this_month|last_30d
+//   &date_preset=this_month|last_30d|last_90d
 export default async function handler(req, res) {
   if (!requireAdmin(req, res)) return
 
@@ -72,19 +106,74 @@ export default async function handler(req, res) {
     const level       = req.query.level || 'campaign'
     const campaignId  = req.query.campaign_id || null
     const adsetId     = req.query.adset_id || null
-    const datePreset  = req.query.date_preset || null  // null = usa time_range amplo
-    const since       = req.query.since || null          // YYYY-MM-DD (range customizado)
+    const datePreset  = req.query.date_preset || null
+    const since       = req.query.since || null
     const until       = req.query.until || null
-    // "Total": 36 meses atrás até hoje (Meta permite até 37 meses; margem de 1 mês)
-    const todayISO    = new Date().toISOString().slice(0, 10)
-    const sinceDate   = new Date()
+
+    // Default: 36 meses atrás até hoje (Meta permite até 37 meses)
+    const todayISO  = new Date().toISOString().slice(0, 10)
+    const sinceDate = new Date()
     sinceDate.setMonth(sinceDate.getMonth() - 36)
-    const sinceISO    = sinceDate.toISOString().slice(0, 10)
+    const sinceISO  = sinceDate.toISOString().slice(0, 10)
     const defaultRange = { since: sinceISO, until: todayISO }
 
-    // ── Insights ──────────────────────────────────────────────────────────────
-    // Filtro de nome de campanha é feito CLIENT-SIDE após receber os dados —
-    // os colchetes em [VENDAS][IMERSAO] causam problemas no filtro server-side da Meta.
+    const timeParams = since && until
+      ? { time_range: JSON.stringify({ since, until }) }
+      : datePreset
+      ? { date_preset: datePreset }
+      : { time_range: JSON.stringify(defaultRange) }
+
+    // ── Nível campanha: busca /campaigns primeiro (inclui pausadas), depois merge insights ──
+    if (level === 'campaign') {
+      // 1. Busca todas as campanhas da conta (inclui pausadas)
+      const cp = new URLSearchParams({
+        fields: 'id,name,status,effective_status',
+        limit: '500',
+        access_token: token,
+      })
+      const allCampaigns = await fetchAll(`${GRAPH}/${act(acctId)}/campaigns?${cp}`)
+      const prefix = CAMP_PREFIX.toLowerCase()
+      const filtered = allCampaigns.filter(
+        (c) => c.name && c.name.toLowerCase().includes(prefix)
+      )
+
+      let rows = []
+
+      if (filtered.length > 0) {
+        // 2. Busca insights apenas para essas campanhas (filtra por campaign.id IN [...])
+        const campaignIds = filtered.map((c) => c.id)
+        const ip = new URLSearchParams({
+          level: 'campaign',
+          fields: buildInsightFields('campaign'),
+          limit: '500',
+          access_token: token,
+          filtering: JSON.stringify([{ field: 'campaign.id', operator: 'IN', value: campaignIds }]),
+          ...timeParams,
+        })
+        const insightsRows = await fetchAll(`${GRAPH}/${act(acctId)}/insights?${ip}`)
+        const insightsMap = {}
+        for (const r of insightsRows) {
+          insightsMap[r.campaign_id] = r
+        }
+
+        // 3. Left-join: todas as campanhas filtradas + métricas (zeros se sem spend)
+        rows = filtered.map((c) => {
+          const insight = insightsMap[c.id] || {}
+          return normalizeRow({
+            campaign_id:   c.id,
+            campaign_name: c.name,
+            status:        c.status,
+            effective_status: c.effective_status,
+            ...insight,
+          }, {}, acctId)
+        })
+      }
+
+      res.setHeader('Cache-Control', 'no-store')
+      return res.status(200).json({ rows, level })
+    }
+
+    // ── Níveis adset/ad: usa Insights diretamente (filtra por campaign_id/adset_id) ──
     const filters = []
     if (campaignId) filters.push({ field: 'campaign.id', operator: 'EQUAL', value: campaignId })
     if (adsetId)    filters.push({ field: 'adset.id',    operator: 'EQUAL', value: adsetId })
@@ -94,31 +183,13 @@ export default async function handler(req, res) {
       fields: buildInsightFields(level),
       limit: '500',
       access_token: token,
-      ...(since && until
-        ? { time_range: JSON.stringify({ since, until }) }
-        : datePreset
-        ? { date_preset: datePreset }
-        : { time_range: JSON.stringify(defaultRange) }),
+      ...timeParams,
       ...(filters.length && { filtering: JSON.stringify(filters) }),
     })
 
-    const insightsUrl = `${GRAPH}/${act(acctId)}/insights?${p}`
-    console.log('[meta-ads] url:', insightsUrl.replace(token, 'TOKEN'))
+    const insightsRows = await fetchAll(`${GRAPH}/${act(acctId)}/insights?${p}`)
 
-    let insightsRows = await fetchAll(insightsUrl)
-    console.log(`[meta-ads] total antes do filtro: ${insightsRows.length}`)
-    console.log('[meta-ads] nomes:', insightsRows.map(r => r.campaign_name).slice(0, 5))
-
-    // Filtra pelo prefixo client-side (evita problema com [] no filtro da API)
-    if (level === 'campaign') {
-      const prefix = CAMP_PREFIX.toLowerCase()
-      insightsRows = insightsRows.filter(
-        (r) => r.campaign_name && r.campaign_name.toLowerCase().includes(prefix)
-      )
-      console.log(`[meta-ads] total após filtro prefixo: ${insightsRows.length}`)
-    }
-
-    // ── Thumbnails (só no nível de anúncio) ────────────────────────────────
+    // Thumbnails (só no nível de anúncio)
     let thumbMap = {}
     if (level === 'ad' && insightsRows.length > 0) {
       const adIds = [...new Set(insightsRows.map((r) => r.ad_id).filter(Boolean))]
@@ -142,44 +213,7 @@ export default async function handler(req, res) {
       }
     }
 
-    // ── Normaliza ──────────────────────────────────────────────────────────
-    const rows = insightsRows.map((r) => {
-      const actions    = r.actions || []
-      const spend      = Number(r.spend)               || 0
-      const impressions= Number(r.impressions)          || 0
-      const cpm        = Number(r.cpm)                  || 0
-      const linkClicks = Number(r.inline_link_clicks)   || 0
-      const linkCtr    = Number(r.inline_link_click_ctr)|| 0
-      const pageViews  = getAction(actions, 'landing_page_view')
-      const checkout   = getAction(actions, 'initiate_checkout')
-      const purchMeta  = getAction(actions, 'purchase', 'offsite_conversion.fb_pixel_purchase')
-      const adId       = r.ad_id || null
-
-      return {
-        id:            adId || r.adset_id || r.campaign_id,
-        campaign_id:   r.campaign_id   || null,
-        campaign_name: r.campaign_name || null,
-        adset_id:      r.adset_id      || null,
-        adset_name:    r.adset_name    || null,
-        ad_id:         adId,
-        ad_name:       r.ad_name       || null,
-        spend,
-        impressions,
-        cpm,
-        link_clicks:   linkClicks,
-        link_ctr:      linkCtr,
-        page_views:    pageViews,
-        checkout,
-        purchases_meta: purchMeta,
-        connect_rate:  linkClicks > 0 ? pageViews / linkClicks : 0,
-        checkout_rate: pageViews  > 0 ? checkout  / pageViews  : 0,
-        // purchase rates calculadas no frontend após join com DB
-        thumbnail:     adId ? (thumbMap[adId] || null) : null,
-        ad_manager_url: adId
-          ? `https://www.facebook.com/adsmanager/manage/ads?act=${acctId}&selected_ad_ids=${adId}`
-          : null,
-      }
-    })
+    const rows = insightsRows.map((r) => normalizeRow(r, thumbMap, acctId))
 
     res.setHeader('Cache-Control', 'no-store')
     res.status(200).json({ rows, level })

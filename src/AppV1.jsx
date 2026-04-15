@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useConfig } from './hooks/useConfig.js'
-import { trackAddToCart } from './lib/meta-tracking.js'
+
+
 import { useLiveVendas } from './hooks/useLiveVendas.js'
 import LiveToast from './components/LiveToast.jsx'
 
@@ -84,7 +85,7 @@ function useReveal() {
 }
 
 function useCountdown() {
-  const target = new Date('2026-04-25T09:00:00-03:00').getTime()
+  const target = new Date('2026-05-02T09:00:00-03:00').getTime()
   const [now, setNow] = useState(Date.now())
   useEffect(() => {
     const i = setInterval(() => setNow(Date.now()), 1000)
@@ -151,7 +152,7 @@ const dia2 = [
 ]
 
 const faq = [
-  ['Como funciona a imersão?', 'A imersão Claude para Gestores de Tráfego acontece ao vivo no sábado 25 de abril, das 9h às 12h, via Zoom. O link chega direto no seu WhatsApp após a inscrição, junto com os lembretes antes do início.'],
+  ['Como funciona a imersão?', 'A imersão Claude para Gestores de Tráfego acontece ao vivo no sábado 2 de maio, das 9h às 12h, via Zoom. O link chega direto no seu WhatsApp após a inscrição, junto com os lembretes antes do início.'],
   ['Preciso saber programar?', 'Não. Claude Code é por comando em português. Se você sabe escrever pra um humano, sabe usar. A aula preparatória te deixa pronto em 30 minutos.'],
   ['Funciona com Meta Ads e Google Ads?', 'Sim, ambos. A integração é feita via MCP (Model Context Protocol) — vou te mostrar como configurar passo a passo durante a imersão.'],
   ['E se eu não puder assistir no dia?', 'A imersão é 100% ao vivo. Se você quiser garantir a gravação vitalícia + templates prontos, no checkout tem um pacote especial por +R$27 que inclui tudo isso.'],
@@ -457,7 +458,7 @@ function AppV1() {
   const checkoutUrl = lote.checkout
   const [liveEvent, setLiveEvent] = useState(null)
   useLiveVendas({ onIncrement: setLiveEvent, onUpdate: setVendasLive, initial: vendasIniciais })
-  const handleCheckoutClick = () => trackAddToCart({ content_name: lote.nome, value: lote.preco })
+
 
   return (
     <div className="min-h-screen">
@@ -483,13 +484,13 @@ function AppV1() {
           <img src="/assets/LOGO.png" alt="Logo" className="h-14 md:h-16 mb-6 mx-auto md:mx-0" />
           <HeroTitle />
           <p className="hero-subhead text-lg md:text-xl text-txts max-w-3xl md:mx-0 mx-auto mb-10">
-            No próximo <span className="text-white font-bold">dia 25/04</span>, eu te mostro como comandar uma operação inteira de tráfego pago por voz e texto. Subir campanha, gerar relatório, monitorar conta, baixar criativos do concorrente, gerar análises, briefar designer — tudo num comando. <span className="text-white font-bold">Sem n8n. Sem workflow. Sem código.</span>
+            No próximo <span className="text-white font-bold">dia 02/05</span>, eu te mostro como comandar uma operação inteira de tráfego pago por voz e texto. Subir campanha, gerar relatório, monitorar conta, baixar criativos do concorrente, gerar análises, briefar designer — tudo num comando. <span className="text-white font-bold">Sem n8n. Sem workflow. Sem código.</span>
           </p>
 
           <div className="flex flex-wrap md:flex-nowrap items-center gap-x-8 gap-y-3 mb-10 justify-center md:justify-start">
             <div className="flex items-center gap-3">
               <span className="badge">Data</span>
-              <p className="text-base font-black whitespace-nowrap">Sábado, 25 de abril</p>
+              <p className="text-base font-black whitespace-nowrap">Sábado, 2 de maio</p>
             </div>
             <div className="flex items-center gap-3">
               <span className="badge">Horário</span>
@@ -527,7 +528,7 @@ function AppV1() {
           </div>
 
           <span className="cta-stack">
-            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" onClick={handleCheckoutClick} className="btn-brutalist">GARANTIR MEU INGRESSO POR R${lote.preco}</a>
+            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" data-value={lote.preco} data-content-name={lote.nome} className="btn-brutalist">GARANTIR MEU INGRESSO POR R${lote.preco}</a>
             <CtaProgress lote={lote} pct={pct} />
           </span>
         </div>
@@ -672,7 +673,7 @@ function AppV1() {
             </div>
           </div>
           <span className="cta-stack">
-            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" onClick={handleCheckoutClick} className="btn-brutalist">GARANTIR MINHA VAGA — R${lote.preco}</a>
+            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" data-value={lote.preco} data-content-name={lote.nome} className="btn-brutalist">GARANTIR MINHA VAGA — R${lote.preco}</a>
             <CtaProgress lote={lote} pct={pct} />
           </span>
           <p className="mt-4 text-sm text-txts">Pagamento Seguro | Acesso imediato aos bônus</p>
@@ -695,7 +696,7 @@ function AppV1() {
           </div>
           <div className="text-center">
             <span className="cta-stack">
-              <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" onClick={handleCheckoutClick} className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
+              <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" data-value={lote.preco} data-content-name={lote.nome} className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
               <CtaProgress lote={lote} pct={pct} />
             </span>
           </div>
@@ -726,7 +727,7 @@ function AppV1() {
             </div>
           </div>
           <span className="cta-stack">
-            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" onClick={handleCheckoutClick} className="btn-brutalist">QUERO AS DUAS COISAS</a>
+            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" data-value={lote.preco} data-content-name={lote.nome} className="btn-brutalist">QUERO AS DUAS COISAS</a>
             <CtaProgress lote={lote} pct={pct} />
           </span>
         </div>
@@ -785,7 +786,7 @@ function AppV1() {
             </div>
           </div>
           <span className="cta-stack">
-            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" onClick={handleCheckoutClick} className="btn-brutalist">QUERO OS DOIS — GARANTIR MINHA VAGA</a>
+            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" data-value={lote.preco} data-content-name={lote.nome} className="btn-brutalist">QUERO OS DOIS — GARANTIR MINHA VAGA</a>
             <CtaProgress lote={lote} pct={pct} />
           </span>
         </div>
@@ -798,7 +799,7 @@ function AppV1() {
             {/* LEFT */}
             <div className="offer-left">
               <h2 className="offer-title">Claude para Gestores de Tráfego<br/><span className="highlight-orange">Acesso completo + bônus</span></h2>
-              <p className="offer-meta">Sábado 25 de abril · 9h às 12h · Online ao vivo · Bônus inclusos</p>
+              <p className="offer-meta">Sábado 2 de maio · 9h às 12h · Online ao vivo · Bônus inclusos</p>
 
               <div className="offer-features">
                 {[
@@ -854,7 +855,7 @@ function AppV1() {
                 <p className="offer-price-sub">ou no PIX à vista</p>
               </div>
 
-              <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" onClick={handleCheckoutClick} className="offer-cta">GARANTIR MEU INGRESSO</a>
+              <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" data-value={lote.preco} data-content-name={lote.nome} className="offer-cta">GARANTIR MEU INGRESSO</a>
 
               <div className="offer-progress">
                 <div className="offer-progress-bar"><div className="offer-progress-fill" style={{ width: `${pct}%` }} /></div>
@@ -905,7 +906,7 @@ function AppV1() {
           </div>
           <div className="text-center">
             <span className="cta-stack">
-              <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" onClick={handleCheckoutClick} className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
+              <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" data-value={lote.preco} data-content-name={lote.nome} className="btn-brutalist">QUERO OPERAR ASSIM TAMBÉM</a>
               <CtaProgress lote={lote} pct={pct} />
             </span>
           </div>
@@ -933,7 +934,7 @@ function AppV1() {
           </div>
           <p className="text-txts mb-8">Seu ingresso da imersão é a porta de entrada para essa oportunidade.</p>
           <span className="cta-stack">
-            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" onClick={handleCheckoutClick} className="btn-brutalist">GARANTIR MEU INGRESSO — R${lote.preco}</a>
+            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" data-value={lote.preco} data-content-name={lote.nome} className="btn-brutalist">GARANTIR MEU INGRESSO — R${lote.preco}</a>
             <CtaProgress lote={lote} pct={pct} />
           </span>
         </div>
@@ -968,7 +969,7 @@ function AppV1() {
           </p>
           <div className="mb-10"><Countdown compact /></div>
           <span className="cta-stack">
-            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" className="btn-brutalist btn-brutalist-orange">GARANTIR MEU INGRESSO POR R${lote.preco}</a>
+            <a href={checkoutUrl} target="_blank" rel="noopener noreferrer" data-value={lote.preco} data-content-name={lote.nome} className="btn-brutalist btn-brutalist-orange">GARANTIR MEU INGRESSO POR R${lote.preco}</a>
             <CtaProgress lote={lote} pct={pct} />
           </span>
           <p className="text-sm text-txts mt-6">Vagas limitadas · 1° lote · Compra segura</p>

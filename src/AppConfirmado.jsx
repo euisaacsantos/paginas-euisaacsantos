@@ -18,7 +18,7 @@ function useReveal() {
 }
 
 function useCountdown() {
-  const target = new Date('2026-04-25T09:00:00-03:00').getTime()
+  const target = new Date('2026-05-02T09:00:00-03:00').getTime()
   const [now, setNow] = useState(Date.now())
   useEffect(() => {
     const i = setInterval(() => setNow(Date.now()), 1000)
@@ -61,9 +61,9 @@ const WHATSAPP_SUPORTE = 'https://wa.me/5511999999999'
 const AULA_PREP_URL = 'https://link-da-aula-preparatoria'
 
 const lembretes = [
-  { quando: 'Quinta 23/04 · 12h', o_que: 'Mensagem no seu WhatsApp com o link do Zoom e a checklist final do que preparar' },
-  { quando: 'Sexta 24/04 · 20h', o_que: 'Último aviso: "amanhã é a imersão" — direto no seu WhatsApp, com o link cravado' },
-  { quando: 'Sábado 25/04 · 8h45', o_que: 'Mensagem 15 minutos antes: "abriu a sala, entra" — pra ninguém perder o início' },
+  { quando: 'Quinta 30/04 · 12h', o_que: 'Mensagem no seu WhatsApp com o link do Zoom e a checklist final do que preparar' },
+  { quando: 'Sexta 01/05 · 20h', o_que: 'Último aviso: "amanhã é a imersão" — direto no seu WhatsApp, com o link cravado' },
+  { quando: 'Sábado 02/05 · 8h45', o_que: 'Mensagem 15 minutos antes: "abriu a sala, entra" — pra ninguém perder o início' },
 ]
 
 const prepararItens = [
@@ -99,7 +99,7 @@ function AppConfirmado() {
           <p className="vsl-hero-eyebrow">✓ Inscrição confirmada</p>
           <h1 className="vsl-hero-title">
             Tá dentro.<br/>
-            <span className="highlight-orange">Sábado 25/04 é comigo.</span>
+            <span className="highlight-orange">Sábado 02/05 é comigo.</span>
           </h1>
           <p className="vsl-hero-sub">
             Sua vaga tá garantida. Todos os avisos e o link da sala caem direto no seu <span style={{ color: '#fff', fontWeight: 700 }}>WhatsApp</span> — você não precisa fazer mais nada agora.
@@ -112,7 +112,7 @@ function AppConfirmado() {
           <div className="confirmado-meta">
             <div className="confirmado-meta-item">
               <span className="confirmado-meta-label">Data</span>
-              <span className="confirmado-meta-value">Sábado, 25/04</span>
+              <span className="confirmado-meta-value">Sábado, 02/05</span>
             </div>
             <span className="confirmado-meta-sep" />
             <div className="confirmado-meta-item">

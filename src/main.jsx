@@ -7,7 +7,7 @@ import AppV2 from './AppV2.jsx'
 import AppObrigado from './AppObrigado.jsx'
 import AppConfirmado from './AppConfirmado.jsx'
 import AppAdmin from './AppAdmin.jsx'
-import { trackPageView } from './lib/meta-tracking.js'
+import { trackPageView, sendCAPI } from './lib/meta-tracking.js'
 
 const path = window.location.pathname
 const Root =
@@ -76,7 +76,25 @@ document.addEventListener('click', (e) => {
     const fbc = cctGetCookie('_fbc') || cctBuildFbc()
     const utms = cctParseUtms()
 
-    // fire-and-forget: keepalive garante envio mesmo se navegar
+    // Valor e nome do produto lidos do data-attribute do link CTA
+    const value       = parseFloat(a.dataset.value)   || undefined
+    const contentName = a.dataset.contentName         || undefined
+
+    // event_id compartilhado entre Pixel (client) e CAPI (server via session-start)
+    // garante que Meta deduplique e conte um único InitiateCheckout
+    const eventId = 'ick_' + sessionId
+
+    // ── InitiateCheckout: client (Pixel) + server (CAPI via /api/meta-capi) ──
+    sendCAPI('InitiateCheckout', {
+      currency: 'BRL',
+      ...(value       && { value }),
+      ...(contentName && { content_name: contentName }),
+      num_items: 1,
+    }, eventId)
+
+    // ── Sessão: grava fbp/fbc/UTMs/geo no Supabase pra enriquecer Purchase CAPI ──
+    // Passa event_id e dados do produto pra session-start também disparar InitiateCheckout
+    // server-side com IP/UA/geo reais (deduplicado pelo mesmo event_id)
     fetch('/api/session-start', {
       method: 'POST',
       keepalive: true,
@@ -88,6 +106,9 @@ document.addEventListener('click', (e) => {
         fbc,
         ...utms,
         landing_url: window.location.href,
+        event_id: eventId,
+        ...(value       && { value }),
+        ...(contentName && { content_name: contentName }),
       }),
     }).catch(() => {})
 
@@ -98,7 +119,6 @@ document.addEventListener('click', (e) => {
       new URLSearchParams(search).forEach((v, k) => url.searchParams.set(k, v))
     }
     url.searchParams.set('src', `sess_${sessionId}`)
-    // sck livre — Isaac pode usar se quiser rastrear outra coisa
 
     e.preventDefault()
     window.open(url.toString(), a.target || '_blank', 'noopener,noreferrer')

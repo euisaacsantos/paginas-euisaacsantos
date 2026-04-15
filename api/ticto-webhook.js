@@ -252,9 +252,7 @@ export default async function handler(req, res) {
     const customer = extractCustomer(body)
 
     // ── PIX gerado ou abandono de checkout ─────────────────────────────────
-    // Grava em cct_leads_pendentes (sem incrementar Redis/CAPI).
-    // Se o mesmo transactionId já existe como compra aprovada, ignora.
-    // Se já existe como lead pendente, faz upsert (atualiza kind se subiu de grau).
+    // Grava em cct_leads_pendentes e envia InitiateCheckout à CAPI.
     if (isPix || isAbandon) {
       const kind = isPix ? 'pix_generated' : 'abandoned_cart'
       const utms = extractUtms(body)
@@ -271,6 +269,17 @@ export default async function handler(req, res) {
 
       if (vendaExistente) {
         return respond(200, { ok: true, ignored: true, reason: 'already_purchased', transaction_id: transactionId })
+      }
+
+      // Lookup de sessão (fbp/fbc/ip/ua/geo/external_id)
+      let sessaoData = null
+      if (sessionId) {
+        const { data: sess } = await supabase
+          .from('cct_sessoes_checkout')
+          .select('*')
+          .eq('session_id', sessionId)
+          .maybeSingle()
+        if (sess) sessaoData = sess
       }
 
       // PIX expira em 30 min; abandono em 24h
@@ -309,7 +318,47 @@ export default async function handler(req, res) {
         return respond(500, { error: 'leads_pendentes insert failed', details: upsertError.message }, upsertError.message)
       }
 
-      return respond(200, { ok: true, kind, transaction_id: transactionId })
+      // ── CAPI: InitiateCheckout (fire-and-forget — não bloqueia resposta) ──
+      // event_id único por transação → evita deduplica dupla se PIX e abandono chegarem
+      const payloadIpUa = extractClientIpUa(body)
+      const payloadGeo  = extractGeoFromPayload(body)
+      const { fn, ln }  = splitName(customer.nome)
+      const contentName = loteMatch
+        ? loteMatch.nome
+        : produtoTipo === 'mesa' ? 'Mesa de Comando' : 'Order Bump'
+
+      sendCapiEvent({
+        event_name: 'InitiateCheckout',
+        event_id: `initiatecheckout_${transactionId}`,
+        event_source_url: pick(body, ['checkout_url', 'source_url']) || undefined,
+        user_data: {
+          email:              customer.email,
+          phone:              customer.telefone,
+          fn,
+          ln,
+          external_id:        sessaoData?.external_id || cpf || null,
+          fbp:                sessaoData?.fbp         || null,
+          fbc:                sessaoData?.fbc         || utms.fbclid || null,
+          client_ip_address:  sessaoData?.client_ip_address || payloadIpUa.ip  || null,
+          client_user_agent:  sessaoData?.client_user_agent || payloadIpUa.ua  || null,
+          city:               sessaoData?.city   || payloadGeo.city    || null,
+          region:             sessaoData?.region || payloadGeo.region  || null,
+          country:            sessaoData?.country|| payloadGeo.country || null,
+          zip:                sessaoData?.zip    || payloadGeo.zip     || null,
+        },
+        custom_data: {
+          currency:     'BRL',
+          value:        Number(valor) || 0,
+          content_name: contentName,
+          content_type: 'product',
+          ...(loteMatch && { content_ids: [String(loteMatch.offer_code)] }),
+          num_items:    1,
+        },
+      }).then((r) => {
+        if (!r.sent) console.warn('[ticto-webhook] InitiateCheckout CAPI falhou:', r)
+      }).catch((e) => console.error('[ticto-webhook] InitiateCheckout CAPI erro:', e.message))
+
+      return respond(200, { ok: true, kind, transaction_id: transactionId, capi_initiate_checkout: 'fired' })
     }
     const utms = extractUtms(body)
     const valor = extractValor(body) ?? (loteMatch ? loteMatch.preco : mesaConfig.preco) ?? 0

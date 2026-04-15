@@ -343,7 +343,7 @@ function AppObrigado() {
           <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 mb-12">
             <div className="flex items-center gap-3">
               <span className="badge">Data</span>
-              <p className="text-base font-black">Sábado, 25 de abril</p>
+              <p className="text-base font-black">Sábado, 2 de maio</p>
             </div>
             <div className="flex items-center gap-3">
               <span className="badge">Horário</span>

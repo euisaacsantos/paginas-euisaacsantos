@@ -42,10 +42,13 @@ export function getExternalId() {
 /**
  * Dispara evento Meta Ads em client (Pixel) + server (CAPI) simultaneamente.
  * Mesmo event_id nos dois lados garante dedup no Events Manager.
+ * @param {string} eventName
+ * @param {object} [customData]
+ * @param {string} [forcedEventId] - event_id externo para compartilhar com disparo server-side paralelo
  */
-export function sendCAPI(eventName, customData) {
+export function sendCAPI(eventName, customData, forcedEventId) {
   try {
-    const eventId = newEventId()
+    const eventId = forcedEventId || newEventId()
     const fbp = getCookie('_fbp')
     const fbc = getCookie('_fbc') || buildFbcFromUrl()
     const externalId = getExternalId()

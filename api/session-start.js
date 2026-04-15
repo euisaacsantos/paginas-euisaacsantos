@@ -1,4 +1,5 @@
 import { getSupabase } from './_supabase.js'
+import { sendCapiEvent } from './_meta-capi.js'
 
 // Endpoint público (sem auth) — recebe click de CTA pra Ticto e grava sessão.
 // Usado pra enriquecer Purchase CAPI no webhook Ticto (lookup por session_id
@@ -29,6 +30,7 @@ export default async function handler(req, res) {
     landing_url,
     content_name,
     value,
+    event_id,  // compartilhado com o disparo Pixel client-side para dedup Meta
   } = body || {}
 
   if (!session_id) {
@@ -94,6 +96,36 @@ export default async function handler(req, res) {
     if (error) {
       console.error('[session-start] insert error:', error.message)
       return res.status(500).json({ ok: false, error: error.message })
+    }
+
+    // ── CAPI InitiateCheckout server-side (fire-and-forget) ──────────────────
+    // Mesmo event_id que o Pixel client-side já disparou → Meta deduplica,
+    // mas agora tem IP/UA/geo reais dos headers Vercel (enriquece o match).
+    if (event_id) {
+      sendCapiEvent({
+        event_name: 'InitiateCheckout',
+        event_id,
+        event_source_url: landing_url || undefined,
+        user_data: {
+          external_id: external_id || null,
+          fbp:                fbp || null,
+          fbc:                fbc || null,
+          client_ip_address,
+          client_user_agent,
+          city,
+          region,
+          country,
+          zip,
+        },
+        custom_data: {
+          currency: 'BRL',
+          ...(typeof value === 'number' && { value }),
+          ...(content_name && { content_name }),
+          num_items: 1,
+        },
+      }).then((r) => {
+        if (!r.sent) console.warn('[session-start] InitiateCheckout CAPI falhou:', r)
+      }).catch((e) => console.error('[session-start] InitiateCheckout CAPI erro:', e.message))
     }
 
     return res.status(200).json({ ok: true, session_id })

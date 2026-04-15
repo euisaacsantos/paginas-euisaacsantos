@@ -41,12 +41,16 @@ export default async function handler(req, res) {
       ? Math.min(100, Math.round((vendasNoLote / loteAtual.vagas_max) * 100))
       : 0
 
-    // KPIs do Supabase (cct_vendas)
-    const { data: vendasRows, error: vendasErr } = await supabase
-      .from('cct_vendas')
-      .select('produto_tipo, valor, meta_capi_sent, status')
+    // KPIs do Supabase (cct_vendas) + leads PIX para inferir método de pagamento
+    const [{ data: vendasRows, error: vendasErr }, { data: pixLeads }] = await Promise.all([
+      supabase.from('cct_vendas').select('ticto_transaction_id, produto_tipo, lote_id, valor, meta_capi_sent, status'),
+      supabase.from('cct_leads_pendentes').select('ticto_transaction_id').eq('kind', 'pix_generated').not('converted_at', 'is', null),
+    ])
 
     if (vendasErr) throw vendasErr
+
+    // Set de transaction_ids que passaram por PIX antes de converter
+    const pixIds = new Set((pixLeads || []).map((l) => l.ticto_transaction_id))
 
     const kpis = {
       vendas_imersao: 0,
@@ -65,6 +69,9 @@ export default async function handler(req, res) {
     // Contagem de vendas por lote_id (imersão)
     const vendasPorLote = {}
 
+    // PIX vs Cartão: inferido pelo cruzamento com leads_pendentes
+    const pagamento = { pix: 0, cartao: 0 }
+
     for (const v of vendas) {
       const valor = Number(v.valor) || 0
       kpis.faturamento_total += valor
@@ -81,6 +88,10 @@ export default async function handler(req, res) {
         kpis.vendas_order_bump += 1
         kpis.faturamento_por_produto.order_bump += valor
       }
+
+      // PIX = transação tem lead pix_generated convertido; cartão = sem lead PIX
+      if (pixIds.has(v.ticto_transaction_id)) pagamento.pix += 1
+      else pagamento.cartao += 1
 
       capiTotal += 1
       if (v.meta_capi_sent === true) capiOk += 1
@@ -139,6 +150,7 @@ export default async function handler(req, res) {
         preco: mesaConfig.preco || 497,
         restantes: Math.max(0, (mesaConfig.total || 15) - vendasMesaRedis),
       },
+      pagamento,
       atualizado_em: new Date().toISOString(),
     })
   } catch (err) {
