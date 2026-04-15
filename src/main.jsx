@@ -7,11 +7,15 @@ import AppV2 from './AppV2.jsx'
 import AppObrigado from './AppObrigado.jsx'
 import AppConfirmado from './AppConfirmado.jsx'
 import AppAdmin from './AppAdmin.jsx'
+import AppCredenciamento from './AppCredenciamento.jsx'
+import AppCheckout from './AppCheckout.jsx'
 import { trackPageView, sendCAPI } from './lib/meta-tracking.js'
 
 const path = window.location.pathname
 const Root =
   path.startsWith('/admin') ? AppAdmin :
+  path.startsWith('/credenciamento') ? AppCredenciamento :
+  path.startsWith('/checkout') ? AppCheckout :
   path.startsWith('/confirmado') ? AppConfirmado :
   path.startsWith('/obrigado') ? AppObrigado :
   path.startsWith('/v2') ? AppV2 :
