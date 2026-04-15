@@ -4,6 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import AppV1 from './AppV1.jsx'
 import AppV2 from './AppV2.jsx'
+import AppV3 from './AppV3.jsx'
 import AppObrigado from './AppObrigado.jsx'
 import AppConfirmado from './AppConfirmado.jsx'
 import AppAdmin from './AppAdmin.jsx'
@@ -18,6 +19,7 @@ const Root =
   path.startsWith('/checkout') ? AppCheckout :
   path.startsWith('/confirmado') ? AppConfirmado :
   path.startsWith('/obrigado') ? AppObrigado :
+  path.startsWith('/v3') ? AppV3 :
   path.startsWith('/v2') ? AppV2 :
   path.startsWith('/v1') ? AppV1 :
   App

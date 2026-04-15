@@ -1913,6 +1913,30 @@ body.ctas-visible .cta-delayed {
   50% { opacity: 0.6; transform: scale(1.2); }
 }
 
+/* ===== Hero V3 — bg mobile v2 (isaacbg1mobilev2.png) ===== */
+.hero-section-v3 {
+  background-image: url('/assets/isaacbg1mobilev2.png');
+}
+@media (max-width: 767px) {
+  .hero-section-v3 {
+    background-position: top center;
+    padding-top: 220px;
+    padding-bottom: 0;
+  }
+  .hero-section-v3 + section { margin-top: 0; }
+  .hero-section-v3 .hero-container { padding-top: 0; }
+  .hero-section-v3 .btn-brutalist {
+    white-space: nowrap;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
+@media (min-width: 768px) {
+  .hero-section-v3 {
+    background-image: url('/assets/isaacbg1.png');
+  }
+}
+
 /* ===== Admin Dashboard — estilos inline no AppAdmin.jsx ===== */
 
 
