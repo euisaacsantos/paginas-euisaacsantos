@@ -881,7 +881,26 @@ function Dashboard({ token, onLogout }) {
           {/* Faturamento */}
           <HeroCard
             label="Faturamento total"
-            value={kpis ? fmtBRL(kpis.faturamento_total) : '—'}
+            value={
+              kpis ? (
+                <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                  <span>{fmtBRL(kpis.faturamento_total)}</span>
+                  <div style={{ textAlign: 'right', lineHeight: 1 }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', color: '#52525b', textTransform: 'uppercase', marginBottom: 4 }}>
+                      Comissão
+                    </div>
+                    <div style={{ fontSize: 20, fontWeight: 900, color: '#22c55e' }}>
+                      {fmtBRL(kpis.comissao_total)}
+                    </div>
+                    {kpis.faturamento_total > 0 && (
+                      <div style={{ fontSize: 10, color: '#3f3f46', marginTop: 3 }}>
+                        {Math.round((kpis.comissao_total / kpis.faturamento_total) * 100)}% líquido
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : '—'
+            }
             sub={kpis ? `ticket médio ${fmtBRLDec(kpis.ticket_medio)}` : ''}
             accent="#22c55e"
           >

@@ -42,8 +42,9 @@ export default async function handler(req, res) {
       : 0
 
     // KPIs do Supabase (cct_vendas) + leads PIX para inferir método de pagamento
+    // raw_payload.owner_commissions[].commission_amount (centavos) = valor líquido recebido
     const [{ data: vendasRows, error: vendasErr }, { data: pixLeads }] = await Promise.all([
-      supabase.from('cct_vendas').select('ticto_transaction_id, produto_tipo, lote_id, valor, meta_capi_sent, status'),
+      supabase.from('cct_vendas').select('ticto_transaction_id, produto_tipo, lote_id, valor, meta_capi_sent, status, raw_payload'),
       supabase.from('cct_leads_pendentes').select('ticto_transaction_id').eq('kind', 'pix_generated').not('converted_at', 'is', null),
     ])
 
@@ -57,6 +58,7 @@ export default async function handler(req, res) {
       vendas_order_bump: 0,
       vendas_mesa: 0,
       faturamento_total: 0,
+      comissao_total: 0,
       faturamento_por_produto: { imersao: 0, order_bump: 0, mesa: 0 },
       ticket_medio: 0,
       capi_sucesso_pct: 0,
@@ -75,6 +77,14 @@ export default async function handler(req, res) {
     for (const v of vendas) {
       const valor = Number(v.valor) || 0
       kpis.faturamento_total += valor
+
+      // Comissão líquida: soma owner_commissions[].commission_amount (centavos)
+      const commissions = v.raw_payload?.owner_commissions
+      if (Array.isArray(commissions)) {
+        for (const c of commissions) {
+          kpis.comissao_total += (Number(c.commission_amount) || 0) / 100
+        }
+      }
 
       if (v.produto_tipo === 'imersao') {
         kpis.vendas_imersao += 1
@@ -104,6 +114,7 @@ export default async function handler(req, res) {
         ? Math.round((kpis.faturamento_total / totalVendas) * 100) / 100
         : 0
     kpis.faturamento_total = Math.round(kpis.faturamento_total * 100) / 100
+    kpis.comissao_total    = Math.round(kpis.comissao_total    * 100) / 100
     kpis.faturamento_por_produto.imersao =
       Math.round(kpis.faturamento_por_produto.imersao * 100) / 100
     kpis.faturamento_por_produto.order_bump =
