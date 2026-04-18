@@ -971,8 +971,8 @@ function Dashboard({ token, onLogout }) {
           })()}
         </div>
 
-        {/* ── Linha 2: 6 mini cards (2 novos: Investimento + CPA Real) ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(6, 1fr)', gap: 14 }}>
+        {/* ── Linha 2: 8 mini cards ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(4, 1fr)', gap: 14 }}>
           <MiniCard
             label="Imersão (total)"
             value={kpis?.vendas_imersao ?? '—'}
@@ -1011,6 +1011,27 @@ function Dashboard({ token, onLogout }) {
             color={kpis?.capi_sucesso_pct >= 80 ? '#22c55e' : '#ef4444'}
             badge={{ text: kpis?.capi_sucesso_pct >= 80 ? 'ok' : 'verificar', color: kpis?.capi_sucesso_pct >= 80 ? '#22c55e' : '#ef4444' }}
           />
+          {(() => {
+            const fat = kpis?.faturamento_total || 0
+            const spend = spendTotal || 0
+            const lucro = fat - spend
+            const roas = spend > 0 ? fat / spend : null
+            return <>
+              <MiniCard
+                label="Lucro"
+                value={kpis && spendTotal != null ? lucro.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 }) : '—'}
+                sub="faturamento − investimento"
+                color={lucro > 0 ? '#22c55e' : lucro < 0 ? '#ef4444' : '#71717a'}
+              />
+              <MiniCard
+                label="ROAS"
+                value={roas != null ? `${roas.toFixed(2)}x` : '—'}
+                sub="retorno sobre investimento"
+                color={roas == null ? '#71717a' : roas >= 3 ? '#22c55e' : roas >= 1.5 ? '#eab308' : '#ef4444'}
+                badge={roas != null ? { text: roas >= 3 ? 'ótimo' : roas >= 1.5 ? 'médio' : 'baixo', color: roas >= 3 ? '#22c55e' : roas >= 1.5 ? '#eab308' : '#ef4444' } : undefined}
+              />
+            </>
+          })()}
         </div>
 
         {/* ── Linha 3: gráfico diário + donut + funil ── */}
