@@ -155,6 +155,9 @@ function MetricRow({ row, attrib, level, isExpanded, onToggle, depth = 0, datePr
         </div>
       </td>
 
+      {/* Orçamento */}
+      <BudgetCell row={row} level={level} token={token} />
+
       {/* Investimento */}
       <TD style={{ color: '#ff8c3c', fontWeight: 700 }}>{fmtBRL(row.spend)}</TD>
 
@@ -240,11 +243,81 @@ function MetricRow({ row, attrib, level, isExpanded, onToggle, depth = 0, datePr
   )
 }
 
+// ─── Célula de orçamento editável ─────────────────────────────────────────────
+function BudgetCell({ row, level, token }) {
+  const init = row.daily_budget ?? row.lifetime_budget ?? null
+  const isDaily = row.daily_budget != null
+  const [current, setCurrent] = useState(init)
+  const [editing, setEditing] = useState(false)
+  const [inputVal, setInputVal] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  const hasBudget = current != null && (level === 'campaign' || level === 'adset')
+  if (!hasBudget) return <TD muted>—</TD>
+
+  const badge = level === 'campaign' ? 'CBO' : 'ABO'
+  const id = level === 'campaign' ? row.campaign_id : row.adset_id
+
+  async function save() {
+    const num = parseFloat(String(inputVal).replace(',', '.'))
+    if (!isNaN(num) && num > 0) {
+      setSaving(true)
+      try {
+        await fetch(`/api/dashboard/meta-ads-budget?token=${encodeURIComponent(token)}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, budget_type: isDaily ? 'daily' : 'lifetime', amount: num }),
+        })
+        setCurrent(num)
+      } catch {}
+      setSaving(false)
+    }
+    setEditing(false)
+  }
+
+  if (editing) {
+    return (
+      <td style={{ padding: '4px 12px', textAlign: 'right', whiteSpace: 'nowrap', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+        <input
+          autoFocus
+          value={inputVal}
+          onChange={(e) => setInputVal(e.target.value)}
+          onBlur={save}
+          onKeyDown={(e) => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setEditing(false) }}
+          style={{
+            background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,140,60,0.5)',
+            borderRadius: 4, color: '#e4e4e7', fontFamily: "'JetBrains Mono', monospace",
+            fontSize: 12, padding: '3px 6px', width: 80, textAlign: 'right', outline: 'none',
+          }}
+        />
+      </td>
+    )
+  }
+
+  return (
+    <td
+      style={{ padding: '10px 12px', textAlign: 'right', fontSize: 12, color: '#d4d4d8', borderBottom: '1px solid rgba(255,255,255,0.04)', whiteSpace: 'nowrap', cursor: 'pointer' }}
+      title="Clique para editar orçamento"
+      onClick={(e) => { e.stopPropagation(); setInputVal(String(Math.round(current))); setEditing(true) }}
+    >
+      {saving ? <span style={{ color: '#52525b' }}>…</span> : (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, justifyContent: 'flex-end' }}>
+          <span style={{ fontSize: 8, fontWeight: 700, padding: '1px 4px', borderRadius: 3, background: 'rgba(255,140,60,0.15)', color: '#ff8c3c', letterSpacing: '0.05em' }}>
+            {badge}
+          </span>
+          <span>{fmtBRL(current)}{isDaily ? '/dia' : ' total'}</span>
+          <span style={{ fontSize: 9, color: '#52525b' }}>✎</span>
+        </div>
+      )}
+    </td>
+  )
+}
+
 // ─── Linha "carregando filhos" ─────────────────────────────────────────────────
 function LoadingRow({ depth }) {
   return (
     <tr>
-      <td colSpan={19} style={{ padding: `8px ${12 + depth * 20}px`, fontSize: 11, color: '#52525b' }}>
+      <td colSpan={20} style={{ padding: `8px ${12 + depth * 20}px`, fontSize: 11, color: '#52525b' }}>
         Carregando…
       </td>
     </tr>
@@ -292,6 +365,7 @@ function TotalRow({ rows, attribMap, attribKey }) {
   return (
     <tr>
       <td style={{ padding: '10px 12px', fontSize: 11, fontWeight: 700, color: '#ff8c3c', ...S, textAlign: 'left' }}>TOTAL</td>
+      {td('—', { color: '#3f3f46' })}
       {td(fmtBRL(spend), { color: '#ff8c3c' })}
       {td(fmtBRL(cpm), { color: '#71717a' })}
       {td(fmtNum(impressions), { color: '#71717a' })}
@@ -400,6 +474,7 @@ export default function CampanhasPanel({ token, onSpendTotal }) {
 
   const headers = [
     ['Campanha / Conjunto / Anúncio', false],
+    ['Orçamento', true],
     ['Invest.', true], ['CPM', true], ['Impressões', true],
     ['Cliques', true], ['CTR Link', true], ['Connect', true],
     ['PV', true], ['PV→CK', true], ['CK→Compra', true], ['Conv. Pág', true],
@@ -497,7 +572,7 @@ export default function CampanhasPanel({ token, onSpendTotal }) {
       )}
 
       {campaigns.length > 0 && (
-        <div style={{ overflowX: 'auto' }}>
+        <div className="dash-table-scroll" style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: "'JetBrains Mono', monospace", minWidth: 1100 }}>
             <thead>
               <tr>

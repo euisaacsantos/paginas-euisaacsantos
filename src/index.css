@@ -2099,3 +2099,9 @@ body.ctas-visible .sections-delayed {
 .lead-logo { display: block; height: 40px; margin: 0 auto 24px; opacity: 0.9; }
 .lead-logo-img { display: block; height: 44px; width: auto; margin: 0 auto 18px; }
 @media (min-width: 768px) { .lead-logo-img { height: 52px; } }
+
+/* ===== Dashboard scrollbar dark ===== */
+.dash-table-scroll::-webkit-scrollbar { height: 5px; }
+.dash-table-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); border-radius: 3px; }
+.dash-table-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+.dash-table-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,140,60,0.35); }

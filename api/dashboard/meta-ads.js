@@ -81,6 +81,8 @@ function normalizeRow(r, thumbMap, acctId) {
     purchases_meta: purchMeta,
     connect_rate:  linkClicks > 0 ? pageViews / linkClicks : 0,
     checkout_rate: pageViews  > 0 ? checkout  / pageViews  : 0,
+    daily_budget:    r.daily_budget    ? Number(r.daily_budget)    / 100 : null,
+    lifetime_budget: r.lifetime_budget ? Number(r.lifetime_budget) / 100 : null,
     thumbnail:     adId ? (thumbMap[adId] || null) : null,
     ad_manager_url: adId
       ? `https://www.facebook.com/adsmanager/manage/ads?act=${acctId}&selected_ad_ids=${adId}`
@@ -127,7 +129,7 @@ export default async function handler(req, res) {
     if (level === 'campaign') {
       // 1. Busca todas as campanhas da conta (inclui pausadas)
       const cp = new URLSearchParams({
-        fields: 'id,name,status,effective_status',
+        fields: 'id,name,status,effective_status,daily_budget,lifetime_budget',
         limit: '500',
         access_token: token,
       })
@@ -160,10 +162,12 @@ export default async function handler(req, res) {
         rows = filtered.map((c) => {
           const insight = insightsMap[c.id] || {}
           return normalizeRow({
-            campaign_id:   c.id,
-            campaign_name: c.name,
-            status:        c.status,
+            campaign_id:     c.id,
+            campaign_name:   c.name,
+            status:          c.status,
             effective_status: c.effective_status,
+            daily_budget:    c.daily_budget,
+            lifetime_budget: c.lifetime_budget,
             ...insight,
           }, {}, acctId)
         })
@@ -213,7 +217,23 @@ export default async function handler(req, res) {
       }
     }
 
-    const rows = insightsRows.map((r) => normalizeRow(r, thumbMap, acctId))
+    // Adset level: fetch budgets separately (not available in Insights API)
+    let budgetMap = {}
+    if (level === 'adset') {
+      const adsetIds = [...new Set(insightsRows.map((r) => r.adset_id).filter(Boolean))]
+      if (adsetIds.length > 0) {
+        try {
+          const bp = new URLSearchParams({ ids: adsetIds.join(','), fields: 'id,daily_budget,lifetime_budget', access_token: token })
+          const br = await fetch(`${GRAPH}/?${bp}`)
+          if (br.ok) budgetMap = await br.json()
+        } catch {}
+      }
+    }
+
+    const rows = insightsRows.map((r) => {
+      const b = budgetMap[r.adset_id] || {}
+      return normalizeRow({ ...r, daily_budget: b.daily_budget, lifetime_budget: b.lifetime_budget }, thumbMap, acctId)
+    })
 
     res.setHeader('Cache-Control', 'no-store')
     res.status(200).json({ rows, level })

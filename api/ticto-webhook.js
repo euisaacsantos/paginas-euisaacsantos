@@ -490,6 +490,42 @@ export default async function handler(req, res) {
       )
     }
 
+    // Processa order bumps incluídos no mesmo payload (bumps[] da Ticto)
+    if (isPurchase && Array.isArray(body.bumps) && body.bumps.length > 0) {
+      for (const bump of body.bumps) {
+        const bumpCode = bump.offer_code || bump.offer?.code
+        if (!bumpCode) continue
+        // ID único = transação pai + offer_code do bump — garante idempotência
+        const bumpTxId = `${transactionId}_bump_${bumpCode}`
+        const bumpValor = parseFloat(bump.offer_price) || 0
+        const { data: bumpExists } = await supabase
+          .from('cct_vendas').select('id').eq('ticto_transaction_id', bumpTxId).maybeSingle()
+        if (!bumpExists) {
+          await supabase.from('cct_vendas').insert({
+            ticto_transaction_id: bumpTxId,
+            status: status || 'approved',
+            offer_code: bumpCode,
+            produto_tipo: 'order_bump',
+            lote_id: null,
+            valor: bumpValor,
+            email: customer.email,
+            telefone: customer.telefone,
+            nome: customer.nome,
+            utm_source:   utms.utm_source   || sessaoData?.utm_source   || null,
+            utm_medium:   utms.utm_medium   || sessaoData?.utm_medium   || null,
+            utm_campaign: utms.utm_campaign || sessaoData?.utm_campaign || null,
+            utm_content:  utms.utm_content  || sessaoData?.utm_content  || null,
+            utm_term:     utms.utm_term     || sessaoData?.utm_term     || null,
+            fbclid:       utms.fbclid       || sessaoData?.fbclid       || null,
+            session_id:   sessaoData?.session_id || null,
+            external_id:  sessaoData?.external_id || null,
+            meta_capi_sent: false,
+            raw_payload: { bump, parent_transaction_id: String(transactionId) },
+          })
+        }
+      }
+    }
+
     // Marca lead pendente como convertido (fire-and-forget — não bloqueia resposta)
     supabase
       .from('cct_leads_pendentes')
