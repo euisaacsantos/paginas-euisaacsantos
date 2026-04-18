@@ -1,0 +1,614 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "51547e8b-33ce-40c9-aaaf-2c96a5bec24f",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "00c6c23f-6b4b-48ef-bf70-8cc8b40366fa",
+      "name": "Webhook",
+      "webhookId": "51547e8b-33ce-40c9-aaaf-2c96a5bec24f"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a12ef8a9-ceb5-4c74-8585-129d3b85bed2",
+              "name": "customer_name",
+              "value": "={{ $json.body.customer.name }}",
+              "type": "string"
+            },
+            {
+              "id": "71131c80-b3bb-4a0d-a251-622528e5fab4",
+              "name": "customer_phone",
+              "value": "={{ $json.body.customer.phone.ddi.replace('+','') }}{{ $json.body.customer.phone.ddd }}{{ $json.body.customer.phone.number }}",
+              "type": "string"
+            },
+            {
+              "id": "7ac9d292-e2a7-415a-a2ed-3dd17f4a43c0",
+              "name": "status",
+              "value": "={{ $json.body.status }}",
+              "type": "string"
+            },
+            {
+              "id": "c5eddb52-00a7-4a96-8911-816437da7040",
+              "name": "pix_code",
+              "value": "={{ $json.body.transaction.pix_qr_code }}",
+              "type": "string"
+            },
+            {
+              "id": "f97c6bf7-6bc7-4e6f-bdcf-8ae5094b4056",
+              "name": "pix_url",
+              "value": "={{ $json.body.transaction.pix_url }}",
+              "type": "string"
+            },
+            {
+              "id": "d1a1b2c3-4d5e-6f7a-8b9c-0d1e2f3a4b5c",
+              "name": "transaction_id",
+              "value": "={{ $json.body.order.transaction_hash }}",
+              "type": "string"
+            },
+            {
+              "id": "e2b3c4d5-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+              "name": "offer_name",
+              "value": "={{ $json.body.offer.name }}",
+              "type": "string"
+            },
+            {
+              "id": "f3c4d5e6-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+              "name": "checkout_url",
+              "value": "={{ $json.body.checkout_url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "6e9cea08-40bf-4c04-8401-7a049b6a9c46",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "waiting_payment",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "e4e999d9-1ad5-465c-8b2a-ec9336ea987b"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "waiting_payment"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "42d82245-966b-459d-8298-e51af2a2bd18",
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "authorized",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "authorized"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b629a02a-7b13-481f-af73-6b0bdeb033c0",
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "pix_created",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "pix_created"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "f48778ec-bb21-469a-bed0-41272cea75e6",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.growthtap.com.br/send/text/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "a539340d-4a9c-4378-8e74-28d48ff94a9f"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('Edit Fields').item.json.customer_phone }}"
+            },
+            {
+              "name": "text",
+              "value": "=Fala, {{ $('Edit Fields').item.json.customer_name.split(' ')[0] }}! Seu PIX da imersão *Claude para Gestores de Tráfego* foi gerado. ✅\n\nEle expira em *30 minutos* — copia o código abaixo e cola no app do banco:"
+            },
+            {
+              "name": "delay",
+              "value": "={{1000}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        768,
+        176
+      ],
+      "id": "5bcc09be-5b2f-4d2a-b0ec-b8959f4756a2",
+      "name": "pix gerado"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        976,
+        176
+      ],
+      "id": "28fa4cf0-f559-44fc-ba6d-c348cf2208d1",
+      "name": "Wait",
+      "webhookId": "f30ec790-d96c-4440-882e-fdf26a28811c"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.growthtap.com.br/send/text/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "a539340d-4a9c-4378-8e74-28d48ff94a9f"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('Edit Fields').item.json.customer_phone }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $('Edit Fields').item.json.pix_code }}"
+            },
+            {
+              "name": "delay",
+              "value": "={{2300}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1184,
+        176
+      ],
+      "id": "377924a4-ff84-4c13-a88d-deb21ea72433",
+      "name": "codigo pix"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1376,
+        176
+      ],
+      "id": "85b47e44-8376-45ac-b3bb-4d2ff1e2668d",
+      "name": "Wait1",
+      "webhookId": "f30ec790-d96c-4440-882e-fdf26a28811c"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.growthtap.com.br/send/text/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "a539340d-4a9c-4378-8e74-28d48ff94a9f"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('Edit Fields').item.json.customer_phone }}"
+            },
+            {
+              "name": "text",
+              "value": "=Só copiar o código acima e colar no app do banco. 👆\n\nQualquer problema, me chama aqui."
+            },
+            {
+              "name": "delay",
+              "value": "={{2300}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1584,
+        176
+      ],
+      "id": "c3174026-f49c-4b37-8615-b744fc764234",
+      "name": "instrucao pix"
+    },
+    {
+      "parameters": {
+        "unit": "minutes",
+        "amount": 15
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1808,
+        176
+      ],
+      "id": "40687eb4-121a-45a9-b497-09c9682bcae5",
+      "name": "Wait 15min",
+      "webhookId": "f30ec790-d96c-4440-882e-fdf26a28811c"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id FROM cct_vendas WHERE ticto_transaction_id = '{{ $('Edit Fields').item.json.transaction_id }}' LIMIT 1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        2016,
+        176
+      ],
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "Verifica conversão",
+      "credentials": {
+        "postgres": {
+          "id": "SUPABASE_POSTGRES_CREDENTIAL_ID",
+          "name": "Supabase Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "check-converted",
+              "leftValue": "={{ $json.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2224,
+        176
+      ],
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "name": "Converteu?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.growthtap.com.br/send/text/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "a539340d-4a9c-4378-8e74-28d48ff94a9f"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('Edit Fields').item.json.customer_phone }}"
+            },
+            {
+              "name": "text",
+              "value": "=Opa {{ $('Edit Fields').item.json.customer_name.split(' ')[0] }}, vi que seu PIX ainda tá pendente. ⏳\n\nDia *02/05* eu mostro como montar 5 agentes que operam suas contas enquanto você dorme — subir campanha, vigiar 24h, relatório, diagnóstico e espionagem. *Tudo no comando.*\n\nSe o PIX expirou, gera outro aqui:\n{{ $('Edit Fields').item.json.checkout_url }}"
+            },
+            {
+              "name": "delay",
+              "value": "={{1000}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2432,
+        120
+      ],
+      "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+      "name": "lembrete pix"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.growthtap.com.br/send/text/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "a539340d-4a9c-4378-8e74-28d48ff94a9f"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('Edit Fields').item.json.customer_phone }}"
+            },
+            {
+              "name": "text",
+              "value": "=Confirmado! 🎟️ {{ $('Edit Fields').item.json.customer_name.split(' ')[0] }}, seu ingresso pra imersão *Claude para Gestores de Tráfego* tá garantido.\n\n📅 *Quando:* Sábado 02/05, das 9h às 12h\n📍 *Onde:* Online ao vivo — o link do Zoom chega aqui pelo WhatsApp no dia\n\nDaqui até sábado você vai receber:\n— Quinta 30/04: link do Zoom + checklist\n— Sexta 01/05: lembrete final\n— Sábado 02/05 às 8h45: _\"abriu a sala, entra\"_\n\nQualquer dúvida, responde aqui. 👊"
+            },
+            {
+              "name": "delay",
+              "value": "={{1000}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        768,
+        -120
+      ],
+      "id": "431b0970-24f8-48ab-a47e-d52e3c08056b",
+      "name": "compra_aprovada"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [],
+        [
+          {
+            "node": "compra_aprovada",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "pix gerado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pix gerado": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "codigo pix",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "codigo pix": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "instrucao pix",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "instrucao pix": {
+      "main": [
+        [
+          {
+            "node": "Wait 15min",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 15min": {
+      "main": [
+        [
+          {
+            "node": "Verifica conversão",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verifica conversão": {
+      "main": [
+        [
+          {
+            "node": "Converteu?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converteu?": {
+      "main": [
+        [
+          {
+            "node": "lembrete pix",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "compra_aprovada": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "b7e371dcb80c55249518de3a5a10d12d5b6cff193a6bfc61b376d41d11424c37"
+  }
+}

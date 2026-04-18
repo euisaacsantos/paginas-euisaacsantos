@@ -359,7 +359,7 @@ function App() {
               </div>
             </div>
             <div className="reveal tech-card !p-0 overflow-hidden flex flex-col order-1 md:order-2">
-              <img src="/assets/isaacbio.png" alt="Carol Rache" className="w-full h-full object-cover" />
+              <img src="/assets/isaacbio.webp" alt="Carol Rache" className="w-full h-full object-cover" />
               <div className="p-6 text-center border-t border-bgt">
                 <p className="text-xl font-black">Carol Rache</p>
                 <p className="text-txts text-sm">Especialista em Comportamento Humano</p>

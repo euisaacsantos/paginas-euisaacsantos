@@ -477,11 +477,11 @@ function AppV1() {
         <div className="hero-term-abs hidden lg:block">
           <ClaudeTerminal />
         </div>
-        <img src="/assets/clawd mascot.png" alt="" className="clawd-float hidden lg:block" loading="lazy" decoding="async" />
-        <img src="/assets/clawd mascot.png" alt="" className="clawd-float clawd-float--2 hidden lg:block" loading="lazy" decoding="async" />
+        <img src="/assets/clawd mascot.webp" alt="" className="clawd-float hidden lg:block" loading="lazy" decoding="async" />
+        <img src="/assets/clawd mascot.webp" alt="" className="clawd-float clawd-float--2 hidden lg:block" loading="lazy" decoding="async" />
 <div className="hero-container px-5 pt-12 pb-6 md:pt-24 md:pb-8 text-center md:text-left relative z-10">
         <div className="hero-text-col">
-          <img src="/assets/LOGO.png" alt="Logo" className="h-14 md:h-16 mb-6 mx-auto md:mx-0" />
+          <img src="/assets/LOGO.webp" alt="Logo" className="h-14 md:h-16 mb-6 mx-auto md:mx-0" />
           <HeroTitle />
           <p className="hero-subhead text-lg md:text-xl text-txts max-w-3xl md:mx-0 mx-auto mb-10">
             No próximo <span className="text-white font-bold">dia 02/05</span>, eu te mostro como comandar uma operação inteira de tráfego pago por voz e texto. Subir campanha, gerar relatório, monitorar conta, baixar criativos do concorrente, gerar análises, briefar designer — tudo num comando. <span className="text-white font-bold">Sem n8n. Sem workflow. Sem código.</span>
@@ -767,7 +767,7 @@ function AppV1() {
               </div>
             </div>
             <div className="reveal tech-card !p-0 overflow-hidden flex flex-col order-1 md:order-2">
-              <img src="/assets/isaacbio.png" alt="Isaac Santos" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+              <img src="/assets/isaacbio.webp" alt="Isaac Santos" className="w-full h-full object-cover" loading="lazy" decoding="async" />
               <div className="p-6 text-center border-t border-bgt">
                 <p className="text-xl font-black">Isaac Santos</p>
                 <p className="text-txts text-sm">Especialista em Tráfego com Claude Code</p>
@@ -849,7 +849,7 @@ function AppV1() {
             {/* RIGHT */}
             <div className="offer-right">
               <div className="offer-brand flex justify-center">
-                <img src="/assets/LOGO.png" alt="Claude para Gestores de Tráfego" className="h-12 md:h-14" />
+                <img src="/assets/LOGO.webp" alt="Claude para Gestores de Tráfego" className="h-12 md:h-14" />
               </div>
 
               <div className="offer-price">
@@ -988,7 +988,7 @@ function AppV1() {
 
       {/* FOOTER */}
       <footer className="py-10 bg-bgp border-t border-bgt text-center">
-        <img src="/assets/LOGO.png" alt="Logo" className="h-8 mx-auto mb-4 opacity-80" />
+        <img src="/assets/LOGO.webp" alt="Logo" className="h-8 mx-auto mb-4 opacity-80" />
         <p className="text-txts text-sm">© 2026 Isaac Santos. Todos os direitos reservados.</p>
       </footer>
 

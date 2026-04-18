@@ -83,7 +83,7 @@ export default function AppCredenciamento() {
           </svg>
         </div>
 
-        <img src="/assets/LOGO.png" alt="Claude para Gestores de Tráfego" className="lead-logo-img" />
+        <img src="/assets/LOGO.webp" alt="Claude para Gestores de Tráfego" className="lead-logo-img" />
 
         <h1 className="lead-title">
           Acesso à <span style={{ color: '#FF0000' }}>Imersão</span>

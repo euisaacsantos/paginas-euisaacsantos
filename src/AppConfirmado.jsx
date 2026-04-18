@@ -93,7 +93,7 @@ function AppConfirmado() {
       {/* HERO */}
       <section className="vsl-hero relative overflow-hidden">
         <div className="vsl-hero-container" style={{ paddingBottom: 40 }}>
-          <img src="/assets/LOGO.png" alt="Logo" className="vsl-hero-logo" />
+          <img src="/assets/LOGO.webp" alt="Logo" className="vsl-hero-logo" />
           <p className="vsl-hero-eyebrow">✓ Inscrição confirmada</p>
           <h1 className="vsl-hero-title">
             Tá dentro.<br/>
@@ -213,7 +213,7 @@ function AppConfirmado() {
 
       {/* FOOTER */}
       <footer className="py-10 bg-bgp border-t border-bgt text-center">
-        <img src="/assets/LOGO.png" alt="Logo" className="h-8 mx-auto mb-4 opacity-80" />
+        <img src="/assets/LOGO.webp" alt="Logo" className="h-8 mx-auto mb-4 opacity-80" />
         <p className="text-txts text-sm">© 2026 Isaac Santos. Todos os direitos reservados.</p>
       </footer>
     </div>
