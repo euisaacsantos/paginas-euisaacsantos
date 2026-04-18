@@ -361,7 +361,13 @@ export default async function handler(req, res) {
       return respond(200, { ok: true, kind, transaction_id: transactionId, capi_initiate_checkout: 'fired' })
     }
     const utms = extractUtms(body)
-    const valor = extractValor(body) ?? (loteMatch ? loteMatch.preco : mesaConfig.preco) ?? 0
+    let valor = extractValor(body) ?? (loteMatch ? loteMatch.preco : mesaConfig.preco) ?? 0
+
+    // paid_amount da Ticto inclui order bumps — subtrai para salvar só o produto principal
+    if (Array.isArray(body.bumps) && body.bumps.length > 0) {
+      const bumpTotal = body.bumps.reduce((sum, b) => sum + (parseFloat(b.offer_price) || 0), 0)
+      valor = Math.max(0, Math.round((valor - bumpTotal) * 100) / 100)
+    }
 
     // Lookup de sessão (src=sess_<uuid> propagado do click no CTA)
     // Traz fbp/fbc/ip/ua/geo/external_id gravados no momento do click.
