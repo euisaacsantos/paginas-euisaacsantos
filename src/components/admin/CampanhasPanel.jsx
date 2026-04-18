@@ -604,7 +604,7 @@ export default function CampanhasPanel({ token, onSpendTotal }) {
 
                   // Adsets
                   ...adsets.map((adset) => {
-                    const adsetAttrib  = findAttrib(por_content, adset.adset_name) || findAttrib(por_campaign, camp.campaign_name)
+                    const adsetAttrib  = findAttrib(por_content, adset.adset_id) || findAttrib(por_content, adset.adset_name)
                     const adsetExpanded = adExpanded[adset.adset_id]
                     const ads = Array.isArray(adsetExpanded) ? adsetExpanded : []
 
@@ -624,7 +624,7 @@ export default function CampanhasPanel({ token, onSpendTotal }) {
                       adsetExpanded === 'loading' && <LoadingRow key={`${adset.id}-loading`} depth={2} />,
 
                       ...ads.map((ad) => {
-                        const adAttrib = findAttrib(por_term, ad.ad_name) || adsetAttrib
+                        const adAttrib = findAttrib(por_term, ad.ad_id) || findAttrib(por_term, ad.ad_name)
                         return (
                           <MetricRow
                             key={ad.id}
