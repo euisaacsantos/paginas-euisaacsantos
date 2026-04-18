@@ -1,28 +1,20 @@
-import { StrictMode } from 'react'
+import { StrictMode, lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App.jsx'
-import AppV1 from './AppV1.jsx'
-import AppV2 from './AppV2.jsx'
-import AppV3 from './AppV3.jsx'
-import AppObrigado from './AppObrigado.jsx'
-import AppConfirmado from './AppConfirmado.jsx'
-import AppAdmin from './AppAdmin.jsx'
-import AppCredenciamento from './AppCredenciamento.jsx'
-import AppCheckout from './AppCheckout.jsx'
 import { trackPageView, sendCAPI } from './lib/meta-tracking.js'
 
+// Lazy: cada rota gera chunk separado — só o chunk ativo é baixado pelo visitante
 const path = window.location.pathname
 const Root =
-  path.startsWith('/admin') ? AppAdmin :
-  path.startsWith('/credenciamento') ? AppCredenciamento :
-  path.startsWith('/checkout') ? AppCheckout :
-  path.startsWith('/confirmado') ? AppConfirmado :
-  path.startsWith('/obrigado') ? AppObrigado :
-  path.startsWith('/v3') ? AppV3 :
-  path.startsWith('/v2') ? AppV2 :
-  path.startsWith('/v1') ? AppV1 :
-  App
+  path.startsWith('/admin')          ? lazy(() => import('./AppAdmin.jsx')) :
+  path.startsWith('/credenciamento') ? lazy(() => import('./AppCredenciamento.jsx')) :
+  path.startsWith('/checkout')       ? lazy(() => import('./AppCheckout.jsx')) :
+  path.startsWith('/confirmado')     ? lazy(() => import('./AppConfirmado.jsx')) :
+  path.startsWith('/obrigado')       ? lazy(() => import('./AppObrigado.jsx')) :
+  path.startsWith('/v3')             ? lazy(() => import('./AppV3.jsx')) :
+  path.startsWith('/v2')             ? lazy(() => import('./AppV2.jsx')) :
+  path.startsWith('/v1')             ? lazy(() => import('./AppV1.jsx')) :
+                                       lazy(() => import('./App.jsx'))
 
 // Tracking ponta-a-ponta:
 // 1. PageView já gera external_id (UUID persistente em localStorage)
@@ -136,7 +128,9 @@ cctGetExternalId()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Root />
+    <Suspense fallback={null}>
+      <Root />
+    </Suspense>
   </StrictMode>,
 )
 
