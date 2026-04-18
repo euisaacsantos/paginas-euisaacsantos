@@ -63,10 +63,10 @@ async function main() {
   while (true) {
     const { data: rows, error } = await supabase
       .from('cct_webhook_raw')
-      .select('id, body, created_at')
+      .select('id, body, received_at')
       .eq('endpoint', 'ticto-webhook')
       .range(page * PAGE, (page + 1) * PAGE - 1)
-      .order('created_at', { ascending: true })
+      .order('received_at', { ascending: true })
 
     if (error) { console.error('Erro ao buscar raw:', error.message); break }
     if (!rows || rows.length === 0) break
