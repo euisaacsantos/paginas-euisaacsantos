@@ -1013,14 +1013,15 @@ function Dashboard({ token, onLogout }) {
           />
           {(() => {
             const fat = kpis?.faturamento_total || 0
+            const comissao = kpis?.comissao_total || 0
             const spend = spendTotal || 0
-            const lucro = fat - spend
+            const lucro = comissao - spend
             const roas = spend > 0 ? fat / spend : null
             return <>
               <MiniCard
                 label="Lucro"
                 value={kpis && spendTotal != null ? lucro.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 }) : '—'}
-                sub="faturamento − investimento"
+                sub="comissão − investimento"
                 color={lucro > 0 ? '#22c55e' : lucro < 0 ? '#ef4444' : '#71717a'}
               />
               <MiniCard
