@@ -81,7 +81,7 @@ const mesaPraQuem = [
 ]
 
 const mesaFaq = [
-  ['Quando acontece a Mesa de Comando?', 'Segunda-feira, 27 de abril, das 19h às 22h — 72 horas depois da imersão. Link do Zoom chega no seu WhatsApp após a compra.'],
+  ['Quando acontece a Mesa de Comando?', 'Segunda-feira, 05 de maio, das 19h às 22h — 72 horas depois da imersão. Link do Zoom chega no seu WhatsApp após a compra.'],
   ['Preciso ter feito a imersão antes?', 'Sim. A Mesa foi desenhada como continuação: você chega com o conteúdo fresco na cabeça e usa o tempo pra destravar implementação, não pra aprender do zero.'],
   ['E se eu não puder no dia?', 'A Mesa é 100% ao vivo e não é gravada pra redistribuição — o valor está em ter seu caso real destravado com você presente. Só compre se estiver confirmado pro horário.'],
   ['15 vagas valem pra lote 0 ou todos os lotes?', 'Todos os lotes dividem as mesmas 15 vagas. Lote 0 tem prioridade por ser o primeiro a ver a oferta — quando zerar, zera pra todos.'],
@@ -209,7 +209,7 @@ function AppObrigado() {
             {/* LEFT */}
             <div className="offer-left">
               <h2 className="offer-title">Mesa de Comando<br/><span className="highlight-orange">72h depois da imersão</span></h2>
-              <p className="offer-meta">Segunda 27/04 · 19h às 22h · Zoom ao vivo · 15 vagas</p>
+              <p className="offer-meta">Segunda 05/05 · 19h às 22h · Zoom ao vivo · 15 vagas</p>
 
               <div className="offer-features">
                 {[
