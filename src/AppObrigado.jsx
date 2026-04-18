@@ -148,9 +148,9 @@ function AppObrigado() {
             >
               SIM, QUERO A MESA DE COMANDO
             </button>
-            <button type="button" className="ticto-refuse-button btn-mesa-nao">
+            <a href="/confirmado" className="ticto-refuse-button btn-mesa-nao">
               Não, prefiro implementar sozinho sem ajuda
-            </button>
+            </a>
           </div>
         </div>
       </section>
