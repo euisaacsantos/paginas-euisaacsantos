@@ -26,31 +26,33 @@ export default async function handler(req, res) {
       else                                   { bucket.order_bumps += 1; bucket.fat_order_bump  += v }
     }
 
-    const byCampaign = {}  // key = utm_campaign lower
-    const byContent  = {}  // key = utm_content lower
-    const byTerm     = {}  // key = utm_term lower
+    // utm_medium = nome do conjunto (adset)
+    // utm_content = nome do anúncio (ad)
+    const byCampaign = {}
+    const byMedium   = {}  // adset → utm_medium
+    const byContent  = {}  // ad    → utm_content
 
     for (const row of data || []) {
       const camp    = (row.utm_campaign || '').toLowerCase().trim() || '(sem utm)'
+      const medium  = (row.utm_medium   || '').toLowerCase().trim()
       const content = (row.utm_content  || '').toLowerCase().trim()
-      const term    = (row.utm_term     || '').toLowerCase().trim()
 
       if (!byCampaign[camp]) byCampaign[camp] = { utm_campaign: row.utm_campaign, ...emptyBucket() }
       add(byCampaign[camp], row)
+
+      if (medium) {
+        if (!byMedium[medium]) byMedium[medium] = { utm_medium: row.utm_medium, ...emptyBucket() }
+        add(byMedium[medium], row)
+      }
 
       if (content) {
         if (!byContent[content]) byContent[content] = { utm_content: row.utm_content, ...emptyBucket() }
         add(byContent[content], row)
       }
-
-      if (term) {
-        if (!byTerm[term]) byTerm[term] = { utm_term: row.utm_term, ...emptyBucket() }
-        add(byTerm[term], row)
-      }
     }
 
     res.setHeader('Cache-Control', 'no-store')
-    res.status(200).json({ por_campaign: byCampaign, por_content: byContent, por_term: byTerm })
+    res.status(200).json({ por_campaign: byCampaign, por_adset: byMedium, por_ad: byContent })
   } catch (err) {
     console.error('[api/dashboard/atribuicao]', err)
     res.status(500).json({ error: err.message })
