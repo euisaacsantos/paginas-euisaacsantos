@@ -12,7 +12,7 @@ export default async function handler(req, res) {
 
     const { data, error } = await supabase
       .from('cct_vendas')
-      .select('utm_campaign, utm_content, utm_term, produto_tipo, valor')
+      .select('utm_campaign, utm_medium, utm_content, utm_term, produto_tipo, valor')
 
     if (error) throw error
 
