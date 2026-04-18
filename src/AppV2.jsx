@@ -461,8 +461,8 @@ function AppV2() {
         <div className="hero-term-abs hidden lg:block">
           <ClaudeTerminal />
         </div>
-        <img src="/assets/clawd mascot.png" alt="" className="clawd-float hidden lg:block" />
-        <img src="/assets/clawd mascot.png" alt="" className="clawd-float clawd-float--2 hidden lg:block" />
+        <img src="/assets/clawd mascot.png" alt="" className="clawd-float hidden lg:block" loading="lazy" decoding="async" />
+        <img src="/assets/clawd mascot.png" alt="" className="clawd-float clawd-float--2 hidden lg:block" loading="lazy" decoding="async" />
 <div className="hero-container px-5 pt-12 pb-6 md:pt-24 md:pb-8 text-center md:text-left relative z-10">
         <div className="hero-text-col">
           <img src="/assets/LOGO.png" alt="Logo" className="h-14 md:h-16 mb-6 mx-auto md:mx-0" />
@@ -751,7 +751,7 @@ function AppV2() {
               </div>
             </div>
             <div className="reveal tech-card !p-0 overflow-hidden flex flex-col order-1 md:order-2">
-              <img src="/assets/isaacbio.png" alt="Isaac Santos" className="w-full h-full object-cover" />
+              <img src="/assets/isaacbio.png" alt="Isaac Santos" className="w-full h-full object-cover" loading="lazy" decoding="async" />
               <div className="p-6 text-center border-t border-bgt">
                 <p className="text-xl font-black">Isaac Santos</p>
                 <p className="text-txts text-sm">Especialista em Tráfego com Claude Code</p>

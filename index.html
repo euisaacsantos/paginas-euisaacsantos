@@ -5,8 +5,22 @@
     <link rel="icon" type="image/svg+xml" href="/assets/clawd%20favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Claude Code para Gestores de Tráfego</title>
+
+    <!-- Preconnect: reduz latência de DNS+TCP para scripts e fontes de terceiros -->
+    <link rel="preconnect" href="https://connect.facebook.net" crossorigin />
+    <link rel="preconnect" href="https://www.facebook.com" crossorigin />
+    <link rel="preconnect" href="https://midas.ticto.app" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Google Fonts via <link> (não bloqueia render como @import no CSS) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" />
+
+    <!-- Preload fonte Sora (usada nos títulos — above the fold) -->
+    <link rel="preload" href="/Sora-VariableFont_wght.ttf" as="font" type="font/ttf" crossorigin />
+
     <script src="https://midas.ticto.app/oneclickbuy.js?flow=8ec45559-7026-4cac-ae46-b60897a90cb8.109306" async></script>
-    <!-- Meta Pixel — TROQUE 412005147811690 pelo ID real antes do deploy -->
+    <!-- Meta Pixel -->
     <script>
       !function(f,b,e,v,n,t,s)
       {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
