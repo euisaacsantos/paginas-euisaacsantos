@@ -32,32 +32,25 @@ function VagasBar({ mesa }) {
   )
 }
 
-// VSL player pronto pra VTurb (ConverteAI).
-// Quando tiver o ID do vídeo, substitua a div.vsl-placeholder por:
-//
-//   <vturb-smartplayer id="vid-XXXXXXXX" style="display:block;margin:0 auto;width:100%"></vturb-smartplayer>
-//
-// E adicione o <script> do player no index.html ou via useEffect abaixo.
 function VslPlayer() {
-  // Exemplo pra injetar o script do VTurb dinamicamente quando o ID existir:
-  // useEffect(() => {
-  //   const s = document.createElement('script')
-  //   s.src = 'https://scripts.converteai.net/XXXX/player.js'
-  //   s.async = true
-  //   document.body.appendChild(s)
-  //   return () => s.remove()
-  // }, [])
-  return (
-    <div className="vsl-wrap">
-      <div className="vsl-frame">
-        <div className="vsl-placeholder">
-          <div className="vsl-play">▶</div>
-          <p className="vsl-placeholder-text">Seu vídeo começa aqui</p>
-          <p className="vsl-placeholder-sub">[ VTurb — substituir por &lt;vturb-smartplayer id="vid-XXX" /&gt; ]</p>
-        </div>
-      </div>
-    </div>
-  )
+  const containerRef = useRef(null)
+  useEffect(() => {
+    if (!containerRef.current) return
+    if (!document.querySelector('script[src*="69e301d8dbbc49f6be99f8a3"]')) {
+      const s = document.createElement('script')
+      s.src = 'https://scripts.converteai.net/0637c44b-8b3d-4750-9912-c3cd42d8c5c3/players/69e301d8dbbc49f6be99f8a3/v4/player.js'
+      s.async = true
+      document.head.appendChild(s)
+    }
+    if (!containerRef.current.querySelector('vturb-smartplayer')) {
+      const el = document.createElement('vturb-smartplayer')
+      el.id = 'vid-69e301d8dbbc49f6be99f8a3'
+      el.style.display = 'block'
+      el.style.width = '100%'
+      containerRef.current.appendChild(el)
+    }
+  }, [])
+  return <div className="vsl-vertical-wrap" ref={containerRef} />
 }
 
 const mesaBlocks = [
@@ -148,19 +141,22 @@ function AppObrigado() {
 
           <div className="mesa-choice cta-delayed">
             <VagasBar mesa={mesa} />
-            <a
-              href={mesa.checkout}
+            <button
+              type="button"
               data-fallback-offer={mesa.offer_code}
-              className="btn-mesa-sim"
+              className="ticto-upsell-button btn-mesa-sim"
             >
               SIM, QUERO A MESA DE COMANDO
-            </a>
-            <a href="/confirmado" className="btn-mesa-nao">
+            </button>
+            <button type="button" className="ticto-refuse-button btn-mesa-nao">
               Não, prefiro implementar sozinho sem ajuda
-            </a>
+            </button>
           </div>
         </div>
       </section>
+
+      {/* Seções abaixo do hero — reveladas junto com os CTAs após 30s */}
+      <div className="sections-delayed">
 
       {/* O QUE ROLA NA MESA */}
       <section className="py-20 md:py-28 bg-bgs border-y border-bgt blob-bg">
@@ -269,7 +265,7 @@ function AppObrigado() {
                 <p className="offer-price-sub">ou 12x de R$ 49,70</p>
               </div>
 
-              <a href={mesa.checkout} data-fallback-offer={mesa.offer_code} className="offer-cta cta-delayed">QUERO MINHA VAGA NA MESA</a>
+              <button type="button" data-fallback-offer={mesa.offer_code} className="ticto-upsell-button offer-cta cta-delayed">QUERO MINHA VAGA NA MESA</button>
 
               <div className="offer-progress cta-delayed">
                 <div className="offer-progress-bar"><div className="offer-progress-fill" style={{ width: `${mesa.pct_vendido}%` }} /></div>
@@ -314,7 +310,7 @@ function AppObrigado() {
           </p>
           <VagasBar mesa={mesa} />
           <div className="mt-8">
-            <a href={mesa.checkout} data-fallback-offer={mesa.offer_code} className="btn-brutalist btn-brutalist-orange cta-delayed">QUERO GARANTIR AGORA</a>
+            <button type="button" data-fallback-offer={mesa.offer_code} className="ticto-upsell-button btn-brutalist btn-brutalist-orange cta-delayed">QUERO GARANTIR AGORA</button>
           </div>
         </div>
       </section>
@@ -378,7 +374,7 @@ function AppObrigado() {
             O mapa você já garantiu. A implementação assistida tá a um clique — e a {mesa.restantes} vagas de distância.
           </p>
           <span className="cta-stack">
-            <a href={mesa.checkout} data-fallback-offer={mesa.offer_code} className="btn-brutalist btn-brutalist-orange cta-delayed">GARANTIR MINHA VAGA NA MESA — R${mesa.preco}</a>
+            <button type="button" data-fallback-offer={mesa.offer_code} className="ticto-upsell-button btn-brutalist btn-brutalist-orange cta-delayed">GARANTIR MINHA VAGA NA MESA — R${mesa.preco}</button>
             <VagasBar mesa={mesa} />
           </span>
           <p className="text-sm text-txts mt-6">Essa oferta não reabre · Fechou a aba, sumiu</p>
@@ -390,6 +386,8 @@ function AppObrigado() {
         <img src="/assets/LOGO.png" alt="Logo" className="h-8 mx-auto mb-4 opacity-80" />
         <p className="text-txts text-sm">© 2026 Isaac Santos. Todos os direitos reservados.</p>
       </footer>
+
+      </div>{/* /sections-delayed */}
 
       <LiveToast event={liveEvent} />
     </div>
