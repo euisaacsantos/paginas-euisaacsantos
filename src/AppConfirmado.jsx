@@ -18,7 +18,7 @@ function useReveal() {
 }
 
 function useCountdown() {
-  const target = new Date('2026-05-02T09:00:00-03:00').getTime()
+  const target = new Date('2026-05-02T10:00:00-03:00').getTime()
   const [now, setNow] = useState(Date.now())
   useEffect(() => {
     const i = setInterval(() => setNow(Date.now()), 1000)
@@ -56,14 +56,12 @@ function WhatsAppLogo({ size = 20 }) {
   )
 }
 
-// Placeholders — substituir quando tiver os links reais
 const WHATSAPP_SUPORTE = 'https://wa.me/5511999999999'
-const AULA_PREP_URL = 'https://link-da-aula-preparatoria'
 
 const lembretes = [
   { quando: 'Quinta 30/04 · 12h', o_que: 'Mensagem no seu WhatsApp com o link do Zoom e a checklist final do que preparar' },
   { quando: 'Sexta 01/05 · 20h', o_que: 'Último aviso: "amanhã é a imersão" — direto no seu WhatsApp, com o link cravado' },
-  { quando: 'Sábado 02/05 · 8h45', o_que: 'Mensagem 15 minutos antes: "abriu a sala, entra" — pra ninguém perder o início' },
+  { quando: 'Sábado 02/05 · 9h45', o_que: 'Mensagem 15 minutos antes: "abriu a sala, entra" — pra ninguém perder o início' },
 ]
 
 const prepararItens = [
@@ -71,7 +69,7 @@ const prepararItens = [
   'Conta no Claude (free serve, Max/Pro é melhor pra quem já tem)',
   'Conexão estável — de preferência cabo, não Wi-Fi',
   'Acesso à sua conta de Meta Ads ou Google Ads (pra gente integrar ao vivo)',
-  '3 horas de atenção real (9h às 12h) — sem reunião, sem cliente cobrando',
+  '6 horas de atenção real (10h às 17h, com pausa pra almoço) — sem reunião, sem cliente cobrando',
 ]
 
 function AppConfirmado() {
@@ -105,10 +103,6 @@ function AppConfirmado() {
             Sua vaga tá garantida. Todos os avisos e o link da sala caem direto no seu <span style={{ color: '#fff', fontWeight: 700 }}>WhatsApp</span> — você não precisa fazer mais nada agora.
           </p>
 
-          <a href={AULA_PREP_URL} target="_blank" rel="noopener noreferrer" className="btn-brutalist btn-brutalist-orange">
-            ACESSAR AULA PREPARATÓRIA
-          </a>
-
           <div className="confirmado-meta">
             <div className="confirmado-meta-item">
               <span className="confirmado-meta-label">Data</span>
@@ -117,7 +111,7 @@ function AppConfirmado() {
             <span className="confirmado-meta-sep" />
             <div className="confirmado-meta-item">
               <span className="confirmado-meta-label">Horário</span>
-              <span className="confirmado-meta-value">9h às 12h (horário de Brasília)</span>
+              <span className="confirmado-meta-value">10h às 17h (horário de Brasília)</span>
             </div>
             <span className="confirmado-meta-sep" />
             <div className="confirmado-meta-item">
@@ -132,7 +126,7 @@ function AppConfirmado() {
       <section className="py-12 md:py-16 px-5 text-center" style={{ backgroundColor: '#09090B' }}>
         <p className="uppercase tracking-widest text-sm text-txts mb-6">Faltam</p>
         <Countdown />
-        <p className="text-sm text-txts mt-6">…pra você sair com as 5 skills rodando na sua máquina.</p>
+        <p className="text-sm text-txts mt-6">…pra você sair com as 5 skills rodando na sua máquina às 17h.</p>
       </section>
 
       {/* COMO VAI FUNCIONAR */}
@@ -142,9 +136,8 @@ function AppConfirmado() {
           <h2 className="reveal section-title text-center mb-14">Como vai funcionar <span className="highlight-orange">daqui até sábado</span></h2>
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              ['01', 'Agora', 'A aula preparatória já tá liberada. Enquanto sábado não chega, ela te deixa fluente no Claude Code em 30 minutos.'],
-              ['02', 'Lembretes no WhatsApp', 'Ao longo da semana chegam mensagens automáticas avisando: o dia antes, na véspera e 15 minutos antes da sala abrir. Zero chance de esquecer.'],
-              ['03', 'Sábado 9h', 'Abro a sala 8h45. A gente começa 9h em ponto e sai meio-dia com as 5 skills + Skill Master + Obsidian rodando na sua máquina.'],
+              ['01', 'Lembretes no WhatsApp', 'Ao longo da semana chegam mensagens automáticas avisando: o dia antes, na véspera e 15 minutos antes da sala abrir. Zero chance de esquecer.'],
+              ['02', 'Sábado 10h', 'Abro a sala 9h45. A gente começa 10h em ponto — almoça juntos na pausa e sai às 17h com as 5 skills + Skill Master + Obsidian rodando na sua máquina.'],
             ].map(([n, t, d]) => (
               <div key={n} className="reveal tech-card ident-card text-left">
                 <p className="text-5xl font-black highlight-orange mb-4">{n}</p>
@@ -156,29 +149,12 @@ function AppConfirmado() {
         </div>
       </section>
 
-      {/* AULA PREPARATÓRIA */}
-      <section className="py-20 md:py-28 bg-grid-pattern">
-        <div className="max-w-4xl mx-auto px-5 text-center">
-          <p className="uppercase tracking-widest text-sm font-bold eyebrow mb-3">Enquanto sábado não chega</p>
-          <h2 className="reveal section-title mb-6">
-            Tem <span className="highlight-orange">uma aula de 30 minutos</span><br/>
-            te esperando.
-          </h2>
-          <p className="text-lg text-txts max-w-2xl mx-auto mb-10">
-            Claude Code do zero, pra quem nunca abriu a ferramenta. Não é pré-requisito, mas quem assiste chega sábado operando o dobro mais rápido. Clica no botão abaixo pra acessar.
-          </p>
-          <a href={AULA_PREP_URL} target="_blank" rel="noopener noreferrer" className="btn-brutalist btn-brutalist--oneline">
-            ACESSAR AULA PREPARATÓRIA
-          </a>
-        </div>
-      </section>
-
       {/* O QUE PREPARAR */}
       <section className="py-20 md:py-28 bg-bgs border-y border-bgt">
         <div className="max-w-3xl mx-auto px-5">
           <p className="text-center uppercase tracking-widest text-sm font-bold eyebrow mb-3">Checklist</p>
           <h2 className="reveal section-title text-center mb-14">
-            O que ter do lado <span className="highlight-orange">sábado 9h</span>
+            O que ter do lado <span className="highlight-orange">sábado 10h</span>
           </h2>
           <ul className="space-y-4 md:w-fit md:mx-auto">
             {prepararItens.map((item, i) => (

@@ -136,8 +136,8 @@ const dia2 = [
 ]
 
 const faq = [
-  ['Como funciona a imersão?', 'A imersão Claude para Gestores de Tráfego acontece ao vivo no sábado 2 de maio, das 9h às 12h, via Zoom. O link chega direto no seu WhatsApp após a inscrição, junto com os lembretes antes do início.'],
-  ['Preciso saber programar?', 'Não. Claude Code é por comando em português. Se você sabe escrever pra um humano, sabe usar. A aula preparatória te deixa pronto em 30 minutos.'],
+  ['Como funciona a imersão?', 'A imersão Claude para Gestores de Tráfego acontece ao vivo no sábado 2 de maio, das 10h às 17h (com pausa pra almoço), via Zoom. O link chega direto no seu WhatsApp após a inscrição, junto com os lembretes antes do início.'],
+  ['Preciso saber programar?', 'Não. Claude Code é por comando em português. Se você sabe escrever pra um humano, sabe usar.'],
   ['Funciona com Meta Ads e Google Ads?', 'Sim, ambos. A integração é feita via MCP (Model Context Protocol) — vou te mostrar como configurar passo a passo durante a imersão.'],
   ['E se eu não puder assistir no dia?', 'A imersão é 100% ao vivo. Se você quiser garantir a gravação vitalícia + templates prontos, no checkout tem um pacote especial por +R$27 que inclui tudo isso.'],
   ['Por que R$9?', 'Porque o 1° lote é uma condição especial de lançamento. Quero encher a sala de gestores de verdade. O preço sobe rápido conforme os lotes esgotam.'],
@@ -468,7 +468,7 @@ function AppV2() {
           <img src="/assets/LOGO.png" alt="Logo" className="h-14 md:h-16 mb-6 mx-auto md:mx-0" />
           <HeroTitle />
           <p className="hero-subhead text-lg md:text-xl text-txts max-w-3xl md:mx-0 mx-auto mb-10">
-            No próximo <span className="text-white font-bold">dia 02/05</span>, em 3 horas ao vivo, eu te mostro como instalar o Claude Code na sua máquina e deixar ele operando suas contas como um gestor sênior faria. Pausando conjunto que não converte, escalando criativo vencedor, monitorando saldo, gerando relatório decente. <span className="text-white font-bold">Sem n8n. Sem workflow.</span>
+            No próximo <span className="text-white font-bold">dia 02/05</span>, em 6 horas ao vivo, eu te mostro como instalar o Claude Code na sua máquina e deixar ele operando suas contas como um gestor sênior faria. Pausando conjunto que não converte, escalando criativo vencedor, monitorando saldo, gerando relatório decente. <span className="text-white font-bold">Sem n8n. Sem workflow.</span>
           </p>
 
           <div className="flex flex-wrap md:flex-nowrap items-center gap-x-8 gap-y-3 mb-10 justify-center md:justify-start">
@@ -478,7 +478,7 @@ function AppV2() {
             </div>
             <div className="flex items-center gap-3">
               <span className="badge">Horário</span>
-              <p className="text-base font-black whitespace-nowrap">9h às 12h</p>
+              <p className="text-base font-black whitespace-nowrap">10h às 17h</p>
             </div>
           </div>
 
@@ -589,11 +589,11 @@ function AppV2() {
           <ol className="timeline">
             <li className="timeline-item reveal">
               <div className="timeline-marker">
-                <span className="timeline-time">9h</span>
+                <span className="timeline-time">10h</span>
                 <span className="timeline-dot" />
               </div>
               <div className="timeline-card">
-                <span className="badge mb-3">BLOCO 01 — FUNDAÇÃO + 2 PRIMEIRAS SKILLS · 9h às 10h30</span>
+                <span className="badge mb-3">BLOCO 01 — FUNDAÇÃO + 2 PRIMEIRAS SKILLS · 10h às 13h</span>
                 <p className="text-txts mt-2 mb-5 italic border-l-2 border-accent pl-4">
                   Você muda de ferramenta, paga novo SaaS, contrata mais gente… mas o operacional continua engolindo seu dia. Não é sobre fazer mais. É sobre comandar.
                 </p>
@@ -609,11 +609,21 @@ function AppV2() {
             </li>
             <li className="timeline-item reveal">
               <div className="timeline-marker">
-                <span className="timeline-time">10h30</span>
+                <span className="timeline-time">13h</span>
                 <span className="timeline-dot" />
               </div>
               <div className="timeline-card">
-                <span className="badge mb-3">BLOCO 02 — 3 SKILLS + SKILL MASTER · 10h30 às 12h</span>
+                <span className="badge mb-3">PAUSA · Almoço · 13h às 14h</span>
+                <p className="text-txts mt-2">Respira, come, volta com energia pra segunda parte.</p>
+              </div>
+            </li>
+            <li className="timeline-item reveal">
+              <div className="timeline-marker">
+                <span className="timeline-time">14h</span>
+                <span className="timeline-dot" />
+              </div>
+              <div className="timeline-card">
+                <span className="badge mb-3">BLOCO 02 — 3 SKILLS + SKILL MASTER · 14h às 17h</span>
                 <p className="text-txts mt-2 mb-5 italic border-l-2 border-accent pl-4">
                   Seu n8n não vai conseguir fazer isso. Workflow visual ficou pra trás. A próxima geração é agente que entende contexto, lembra da sua operação e age sozinho.
                 </p>
@@ -629,7 +639,7 @@ function AppV2() {
             </li>
             <li className="timeline-item timeline-item--end reveal">
               <div className="timeline-marker">
-                <span className="timeline-time">12h</span>
+                <span className="timeline-time">17h</span>
                 <span className="timeline-dot timeline-dot--end" />
               </div>
               <div className="timeline-end-text">
@@ -646,9 +656,9 @@ function AppV2() {
           <h2 className="reveal section-title mb-14">Além disso, você também <span className="highlight-orange">ganha:</span></h2>
           <div className="grid md:grid-cols-2 gap-6 mb-14">
             <div className="reveal tech-card ident-card text-left">
-              <span className="badge mb-4">Aula pré-evento</span>
-              <h3 className="text-xl font-black mt-4 mb-3">Claude Code em 30 minutos para iniciantes</h3>
-              <p className="text-txts text-sm">Pra você chegar quente no sábado mesmo se nunca usou Claude Code antes. Acesso imediato após a inscrição.</p>
+              <span className="badge mb-4">Cheatsheet</span>
+              <h3 className="text-xl font-black mt-4 mb-3">Comandos prontos pra usar no dia 1</h3>
+              <p className="text-txts text-sm">Referência rápida com os principais comandos de cada skill. Cola no Obsidian e consulta durante a imersão — sem perder tempo digitando.</p>
             </div>
             <div className="reveal tech-card ident-card text-left">
               <span className="badge mb-4">Kit de Skills</span>
@@ -733,7 +743,7 @@ function AppV2() {
               <p>Antes de tudo, sou alguém que já foi refém do operacional — subindo campanha de madrugada, mandando relatório no domingo, com 8 contas pra olhar e nenhum tempo pra crescer.</p>
               <p>Foram <span className="text-white font-bold">+8 anos rodando tráfego pago</span> em diferentes nichos — e-commerce, infoproduto, SaaS, negócio local — gerenciando contas que somam <span className="text-white font-bold">milhões em mídia</span>.</p>
               <p>Quando o Claude Code apareceu, eu virei a chave: parei de tentar automatizar com workflow visual e comecei a comandar. Hoje minha operação roda enquanto eu durmo.</p>
-              <p>E agora, na imersão Claude para Gestores de Tráfego, vou te mostrar exatamente como construir esse mesmo sistema — em 3 horas ao vivo, sem você precisar escrever uma linha de código.</p>
+              <p>E agora, na imersão Claude para Gestores de Tráfego, vou te mostrar exatamente como construir esse mesmo sistema — em 6 horas ao vivo, sem você precisar escrever uma linha de código.</p>
               <div className="grid grid-cols-3 gap-4 pt-6">
                 <div><p className="text-3xl font-black highlight-orange">+R$XM em mídia gerida</p><p className="text-xs text-txts uppercase tracking-wider">Mídia gerenciada</p></div>
                 <div><p className="text-3xl font-black highlight-orange">+8 anos em tráfego</p><p className="text-xs text-txts uppercase tracking-wider">De experiência prática</p></div>
@@ -757,7 +767,7 @@ function AppV2() {
           <p className="uppercase tracking-widest text-sm font-bold eyebrow mb-3">E tem mais</p>
           <h2 className="reveal section-title mb-6">Liberte sua operação… e dê o próximo passo<br /><span className="highlight-orange">com a Mentoria</span></h2>
           <p className="text-lg text-txts max-w-3xl mx-auto mb-14">
-            Em 3 horas você sai com as 5 skills e a Skill Master rodando. Mas se você quiser ir além — ter biblioteca de skills crescendo toda semana, lives de novas automações, suporte direto e templates por nicho — durante a imersão nós vamos abrir uma oportunidade exclusiva: a Mentoria Gestor de Tráfego Automático.
+            Em 6 horas você sai com as 5 skills e a Skill Master rodando. Mas se você quiser ir além — ter biblioteca de skills crescendo toda semana, lives de novas automações, suporte direto e templates por nicho — durante a imersão nós vamos abrir uma oportunidade exclusiva: a Mentoria Gestor de Tráfego Automático.
           </p>
           <div className="grid md:grid-cols-2 gap-6 mb-12 text-left">
             <div className="reveal tech-card ident-card">
@@ -783,14 +793,14 @@ function AppV2() {
             {/* LEFT */}
             <div className="offer-left">
               <h2 className="offer-title">Claude para Gestores de Tráfego<br/><span className="highlight-orange">Acesso completo + bônus</span></h2>
-              <p className="offer-meta">Sábado 2 de maio · 9h às 12h · Online ao vivo · Bônus inclusos</p>
+              <p className="offer-meta">Sábado 2 de maio · 10h às 17h · Online ao vivo · Bônus inclusos</p>
 
               <div className="offer-features">
                 {[
                   { t: '3h ao vivo', d: 'Construção prática comigo', i: '⏱' },
                   { t: '5 Skills + Skill Master', d: 'Ciclo operacional completo', i: '◎' },
                   { t: 'Cérebro Obsidian', d: 'Memória que nunca esquece', i: '✦' },
-                  { t: 'Bônus inclusos', d: 'Aula prep + cheatsheet', i: '♡' },
+                  { t: 'Bônus inclusos', d: 'Cheatsheet + templates', i: '♡' },
                 ].map((f, i) => (
                   <div key={i} className="offer-feature">
                     <div className="offer-feature-icon">{f.i}</div>
@@ -861,8 +871,8 @@ function AppV2() {
           <div className="grid md:grid-cols-3 gap-6">
             {[
               ['01','Inscreva-se','Clique no botão, garanta sua vaga pelo checkout com cartão ou PIX.'],
-              ['02','Receba o acesso','Você recebe imediatamente a aula preparatória, o cheatsheet e o link da imersão.'],
-              ['03','Construa ao vivo','Sábado 9h, abre o Claude Code comigo e sai com as 5 skills rodando na sua máquina.'],
+              ['02','Receba o acesso','Você recebe imediatamente o cheatsheet, os templates e o link da imersão.'],
+              ['03','Construa ao vivo','Sábado 10h, abre o Claude Code comigo e sai com as 5 skills rodando na sua máquina.'],
             ].map(([n,t,d])=>(
               <div key={n} className="reveal tech-card ident-card text-left">
                 <p className="text-5xl font-black highlight-orange mb-4">{n}</p>

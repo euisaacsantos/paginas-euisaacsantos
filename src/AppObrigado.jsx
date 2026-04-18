@@ -59,7 +59,7 @@ const mesaBlocks = [
     d: 'Você abre seu Claude Code, seu Obsidian, sua conta de Ads. Eu vejo e destravo ao vivo.',
   },
   {
-    t: 'Seu caso real, não demo',
+    t: 'Seu caso real, não demonstração',
     d: 'Chega com o ponto exato onde travou: contexto do Obsidian não carrega, agente não obedece, MCP não conecta. Resolvemos na hora.',
   },
   {
@@ -343,14 +343,13 @@ function AppObrigado() {
             </div>
             <div className="flex items-center gap-3">
               <span className="badge">Horário</span>
-              <p className="text-base font-black">9h às 12h</p>
+              <p className="text-base font-black">10h às 17h</p>
             </div>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              ['01', 'Confirmação no WhatsApp', 'Em minutos você recebe a confirmação da inscrição e o acesso à aula preparatória direto no seu WhatsApp. Sem e-mail.'],
+              ['01', 'Confirmação no WhatsApp', 'Em minutos você recebe a confirmação da inscrição e o link do Zoom direto no seu WhatsApp. Sem e-mail.'],
               ['02', 'Lembretes automáticos', 'Ao longo da semana, mensagens chegam no seu WhatsApp: 1 dia antes, na véspera e 15 min antes da sala abrir. Zero chance de perder o link.'],
-              ['03', 'Assiste a aula prep', 'Claude Code em 30 minutos pra iniciantes. Pra você chegar sábado já fluente na ferramenta.'],
             ].map(([n, t, d]) => (
               <div key={n} className="reveal tech-card ident-card text-left">
                 <p className="text-5xl font-black highlight-orange mb-4">{n}</p>
