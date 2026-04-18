@@ -6,11 +6,12 @@ import { trackPageView, sendCAPI } from './lib/meta-tracking.js'
 // Lazy: cada rota gera chunk separado — só o chunk ativo é baixado pelo visitante
 const path = window.location.pathname
 const Root =
-  path.startsWith('/admin')          ? lazy(() => import('./AppAdmin.jsx')) :
-  path.startsWith('/credenciamento') ? lazy(() => import('./AppCredenciamento.jsx')) :
-  path.startsWith('/checkout')       ? lazy(() => import('./AppCheckout.jsx')) :
-  path.startsWith('/confirmado')     ? lazy(() => import('./AppConfirmado.jsx')) :
-  path.startsWith('/obrigado')       ? lazy(() => import('./AppObrigado.jsx')) :
+  path.startsWith('/admin')             ? lazy(() => import('./AppAdmin.jsx')) :
+  path.startsWith('/credenciamento')    ? lazy(() => import('./AppCredenciamento.jsx')) :
+  path.startsWith('/checkout')          ? lazy(() => import('./AppCheckout.jsx')) :
+  path.startsWith('/confirmado')        ? lazy(() => import('./AppConfirmado.jsx')) :
+  path.startsWith('/mesa-de-comando')   ? lazy(() => import('./AppMesaDeComando.jsx')) :
+  path.startsWith('/obrigado')          ? lazy(() => import('./AppObrigado.jsx')) :
   path.startsWith('/v3')             ? lazy(() => import('./AppV3.jsx')) :
   path.startsWith('/v2')             ? lazy(() => import('./AppV2.jsx')) :
   path.startsWith('/v1')             ? lazy(() => import('./AppV1.jsx')) :
