@@ -690,8 +690,8 @@ function AppV1() {
         </div>
       </section>
 
-      {/* DEPOIMENTOS */}
-      <section className="py-20 md:py-28 bg-grid-pattern">
+      {/* DEPOIMENTOS — oculto até ter imagens */}
+      <section className="py-20 md:py-28 bg-grid-pattern hidden">
         <div className="max-w-6xl mx-auto px-5">
           <p className="text-center uppercase tracking-widest text-sm font-bold eyebrow mb-3">Depoimentos</p>
           <h2 className="reveal section-title text-center max-w-4xl mx-auto mb-14">
@@ -761,7 +761,7 @@ function AppV1() {
               <p>Quando o Claude Code apareceu, eu virei a chave: parei de tentar automatizar com workflow visual e comecei a comandar. Hoje minha operação roda enquanto eu durmo.</p>
               <p>E agora, na imersão Claude para Gestores de Tráfego, vou te mostrar exatamente como construir esse mesmo sistema — em 6 horas ao vivo, sem você precisar escrever uma linha de código.</p>
               <div className="grid grid-cols-3 gap-4 pt-6">
-                <div><p className="text-3xl font-black highlight-orange">+R$XM em mídia gerida</p><p className="text-xs text-txts uppercase tracking-wider">Mídia gerenciada</p></div>
+                <div><p className="text-3xl font-black highlight-orange">+R$43M em mídia gerida</p><p className="text-xs text-txts uppercase tracking-wider">Mídia gerenciada</p></div>
                 <div><p className="text-3xl font-black highlight-orange">+8 anos em tráfego</p><p className="text-xs text-txts uppercase tracking-wider">De experiência prática</p></div>
                 <div><p className="text-3xl font-black highlight-orange">+50 contas</p><p className="text-xs text-txts uppercase tracking-wider">Operadas com agentes</p></div>
               </div>
@@ -900,8 +900,8 @@ function AppV1() {
         </div>
       </section>
 
-      {/* DEPOIMENTOS 2 */}
-      <section className="py-20 md:py-28 bg-grid-pattern">
+      {/* DEPOIMENTOS 2 — oculto até ter imagens */}
+      <section className="py-20 md:py-28 bg-grid-pattern hidden">
         <div className="max-w-6xl mx-auto px-5">
           <p className="text-center uppercase tracking-widest text-sm font-bold eyebrow mb-3">Depoimentos</p>
           <h2 className="reveal section-title text-center max-w-4xl mx-auto mb-14">
