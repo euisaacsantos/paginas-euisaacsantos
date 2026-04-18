@@ -41,17 +41,13 @@ export default async function handler(req, res) {
       ? Math.min(100, Math.round((vendasNoLote / loteAtual.vagas_max) * 100))
       : 0
 
-    // KPIs do Supabase (cct_vendas) + leads PIX para inferir método de pagamento
-    // raw_payload.owner_commissions[].commission_amount (centavos) = valor líquido recebido
-    const [{ data: vendasRows, error: vendasErr }, { data: pixLeads }] = await Promise.all([
-      supabase.from('cct_vendas').select('ticto_transaction_id, produto_tipo, lote_id, valor, meta_capi_sent, status, raw_payload'),
-      supabase.from('cct_leads_pendentes').select('ticto_transaction_id').eq('kind', 'pix_generated').not('converted_at', 'is', null),
-    ])
+    // KPIs do Supabase (cct_vendas)
+    // raw_payload.payment_method vem direto da Ticto ('pix' | 'credit_card' | etc)
+    const { data: vendasRows, error: vendasErr } = await supabase
+      .from('cct_vendas')
+      .select('ticto_transaction_id, produto_tipo, lote_id, valor, meta_capi_sent, status, raw_payload')
 
     if (vendasErr) throw vendasErr
-
-    // Set de transaction_ids que passaram por PIX antes de converter
-    const pixIds = new Set((pixLeads || []).map((l) => l.ticto_transaction_id))
 
     const kpis = {
       vendas_imersao: 0,
@@ -99,9 +95,12 @@ export default async function handler(req, res) {
         kpis.faturamento_por_produto.order_bump += valor
       }
 
-      // PIX = transação tem lead pix_generated convertido; cartão = sem lead PIX
-      if (pixIds.has(v.ticto_transaction_id)) pagamento.pix += 1
-      else pagamento.cartao += 1
+      // Método de pagamento direto do payload (order_bumps são bundled, não contar separado)
+      if (v.produto_tipo !== 'order_bump') {
+        const pm = v.raw_payload?.payment_method || ''
+        if (pm === 'pix') pagamento.pix += 1
+        else pagamento.cartao += 1
+      }
 
       // CAPI: conta só imersao e mesa — order_bump não dispara evento
       if (v.produto_tipo !== 'order_bump') {
