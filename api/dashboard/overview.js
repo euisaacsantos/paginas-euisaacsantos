@@ -103,8 +103,11 @@ export default async function handler(req, res) {
       if (pixIds.has(v.ticto_transaction_id)) pagamento.pix += 1
       else pagamento.cartao += 1
 
-      capiTotal += 1
-      if (v.meta_capi_sent === true) capiOk += 1
+      // CAPI: conta só imersao e mesa — order_bump não dispara evento
+      if (v.produto_tipo !== 'order_bump') {
+        capiTotal += 1
+        if (v.meta_capi_sent === true) capiOk += 1
+      }
     }
 
     const totalVendas =

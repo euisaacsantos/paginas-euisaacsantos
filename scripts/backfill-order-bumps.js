@@ -65,16 +65,18 @@ async function main() {
       .from('cct_webhook_raw')
       .select('id, body, created_at')
       .eq('endpoint', 'ticto-webhook')
-      .not('body->bumps', 'is', null)
       .range(page * PAGE, (page + 1) * PAGE - 1)
       .order('created_at', { ascending: true })
 
     if (error) { console.error('Erro ao buscar raw:', error.message); break }
     if (!rows || rows.length === 0) break
-    total += rows.length
-    console.log(`  página ${page + 1}: ${rows.length} registros com bumps`)
 
-    for (const raw of rows) {
+    // Filtra em JS — filtro JSONB aninhado não funciona via PostgREST
+    const withBumps = rows.filter(r => Array.isArray(r.body?.bumps) && r.body.bumps.length > 0)
+    total += withBumps.length
+    console.log(`  página ${page + 1}: ${rows.length} rows lidas | ${withBumps.length} com bumps`)
+
+    for (const raw of withBumps) {
       const body = raw.body
       const status = (body.status || body.order_status || body.transaction?.status || '').toLowerCase()
       if (!PURCHASE_STATUSES.includes(status)) continue
