@@ -259,16 +259,16 @@ export default async function handler(req, res) {
     const customer = extractCustomer(body)
 
     // ── PIX gerado ou abandono de checkout ─────────────────────────────────
-    // Grava em cct_leads_pendentes e envia InitiateCheckout à CAPI.
+    // Grava em cct_leads (estado atual) + cct_lead_eventos (histórico).
     if (isPix || isAbandon) {
-      const kind = isPix ? 'pix_generated' : 'abandoned_cart'
+      const newStatus = isPix ? 'pix_generated' : 'abandoned_cart'
+      const STATUS_RANK = { abandoned_cart: 1, pix_generated: 2, purchased: 3 }
       const utms = extractUtms(body)
       const valor = extractValor(body) ?? (loteMatch ? loteMatch.preco : mesaConfig.preco) ?? 0
       const cpf = extractCpf(body)
       const sessionId = extractSrcSessionId(body)
 
       // Verifica se já existe compra aprovada — por transaction_id OU por email+offer_code
-      // (cobre caso de pessoa que gerou dois PIX diferentes e pagou o segundo)
       const [{ data: vendaPorTx }, { data: vendaPorEmail }] = await Promise.all([
         supabase.from('cct_vendas').select('id').eq('ticto_transaction_id', String(transactionId)).maybeSingle(),
         customer.email && offerCode
@@ -280,7 +280,7 @@ export default async function handler(req, res) {
         return respond(200, { ok: true, ignored: true, reason: 'already_purchased', transaction_id: transactionId })
       }
 
-      // Lookup de sessão (fbp/fbc/ip/ua/geo/external_id)
+      // Lookup de sessão
       let sessaoData = null
       if (sessionId) {
         const { data: sess } = await supabase
@@ -291,81 +291,73 @@ export default async function handler(req, res) {
         if (sess) sessaoData = sess
       }
 
-      // PIX expira em 30 min; abandono em 24h
-      const expiresAt = new Date()
-      expiresAt.setMinutes(expiresAt.getMinutes() + (isPix ? 30 : 60 * 24))
-
-      const leadRow = {
-        kind,
-        ticto_transaction_id: String(transactionId),
-        offer_code: offerCode,
-        produto_tipo: produtoTipo,
-        lote_id: loteId,
-        email: customer.email,
-        telefone: customer.telefone,
-        nome: customer.nome,
-        cpf: cpf || null,
+      const tsField = isPix ? 'pix_generated_at' : 'abandoned_at'
+      const leadData = {
+        email:                customer.email,
+        offer_code:           offerCode,
+        produto_tipo:         produtoTipo,
+        lote_id:              loteId,
+        nome:                 customer.nome,
+        telefone:             customer.telefone,
+        cpf:                  cpf || null,
         valor,
-        utm_source:   utms.utm_source   || null,
-        utm_medium:   utms.utm_medium   || null,
-        utm_campaign: utms.utm_campaign || null,
-        utm_content:  utms.utm_content  || null,
-        utm_term:     utms.utm_term     || null,
-        fbclid:       utms.fbclid       || null,
-        session_id:   sessionId         || null,
-        expires_at:   expiresAt.toISOString(),
-        raw_payload:  body,
+        ticto_transaction_id: String(transactionId),
+        utm_source:           utms.utm_source   || null,
+        utm_medium:           utms.utm_medium   || null,
+        utm_campaign:         utms.utm_campaign || null,
+        utm_content:          utms.utm_content  || null,
+        utm_term:             utms.utm_term     || null,
+        fbclid:               utms.fbclid       || null,
+        session_id:           sessionId         || null,
+        raw_payload:          body,
+        [tsField]:            new Date().toISOString(),
+        updated_at:           new Date().toISOString(),
       }
 
-      let leadError
-      if (isAbandon && customer.email && offerCode) {
-        // abandoned_cart: Ticto pode reenviar a cada atualização do form.
-        // Deduplicamos por email+offer_code: se já existe, atualiza; se não, insere.
-        const { data: existente } = await supabase
-          .from('cct_leads_pendentes')
-          .select('id')
-          .eq('email', customer.email)
-          .eq('offer_code', offerCode)
-          .eq('kind', 'abandoned_cart')
-          .maybeSingle()
+      // Upsert em cct_leads: uma linha por email+offer_code, status só avança
+      const { data: existente } = await supabase
+        .from('cct_leads')
+        .select('id, status')
+        .eq('email', customer.email)
+        .eq('offer_code', offerCode)
+        .maybeSingle()
 
-        if (existente) {
-          const { error } = await supabase
-            .from('cct_leads_pendentes')
-            .update({ ...leadRow, ticto_transaction_id: String(transactionId) })
-            .eq('id', existente.id)
-          leadError = error
-        } else {
-          const { error } = await supabase.from('cct_leads_pendentes').insert(leadRow)
-          leadError = error
+      let leadId
+      if (!existente) {
+        const { data: inserted, error: ie } = await supabase
+          .from('cct_leads')
+          .insert({ ...leadData, status: newStatus })
+          .select('id')
+          .single()
+        if (ie) {
+          console.error('[ticto-webhook] erro insert cct_leads:', ie)
+          return respond(500, { error: 'leads insert failed', details: ie.message }, ie.message)
         }
+        leadId = inserted.id
       } else {
-        // PIX: cada geração tem transaction_id novo. Deduplicamos por email+offer_code:
-        // se já existe um PIX pendente pro mesmo lead, atualiza (novo tx_id + nova expiração).
-        const { data: pixExistente } = await supabase
-          .from('cct_leads_pendentes')
-          .select('id')
-          .eq('email', customer.email)
-          .eq('offer_code', offerCode)
-          .eq('kind', 'pix_generated')
-          .maybeSingle()
-
-        if (pixExistente) {
-          const { error } = await supabase
-            .from('cct_leads_pendentes')
-            .update(leadRow)
-            .eq('id', pixExistente.id)
-          leadError = error
-        } else {
-          const { error } = await supabase.from('cct_leads_pendentes').insert(leadRow)
-          leadError = error
+        // Só avança status, nunca regride
+        const patch = { ...leadData }
+        if ((STATUS_RANK[newStatus] || 0) > (STATUS_RANK[existente.status] || 0)) {
+          patch.status = newStatus
         }
+        const { error: ue } = await supabase.from('cct_leads').update(patch).eq('id', existente.id)
+        if (ue) {
+          console.error('[ticto-webhook] erro update cct_leads:', ue)
+          return respond(500, { error: 'leads update failed', details: ue.message }, ue.message)
+        }
+        leadId = existente.id
       }
 
-      if (leadError) {
-        console.error('[ticto-webhook] erro insert/update leads_pendentes:', leadError)
-        return respond(500, { error: 'leads_pendentes insert failed', details: leadError.message }, leadError.message)
-      }
+      // Histórico append-only
+      await supabase.from('cct_lead_eventos').insert({
+        lead_id:    leadId,
+        email:      customer.email,
+        offer_code: offerCode,
+        tipo:       newStatus,
+        dados:      { transaction_id: String(transactionId), valor },
+      }).then(({ error: ee }) => {
+        if (ee) console.error('[ticto-webhook] erro insert cct_lead_eventos:', ee)
+      })
 
       // ── CAPI: InitiateCheckout (fire-and-forget — não bloqueia resposta) ──
       // event_id único por transação → evita deduplica dupla se PIX e abandono chegarem
@@ -581,15 +573,44 @@ export default async function handler(req, res) {
       }
     }
 
-    // Marca lead pendente como convertido (fire-and-forget — não bloqueia resposta)
-    supabase
-      .from('cct_leads_pendentes')
-      .update({ converted_at: new Date().toISOString() })
-      .eq('ticto_transaction_id', String(transactionId))
-      .is('converted_at', null)
-      .then(({ error: e }) => {
-        if (e) console.warn('[ticto-webhook] falha ao marcar lead convertido:', e.message)
-      })
+    // Avança status do lead para purchased em cct_leads + grava evento (fire-and-forget)
+    if (customer.email && offerCode) {
+      supabase
+        .from('cct_leads')
+        .select('id')
+        .eq('email', customer.email)
+        .eq('offer_code', offerCode)
+        .maybeSingle()
+        .then(({ data: lead }) => {
+          const now = new Date().toISOString()
+          if (lead) {
+            supabase.from('cct_leads')
+              .update({ status: 'purchased', purchased_at: now, updated_at: now })
+              .eq('id', lead.id)
+              .then(({ error: e }) => { if (e) console.warn('[ticto-webhook] falha update cct_leads purchased:', e.message) })
+            supabase.from('cct_lead_eventos').insert({
+              lead_id: lead.id, email: customer.email, offer_code: offerCode,
+              tipo: 'purchased', dados: { transaction_id: String(transactionId), valor },
+            }).then(({ error: e }) => { if (e) console.warn('[ticto-webhook] falha insert evento purchased:', e.message) })
+          } else {
+            // Comprou direto sem abandonar nem gerar PIX — cria linha já como purchased
+            supabase.from('cct_leads').insert({
+              email: customer.email, offer_code: offerCode, status: 'purchased',
+              produto_tipo: produtoTipo, lote_id: loteId, nome: customer.nome,
+              telefone: customer.telefone, valor,
+              ticto_transaction_id: String(transactionId),
+              purchased_at: now, updated_at: now,
+            }).select('id').single().then(({ data: inserted, error: ie }) => {
+              if (ie) { console.warn('[ticto-webhook] falha insert cct_leads purchased:', ie.message); return }
+              supabase.from('cct_lead_eventos').insert({
+                lead_id: inserted.id, email: customer.email, offer_code: offerCode,
+                tipo: 'purchased', dados: { transaction_id: String(transactionId), valor },
+              })
+            })
+          }
+        })
+        .catch((e) => console.warn('[ticto-webhook] falha lookup cct_leads:', e.message))
+    }
 
     let vendasRedis = null
     if (incrementoRedis) {

@@ -1,7 +1,7 @@
 import { getSupabase } from '../_supabase.js'
 import { requireAdmin } from './_auth.js'
 
-// GET /api/dashboard/leads-pendentes?token=X&kind=&produto_tipo=&limit=50&offset=0
+// GET /api/dashboard/leads-pendentes?token=X&status=&produto_tipo=&limit=50&offset=0
 export default async function handler(req, res) {
   if (!requireAdmin(req, res)) return
 
@@ -9,56 +9,48 @@ export default async function handler(req, res) {
     const supabase    = getSupabase()
     const limit       = Math.min(200, parseInt(req.query.limit  || '50', 10))
     const offset      = Math.max(0,   parseInt(req.query.offset || '0',  10))
-    const kind        = req.query.kind        || null // pix_generated | abandoned_cart
-    const produtoTipo = req.query.produto_tipo || null
+    const statusFilter = req.query.status        || null // abandoned_cart | pix_generated | purchased
+    const produtoTipo  = req.query.produto_tipo  || null
 
-    // KPIs: todos os registros (sem paginação)
+    // KPIs: todos os registros exceto purchased (que já converteram)
     const { data: all, error: allErr } = await supabase
-      .from('cct_leads_pendentes')
-      .select('kind, produto_tipo, valor, converted_at, expires_at, created_at')
+      .from('cct_leads')
+      .select('status, produto_tipo, valor')
 
     if (allErr) throw allErr
 
-    const now = Date.now()
     const kpis = {
-      pix_pendente:       0, pix_convertido:       0, pix_expirado:       0,
-      abandon_pendente:   0, abandon_convertido:   0, abandon_expirado:   0,
-      valor_potencial:    0, valor_recuperado:     0,
+      pix_pendente:     0,
+      abandon_pendente: 0,
+      total_pendente:   0,
+      purchased:        0,
+      valor_potencial:  0,
     }
 
     for (const r of all || []) {
-      const convertido = !!r.converted_at
-      const expirado   = !convertido && r.expires_at && new Date(r.expires_at).getTime() < now
-      const pendente   = !convertido && !expirado
-      const valor      = Number(r.valor) || 0
-
-      if (r.kind === 'pix_generated') {
-        if (convertido)    kpis.pix_convertido   += 1
-        else if (expirado) kpis.pix_expirado     += 1
-        else               kpis.pix_pendente     += 1
-      } else {
-        if (convertido)    kpis.abandon_convertido += 1
-        else if (expirado) kpis.abandon_expirado   += 1
-        else               kpis.abandon_pendente   += 1
-      }
-
-      if (pendente)   kpis.valor_potencial += valor
-      if (convertido) kpis.valor_recuperado += valor
+      const valor = Number(r.valor) || 0
+      if (r.status === 'pix_generated')  { kpis.pix_pendente++;     kpis.total_pendente++; kpis.valor_potencial += valor }
+      if (r.status === 'abandoned_cart') { kpis.abandon_pendente++;  kpis.total_pendente++; kpis.valor_potencial += valor }
+      if (r.status === 'purchased')        kpis.purchased++
     }
 
-    // Tabela paginada com filtros
+    // Tabela paginada: por padrão só mostra pendentes (abandoned_cart e pix_generated)
     let query = supabase
-      .from('cct_leads_pendentes')
+      .from('cct_leads')
       .select(
-        'id, created_at, kind, ticto_transaction_id, produto_tipo, lote_id, offer_code, ' +
+        'id, created_at, updated_at, status, ticto_transaction_id, produto_tipo, lote_id, offer_code, ' +
         'email, nome, telefone, valor, utm_source, utm_campaign, ' +
-        'expires_at, converted_at, session_id',
+        'abandoned_at, pix_generated_at, purchased_at, session_id',
         { count: 'exact' }
       )
-      .order('created_at', { ascending: false })
+      .order('updated_at', { ascending: false })
       .range(offset, offset + limit - 1)
 
-    if (kind)        query = query.eq('kind', kind)
+    if (statusFilter) {
+      query = query.eq('status', statusFilter)
+    } else {
+      query = query.in('status', ['abandoned_cart', 'pix_generated'])
+    }
     if (produtoTipo) query = query.eq('produto_tipo', produtoTipo)
 
     const { data, error, count } = await query

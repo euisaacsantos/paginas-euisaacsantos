@@ -80,7 +80,7 @@ export default async function handler(req, res) {
     // Contagem de vendas por lote_id (imersão)
     const vendasPorLote = {}
 
-    // PIX vs Cartão: inferido pelo cruzamento com leads_pendentes
+    // PIX vs Cartão: lido do payment_method do payload Ticto
     const pagamento = { pix: 0, cartao: 0 }
 
     for (const v of vendas) {
