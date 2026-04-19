@@ -200,7 +200,7 @@ export default async function handler(req, res) {
       .toLowerCase()
 
     const purchaseStatuses  = ['approved', 'paid', 'authorized', 'aprovado', 'pago']
-    const pixStatuses       = ['waiting_payment', 'pix_generated', 'aguardando_pagamento', 'pending', 'pendente', 'pix']
+    const pixStatuses       = ['waiting_payment', 'pix_generated', 'pix_created', 'aguardando_pagamento', 'pending', 'pendente', 'pix']
     const abandonStatuses   = ['abandoned', 'abandoned_cart', 'abandono', 'checkout_abandoned', 'cancelled', 'cancelado']
 
     const isPurchase = purchaseStatuses.includes(status)
@@ -213,7 +213,14 @@ export default async function handler(req, res) {
     }
 
     const offerCode = extractOfferCode(body)
-    const transactionId = extractTransactionId(body)
+    let transactionId = extractTransactionId(body)
+
+    // abandoned_cart nem sempre vem com transaction_id (lead ainda não iniciou checkout)
+    // Gera chave sintética pra evitar duplicatas: abandon_<email>_<offer_code>
+    if (!transactionId && isAbandon) {
+      const { email } = extractCustomer(body)
+      transactionId = email && offerCode ? `abandon_${email}_${offerCode}` : null
+    }
 
     if (!offerCode || !transactionId) {
       const missing = []
