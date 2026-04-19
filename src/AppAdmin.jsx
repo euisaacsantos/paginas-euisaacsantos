@@ -930,7 +930,7 @@ function Dashboard({ token, onLogout }) {
               : vendasHoje >= metaDiaria ? '#22c55e'
               : vendasHoje >= metaDiaria * 0.5 ? '#eab308'
               : '#ef4444'
-            const pct = metaDiaria > 0 ? Math.min(100, Math.round((vendasHoje / metaDiaria) * 100)) : 0
+            const pct = metaDiaria > 0 ? Math.round((vendasHoje / metaDiaria) * 100) : 0
             return (
               <div style={{
                 background: '#0e0e12',
@@ -960,12 +960,12 @@ function Dashboard({ token, onLogout }) {
                       vendas hoje · faltam <span style={{ color: '#e4e4e7', fontWeight: 700 }}>{restantes}</span> ingressos no total
                     </div>
 
-                    {/* Barra */}
+                    {/* Barra — largura capped em 100%, label mostra valor real */}
                     <div style={{ height: 8, background: 'rgba(255,255,255,0.07)', borderRadius: 8, overflow: 'hidden' }}>
                       <div style={{
-                        height: '100%', width: `${pct}%`, background: barColor,
+                        height: '100%', width: `${Math.min(100, pct)}%`, background: barColor,
                         borderRadius: 8, transition: 'width 0.5s ease',
-                        boxShadow: `0 0 8px ${barColor}66`,
+                        boxShadow: pct > 100 ? `0 0 14px ${barColor}99` : `0 0 8px ${barColor}66`,
                       }} />
                     </div>
                   </>
