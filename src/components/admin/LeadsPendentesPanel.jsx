@@ -118,7 +118,7 @@ export default function LeadsPendentesPanel({ token }) {
         <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: "'JetBrains Mono', monospace", minWidth: 700 }}>
           <thead>
             <tr>
-              {['Última atualização', 'Status', 'Produto', 'Valor', 'Email', 'UTM Campaign', 'Expira', 'Sessão'].map((h) => (
+              {['Última atualização', 'Status', 'Produto', 'Valor', 'Email', 'Telefone', 'UTM Campaign', 'Expira', 'Sessão'].map((h) => (
                 <th key={h} style={thStyle}>{h}</th>
               ))}
             </tr>
@@ -148,6 +148,7 @@ export default function LeadsPendentesPanel({ token }) {
                   </td>
                   <td style={{ ...tdStyle, fontWeight: 700 }}>{fmtBRL(lead.valor)}</td>
                   <td style={{ ...tdStyle, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis' }}>{lead.email || '—'}</td>
+                  <td style={{ ...tdStyle, color: '#71717a' }}>{lead.telefone || '—'}</td>
                   <td style={{ ...tdStyle, color: '#71717a' }}>{lead.utm_campaign || '—'}</td>
                   <td style={{ ...tdStyle, color: exp === 'expirado' ? '#3f3f46' : exp ? '#eab308' : '#3f3f46' }}>
                     {lead.status === 'purchased' ? '—' : exp || '—'}
