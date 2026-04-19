@@ -293,36 +293,33 @@ export default async function handler(req, res) {
       const expiresAt = new Date()
       expiresAt.setMinutes(expiresAt.getMinutes() + (isPix ? 30 : 60 * 24))
 
-      const { error: upsertError } = await supabase
+      const { error: insertError } = await supabase
         .from('cct_leads_pendentes')
-        .upsert(
-          {
-            kind,
-            ticto_transaction_id: String(transactionId),
-            offer_code: offerCode,
-            produto_tipo: produtoTipo,
-            lote_id: loteId,
-            email: customer.email,
-            telefone: customer.telefone,
-            nome: customer.nome,
-            cpf: cpf || null,
-            valor,
-            utm_source:   utms.utm_source   || null,
-            utm_medium:   utms.utm_medium   || null,
-            utm_campaign: utms.utm_campaign || null,
-            utm_content:  utms.utm_content  || null,
-            utm_term:     utms.utm_term     || null,
-            fbclid:       utms.fbclid       || null,
-            session_id:   sessionId         || null,
-            expires_at:   expiresAt.toISOString(),
-            raw_payload:  body,
-          },
-          { onConflict: 'ticto_transaction_id' }
-        )
+        .insert({
+          kind,
+          ticto_transaction_id: String(transactionId),
+          offer_code: offerCode,
+          produto_tipo: produtoTipo,
+          lote_id: loteId,
+          email: customer.email,
+          telefone: customer.telefone,
+          nome: customer.nome,
+          cpf: cpf || null,
+          valor,
+          utm_source:   utms.utm_source   || null,
+          utm_medium:   utms.utm_medium   || null,
+          utm_campaign: utms.utm_campaign || null,
+          utm_content:  utms.utm_content  || null,
+          utm_term:     utms.utm_term     || null,
+          fbclid:       utms.fbclid       || null,
+          session_id:   sessionId         || null,
+          expires_at:   expiresAt.toISOString(),
+          raw_payload:  body,
+        })
 
-      if (upsertError) {
-        console.error('[ticto-webhook] erro upsert leads_pendentes:', upsertError)
-        return respond(500, { error: 'leads_pendentes insert failed', details: upsertError.message }, upsertError.message)
+      if (insertError) {
+        console.error('[ticto-webhook] erro insert leads_pendentes:', insertError)
+        return respond(500, { error: 'leads_pendentes insert failed', details: insertError.message }, insertError.message)
       }
 
       // ── CAPI: InitiateCheckout (fire-and-forget — não bloqueia resposta) ──
