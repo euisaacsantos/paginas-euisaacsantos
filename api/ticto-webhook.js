@@ -340,9 +340,26 @@ export default async function handler(req, res) {
           leadError = error
         }
       } else {
-        // PIX: transaction_id é único e real — insert simples
-        const { error } = await supabase.from('cct_leads_pendentes').insert(leadRow)
-        leadError = error
+        // PIX: cada geração tem transaction_id novo. Deduplicamos por email+offer_code:
+        // se já existe um PIX pendente pro mesmo lead, atualiza (novo tx_id + nova expiração).
+        const { data: pixExistente } = await supabase
+          .from('cct_leads_pendentes')
+          .select('id')
+          .eq('email', customer.email)
+          .eq('offer_code', offerCode)
+          .eq('kind', 'pix_generated')
+          .maybeSingle()
+
+        if (pixExistente) {
+          const { error } = await supabase
+            .from('cct_leads_pendentes')
+            .update(leadRow)
+            .eq('id', pixExistente.id)
+          leadError = error
+        } else {
+          const { error } = await supabase.from('cct_leads_pendentes').insert(leadRow)
+          leadError = error
+        }
       }
 
       if (leadError) {
