@@ -68,7 +68,7 @@ const mesaBlocks = [
   },
   {
     t: 'Aprende também com os outros',
-    d: 'Quando alguém destrava o agente dele, você absorve junto. São 15 casos reais em 3 horas — não um.',
+    d: 'Quando alguém destrava o agente dele, você absorve junto. São 15 casos reais em 6 horas — não um.',
   },
 ]
 
@@ -213,7 +213,7 @@ function AppObrigado() {
 
               <div className="offer-features">
                 {[
-                  { t: '3h ao vivo', d: 'Sessão cirúrgica de implementação', i: '⏱' },
+                  { t: '6h ao vivo', d: 'Sessão cirúrgica de implementação', i: '⏱' },
                   { t: 'Seu setup destravado', d: 'Compartilhamento de tela 1-a-1', i: '◎' },
                   { t: 'Turma de 15, não mais', d: 'Escassez real, não teatro', i: '✦' },
                   { t: 'Caso real', d: 'Você chega com teu problema, sai com a solução', i: '♡' },
@@ -290,11 +290,11 @@ function AppObrigado() {
           <div className="grid md:grid-cols-2 gap-6 text-left mb-10">
             <div className="reveal tech-card ident-card">
               <span className="badge mb-4">Imersão — você já tem</span>
-              <p className="mt-4">3h ao vivo. Você sai com o mapa, os agentes demonstrados, templates prontos.</p>
+              <p className="mt-4">6h ao vivo. Você sai com o mapa, os agentes demonstrados, templates prontos.</p>
             </div>
             <div className="reveal tech-card ident-card">
               <span className="badge mb-4">Mesa — oferta desta página</span>
-              <p className="mt-4">3h a mais, 72h depois. Seu setup destravado na sua tela, com seus clientes, seu contexto.</p>
+              <p className="mt-4">6h a mais, 72h depois. Seu setup destravado na sua tela, com seus clientes, seu contexto.</p>
             </div>
           </div>
         </div>
