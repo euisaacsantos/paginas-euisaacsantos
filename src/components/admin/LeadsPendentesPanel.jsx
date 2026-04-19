@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react'
 
 const fmtBRL = (n) => (Number(n)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:0})
 const fmtDT  = (iso) => iso ? new Date(iso).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—'
+const fmtPhone = (t) => {
+  if (!t) return '—'
+  // Remove tudo que não é dígito ou + inicial, exibe como +5517999999999
+  return t.replace(/(?!^\+)[^\d]/g, '')
+}
 
 function statusBadge(lead) {
   if (lead.status === 'purchased')     return { label: 'Convertido',     color: '#22c55e', bg: 'rgba(34,197,94,0.12)' }
@@ -9,13 +14,10 @@ function statusBadge(lead) {
   return                                      { label: 'Abandonou',       color: '#ef4444', bg: 'rgba(239,68,68,0.12)' }
 }
 
-// Calcula tempo restante: PIX expira 30min após pix_generated_at; abandon 24h após abandoned_at
+// Expiração só se aplica a PIX (30min após geração)
 function expiresIn(lead) {
-  if (lead.status === 'purchased') return null
-  const ref = lead.status === 'pix_generated' ? lead.pix_generated_at : lead.abandoned_at
-  if (!ref) return null
-  const expiresAt = new Date(ref).getTime() + (lead.status === 'pix_generated' ? 30 : 60 * 24) * 60000
-  const diff = expiresAt - Date.now()
+  if (lead.status !== 'pix_generated' || !lead.pix_generated_at) return null
+  const diff = new Date(lead.pix_generated_at).getTime() + 30 * 60000 - Date.now()
   if (diff <= 0) return 'expirado'
   const m = Math.floor(diff / 60000)
   return m < 60 ? `${m}min` : `${Math.floor(m / 60)}h`
@@ -114,7 +116,7 @@ export default function LeadsPendentesPanel({ token }) {
       {err     && <div style={{ color: '#ef4444', fontSize: 12, marginBottom: 12 }}>Erro: {err}</div>}
       {loading && <div style={{ color: '#52525b', fontSize: 12 }}>Carregando…</div>}
 
-      <div style={{ overflowX: 'auto' }}>
+      <div className="dash-table-scroll" style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: "'JetBrains Mono', monospace", minWidth: 700 }}>
           <thead>
             <tr>
@@ -148,7 +150,7 @@ export default function LeadsPendentesPanel({ token }) {
                   </td>
                   <td style={{ ...tdStyle, fontWeight: 700 }}>{fmtBRL(lead.valor)}</td>
                   <td style={{ ...tdStyle, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis' }}>{lead.email || '—'}</td>
-                  <td style={{ ...tdStyle, color: '#71717a' }}>{lead.telefone || '—'}</td>
+                  <td style={{ ...tdStyle, color: '#71717a' }}>{fmtPhone(lead.telefone)}</td>
                   <td style={{ ...tdStyle, color: '#71717a' }}>{lead.utm_campaign || '—'}</td>
                   <td style={{ ...tdStyle, color: exp === 'expirado' ? '#3f3f46' : exp ? '#eab308' : '#3f3f46' }}>
                     {lead.status === 'purchased' ? '—' : exp || '—'}
