@@ -47,7 +47,7 @@ const mesaBlocks = [
   },
   {
     t: 'Aprende também com os outros',
-    d: 'Quando alguém destrava o agente dele, você absorve junto. São 15 casos reais em 3 horas — não um.',
+    d: 'Quando alguém destrava o agente dele, você absorve junto. São 15 casos reais em 6 horas — não um.',
   },
 ]
 
@@ -121,7 +121,7 @@ function AppMesaDeComando() {
             Saia da imersão com o sistema <span className="highlight-orange">rodando de verdade</span>.
           </h1>
           <p className="vsl-hero-sub vsl-hero-sub--oneline">
-            3 horas ao vivo. Sua tela. Seus clientes. Seu problema destravado com acompanhamento direto.
+            6 horas ao vivo. Sua tela. Seus clientes. Seu problema destravado com acompanhamento direto.
           </p>
 
           <div className="mesa-choice" style={{ marginTop: '2rem' }}>
@@ -190,7 +190,7 @@ function AppMesaDeComando() {
 
               <div className="offer-features">
                 {[
-                  { t: '3h ao vivo', d: 'Sessão cirúrgica de implementação', i: '⏱' },
+                  { t: '6h ao vivo', d: 'Sessão cirúrgica de implementação', i: '⏱' },
                   { t: 'Seu setup destravado', d: 'Compartilhamento de tela 1-a-1', i: '◎' },
                   { t: 'Turma de 15, não mais', d: 'Escassez real, não teatro', i: '✦' },
                   { t: 'Caso real', d: 'Você chega com teu problema, sai com a solução', i: '♡' },
