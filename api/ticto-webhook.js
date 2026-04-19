@@ -43,9 +43,17 @@ function extractTransactionId(body) {
 }
 
 function extractCustomer(body) {
-  return {
-    email: pick(body, ['customer.email', 'email', 'buyer.email', 'cliente.email']),
-    telefone: pick(body, [
+  // Ticto envia phone como objeto { ddi: "+55", ddd: "17", number: "991816243" }
+  // Monta número completo: +5517991816243
+  let telefone = null
+  const ph = body?.customer?.phone
+  if (ph && typeof ph === 'object' && ph.number) {
+    const ddi = String(ph.ddi || '').replace(/\D/g, '')
+    const ddd = String(ph.ddd || '').replace(/\D/g, '')
+    const num = String(ph.number).replace(/\D/g, '')
+    telefone = `+${ddi}${ddd}${num}`
+  } else {
+    telefone = pick(body, [
       'customer.phone.number',
       'customer.phone',
       'customer.phone_number',
@@ -53,8 +61,12 @@ function extractCustomer(body) {
       'phone',
       'buyer.phone',
       'cliente.telefone',
-    ]),
-    nome: pick(body, ['customer.name', 'customer.full_name', 'name', 'buyer.name', 'cliente.nome']),
+    ])
+  }
+  return {
+    email:    pick(body, ['customer.email', 'email', 'buyer.email', 'cliente.email']),
+    telefone,
+    nome:     pick(body, ['customer.name', 'customer.full_name', 'name', 'buyer.name', 'cliente.nome']),
   }
 }
 
