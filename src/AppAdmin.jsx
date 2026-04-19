@@ -99,8 +99,10 @@ function AuthScreen({ onSubmit }) {
 
 // ─── Barra de progresso ────────────────────────────────────────────────────────
 function ProgressBar({ value, max, color, height = 8, showLabel = false }) {
-  const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0
-  const c = color || pctColor(pct / 100)
+  const rawPct = max > 0 ? (value / max) * 100 : 0
+  const barPct = Math.min(100, rawPct)
+  const exceeded = rawPct > 100
+  const c = exceeded ? '#22c55e' : (color || pctColor(rawPct / 100))
   return (
     <div style={{ width: '100%' }}>
       <div style={{
@@ -108,14 +110,16 @@ function ProgressBar({ value, max, color, height = 8, showLabel = false }) {
         overflow: 'hidden', position: 'relative',
       }}>
         <div style={{
-          height: '100%', width: `${pct}%`, background: c,
+          height: '100%', width: `${barPct}%`, background: c,
           borderRadius: height, transition: 'width 0.5s ease',
-          boxShadow: `0 0 8px ${c}66`,
+          boxShadow: exceeded ? `0 0 12px ${c}99` : `0 0 8px ${c}66`,
         }} />
       </div>
       {showLabel && (
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
-          <span style={{ color: c, fontSize: 11, fontWeight: 700 }}>{Math.round(pct)}%</span>
+          <span style={{ color: c, fontSize: 11, fontWeight: 700 }}>
+            {Math.round(rawPct)}%{exceeded && ' 🎯'}
+          </span>
           <span style={{ color: '#52525b', fontSize: 11 }}>{value}/{max}</span>
         </div>
       )}
