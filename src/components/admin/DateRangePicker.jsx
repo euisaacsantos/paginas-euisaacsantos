@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 // ─── constantes ───────────────────────────────────────────────────────────────
 const MONTHS_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']
@@ -181,6 +181,21 @@ export default function DateRangePicker({ value, onChange, onClose }) {
     return () => document.removeEventListener('mousedown', handler)
   }, [onClose])
 
+  // Impede overflow horizontal: corrige posição após render
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const parentLeft = el.offsetParent?.getBoundingClientRect().left ?? 0
+    if (rect.left < 8) {
+      el.style.right = 'auto'
+      el.style.left = `${8 - parentLeft}px`
+    } else if (rect.right > window.innerWidth - 8) {
+      el.style.right = 'auto'
+      el.style.left = `${window.innerWidth - 8 - rect.width - parentLeft}px`
+    }
+  }, [])
+
   function handleSelect(d) {
     if (phase === 'picking-start' || phase === 'done') {
       setStart(d); setEnd(null); setPhase('picking-end')
@@ -191,8 +206,9 @@ export default function DateRangePicker({ value, onChange, onClose }) {
         setStart(d); setEnd(start); setPhase('done')
         commit(d, start)
       } else if (sameDay(d, start)) {
-        // clicou no mesmo dia: cancela
-        setStart(null); setEnd(null); setPhase('picking-start')
+        // mesmo dia: confirma como range de um único dia
+        setEnd(d); setPhase('done')
+        commit(start, d)
       } else {
         setEnd(d); setPhase('done')
         commit(start, d)
@@ -268,9 +284,15 @@ export default function DateRangePicker({ value, onChange, onClose }) {
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 14 }}>
         <button onClick={() => onClose?.()} style={btnSecondary}>Cancelar</button>
         <button
-          disabled={phase !== 'done'}
-          onClick={() => onClose?.()}
-          style={{ ...btnPrimary, opacity: phase !== 'done' ? 0.4 : 1 }}
+          disabled={!start}
+          onClick={() => {
+            if (phase === 'picking-end' && start && !end) {
+              // aplica como dia único
+              commit(start, start)
+            }
+            onClose?.()
+          }}
+          style={{ ...btnPrimary, opacity: !start ? 0.4 : 1 }}
         >
           Aplicar
         </button>

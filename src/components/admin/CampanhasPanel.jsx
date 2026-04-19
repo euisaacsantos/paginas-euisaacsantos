@@ -72,7 +72,7 @@ const TH = ({ children, right = true }) => (
 )
 
 // ─── Linha de métricas ────────────────────────────────────────────────────────
-function MetricRow({ row, attrib, level, isExpanded, onToggle, depth = 0, datePreset, token }) {
+function MetricRow({ row, attrib, level, isExpanded, onToggle, depth = 0, token }) {
   const db = attrib || { ingressos: 0, order_bumps: 0, mesa: 0, fat_ingresso: 0, fat_order_bump: 0, fat_mesa: 0 }
   const hasAttrib = db.ingressos > 0 || db.order_bumps > 0 || db.mesa > 0
 
@@ -540,7 +540,6 @@ export default function CampanhasPanel({ token, onSpendTotal, dateRange }) {
                     onToggle={toggleCampaign}
                     depth={0}
                     token={token}
-                    datePreset={datePreset}
                   />,
 
                   // Loading adsets
@@ -562,7 +561,6 @@ export default function CampanhasPanel({ token, onSpendTotal, dateRange }) {
                         onToggle={(r) => toggleAdset(r, camp.campaign_id)}
                         depth={1}
                         token={token}
-                        datePreset={datePreset}
                       />,
 
                       adsetExpanded === 'loading' && <LoadingRow key={`${adset.id}-loading`} depth={2} />,
@@ -577,7 +575,6 @@ export default function CampanhasPanel({ token, onSpendTotal, dateRange }) {
                             level="ad"
                             depth={2}
                             token={token}
-                            datePreset={datePreset}
                           />
                         )
                       }),
