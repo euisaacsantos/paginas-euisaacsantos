@@ -116,14 +116,15 @@ async function main() {
       continue
     }
 
-    // Verifica se já existe compra aprovada
-    const { data: venda } = await supabase
-      .from('cct_vendas')
-      .select('id')
-      .eq('ticto_transaction_id', String(transactionId))
-      .maybeSingle()
+    // Verifica se já existe compra aprovada — por transaction_id OU por email+offer_code
+    const [{ data: vendaPorTx }, { data: vendaPorEmail }] = await Promise.all([
+      supabase.from('cct_vendas').select('id').eq('ticto_transaction_id', String(transactionId)).maybeSingle(),
+      customer.email && offerCode
+        ? supabase.from('cct_vendas').select('id').eq('email', customer.email).eq('offer_code', offerCode).maybeSingle()
+        : Promise.resolve({ data: null }),
+    ])
 
-    if (venda) {
+    if (vendaPorTx || vendaPorEmail) {
       console.log(`  [skip] transaction=${transactionId} — já virou compra aprovada`)
       pulados++
       continue

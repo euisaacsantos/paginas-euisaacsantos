@@ -267,14 +267,16 @@ export default async function handler(req, res) {
       const cpf = extractCpf(body)
       const sessionId = extractSrcSessionId(body)
 
-      // Verifica se já existe compra aprovada — não sobrescreve com lead
-      const { data: vendaExistente } = await supabase
-        .from('cct_vendas')
-        .select('id')
-        .eq('ticto_transaction_id', String(transactionId))
-        .maybeSingle()
+      // Verifica se já existe compra aprovada — por transaction_id OU por email+offer_code
+      // (cobre caso de pessoa que gerou dois PIX diferentes e pagou o segundo)
+      const [{ data: vendaPorTx }, { data: vendaPorEmail }] = await Promise.all([
+        supabase.from('cct_vendas').select('id').eq('ticto_transaction_id', String(transactionId)).maybeSingle(),
+        customer.email && offerCode
+          ? supabase.from('cct_vendas').select('id').eq('email', customer.email).eq('offer_code', offerCode).maybeSingle()
+          : Promise.resolve({ data: null }),
+      ])
 
-      if (vendaExistente) {
+      if (vendaPorTx || vendaPorEmail) {
         return respond(200, { ok: true, ignored: true, reason: 'already_purchased', transaction_id: transactionId })
       }
 
