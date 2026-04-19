@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useConfig } from './hooks/useConfig.js'
 import { useLiveVendas } from './hooks/useLiveVendas.js'
 import LiveToast from './components/LiveToast.jsx'
@@ -67,6 +67,27 @@ const mesaFaq = [
   ['Posso cancelar e pegar o dinheiro de volta?', 'Sim, até 7 dias antes da sessão. Nos 7 dias finais não tem reembolso porque a vaga fica bloqueada e impede outro de entrar.'],
 ]
 
+function VslPlayer() {
+  const containerRef = useRef(null)
+  useEffect(() => {
+    if (!containerRef.current) return
+    if (!document.querySelector('script[src*="69e301d8dbbc49f6be99f8a3"]')) {
+      const s = document.createElement('script')
+      s.src = 'https://scripts.converteai.net/0637c44b-8b3d-4750-9912-c3cd42d8c5c3/players/69e301d8dbbc49f6be99f8a3/v4/player.js'
+      s.async = true
+      document.head.appendChild(s)
+    }
+    if (!containerRef.current.querySelector('vturb-smartplayer')) {
+      const el = document.createElement('vturb-smartplayer')
+      el.id = 'vid-69e301d8dbbc49f6be99f8a3'
+      el.style.display = 'block'
+      el.style.width = '100%'
+      containerRef.current.appendChild(el)
+    }
+  }, [])
+  return <div className="vsl-vertical-wrap" ref={containerRef} />
+}
+
 function BuyButton({ href, className, children }) {
   return (
     <a
@@ -104,7 +125,9 @@ function AppMesaDeComando() {
           </p>
 
           <div className="mesa-choice" style={{ marginTop: '2rem' }}>
-            <VagasBar mesa={mesa} />
+            <VslPlayer />
+
+          <VagasBar mesa={mesa} />
             <BuyButton href={mesa.checkout} className="btn-mesa-sim">
               SIM, QUERO A MESA DE COMANDO — R${mesa.preco}
             </BuyButton>
