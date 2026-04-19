@@ -295,33 +295,59 @@ export default async function handler(req, res) {
       const expiresAt = new Date()
       expiresAt.setMinutes(expiresAt.getMinutes() + (isPix ? 30 : 60 * 24))
 
-      const { error: insertError } = await supabase
-        .from('cct_leads_pendentes')
-        .insert({
-          kind,
-          ticto_transaction_id: String(transactionId),
-          offer_code: offerCode,
-          produto_tipo: produtoTipo,
-          lote_id: loteId,
-          email: customer.email,
-          telefone: customer.telefone,
-          nome: customer.nome,
-          cpf: cpf || null,
-          valor,
-          utm_source:   utms.utm_source   || null,
-          utm_medium:   utms.utm_medium   || null,
-          utm_campaign: utms.utm_campaign || null,
-          utm_content:  utms.utm_content  || null,
-          utm_term:     utms.utm_term     || null,
-          fbclid:       utms.fbclid       || null,
-          session_id:   sessionId         || null,
-          expires_at:   expiresAt.toISOString(),
-          raw_payload:  body,
-        })
+      const leadRow = {
+        kind,
+        ticto_transaction_id: String(transactionId),
+        offer_code: offerCode,
+        produto_tipo: produtoTipo,
+        lote_id: loteId,
+        email: customer.email,
+        telefone: customer.telefone,
+        nome: customer.nome,
+        cpf: cpf || null,
+        valor,
+        utm_source:   utms.utm_source   || null,
+        utm_medium:   utms.utm_medium   || null,
+        utm_campaign: utms.utm_campaign || null,
+        utm_content:  utms.utm_content  || null,
+        utm_term:     utms.utm_term     || null,
+        fbclid:       utms.fbclid       || null,
+        session_id:   sessionId         || null,
+        expires_at:   expiresAt.toISOString(),
+        raw_payload:  body,
+      }
 
-      if (insertError) {
-        console.error('[ticto-webhook] erro insert leads_pendentes:', insertError)
-        return respond(500, { error: 'leads_pendentes insert failed', details: insertError.message }, insertError.message)
+      let leadError
+      if (isAbandon && customer.email && offerCode) {
+        // abandoned_cart: Ticto pode reenviar a cada atualização do form.
+        // Deduplicamos por email+offer_code: se já existe, atualiza; se não, insere.
+        const { data: existente } = await supabase
+          .from('cct_leads_pendentes')
+          .select('id')
+          .eq('email', customer.email)
+          .eq('offer_code', offerCode)
+          .eq('kind', 'abandoned_cart')
+          .maybeSingle()
+
+        if (existente) {
+          const { error } = await supabase
+            .from('cct_leads_pendentes')
+            .update({ ...leadRow, ticto_transaction_id: String(transactionId) })
+            .eq('id', existente.id)
+          leadError = error
+        } else {
+          const { error } = await supabase.from('cct_leads_pendentes').insert(leadRow)
+          leadError = error
+        }
+      } else {
+        // PIX: transaction_id é único e real — insert simples
+        const { error } = await supabase.from('cct_leads_pendentes').insert(leadRow)
+        leadError = error
+      }
+
+      if (leadError) {
+        console.error('[ticto-webhook] erro insert/update leads_pendentes:', leadError)
+        return respond(500, { error: 'leads_pendentes insert failed', details: leadError.message }, leadError.message)
       }
 
       // ── CAPI: InitiateCheckout (fire-and-forget — não bloqueia resposta) ──
