@@ -1,7 +1,13 @@
 import { getSupabase } from '../_supabase.js'
 import { requireAdmin } from './_auth.js'
 
-// GET /api/dashboard/atribuicao?token=X
+const BRT = 3 * 60 * 60 * 1000
+function brtDateToUtcIso(dateStr, endOfDay = false) {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return new Date(Date.UTC(y, m - 1, d + (endOfDay ? 1 : 0), 3, 0, 0, 0)).toISOString()
+}
+
+// GET /api/dashboard/atribuicao?token=X&date_from=YYYY-MM-DD&date_to=YYYY-MM-DD
 // Retorna vendas do DB agrupadas por utm_campaign / utm_content / utm_term
 // para cruzar com dados da Meta Ads API por UTM.
 export default async function handler(req, res) {
@@ -9,10 +15,16 @@ export default async function handler(req, res) {
 
   try {
     const supabase = getSupabase()
+    const dateFrom = req.query.date_from || null
+    const dateTo   = req.query.date_to   || null
 
-    const { data, error } = await supabase
+    let atribQuery = supabase
       .from('cct_vendas')
       .select('utm_campaign, utm_medium, utm_content, utm_term, produto_tipo, valor')
+    if (dateFrom) atribQuery = atribQuery.gte('created_at', brtDateToUtcIso(dateFrom, false))
+    if (dateTo)   atribQuery = atribQuery.lt('created_at',  brtDateToUtcIso(dateTo,   true))
+
+    const { data, error } = await atribQuery
 
     if (error) throw error
 

@@ -1,7 +1,13 @@
 import { getSupabase } from '../_supabase.js'
 import { requireAdmin } from './_auth.js'
 
-// GET /api/dashboard/vendas?token=X&limit=50&offset=0&produto_tipo=&status=
+const BRT = 3 * 60 * 60 * 1000
+function brtDateToUtcIso(dateStr, endOfDay = false) {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return new Date(Date.UTC(y, m - 1, d + (endOfDay ? 1 : 0), 3, 0, 0, 0)).toISOString()
+}
+
+// GET /api/dashboard/vendas?token=X&limit=50&offset=0&produto_tipo=&status=&date_from=YYYY-MM-DD&date_to=YYYY-MM-DD
 export default async function handler(req, res) {
   if (!requireAdmin(req, res)) return
 
@@ -11,6 +17,8 @@ export default async function handler(req, res) {
     const offset = Math.max(0, parseInt(req.query.offset || '0', 10))
     const produtoTipo = req.query.produto_tipo || null
     const status = req.query.status || null
+    const dateFrom = req.query.date_from || null
+    const dateTo   = req.query.date_to   || null
 
     let query = supabase
       .from('cct_vendas')
@@ -27,6 +35,8 @@ export default async function handler(req, res) {
 
     if (produtoTipo) query = query.eq('produto_tipo', produtoTipo)
     if (status) query = query.eq('status', status)
+    if (dateFrom) query = query.gte('created_at', brtDateToUtcIso(dateFrom, false))
+    if (dateTo)   query = query.lt('created_at',  brtDateToUtcIso(dateTo,   true))
 
     const { data, error, count } = await query
     if (error) throw error

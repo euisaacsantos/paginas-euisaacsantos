@@ -6,30 +6,57 @@ const BRT_OFFSET_MS = 3 * 60 * 60 * 1000
 function utcToBRTDate(isoStr) {
   return new Date(new Date(isoStr).getTime() - BRT_OFFSET_MS).toISOString().slice(0, 10)
 }
+function brtDateToUtcIso(dateStr, endOfDay = false) {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return new Date(Date.UTC(y, m - 1, d + (endOfDay ? 1 : 0), 3, 0, 0, 0)).toISOString()
+}
 
 // GET /api/dashboard/vendas-por-dia?token=X&days=14
+// GET /api/dashboard/vendas-por-dia?token=X&date_from=YYYY-MM-DD&date_to=YYYY-MM-DD
 // Retorna vendas agrupadas por dia (em BRT) e produto_tipo.
 export default async function handler(req, res) {
   if (!requireAdmin(req, res)) return
 
   try {
     const supabase = getSupabase()
-    const days = Math.min(60, Math.max(1, parseInt(req.query.days || '14', 10)))
+    const dateFrom = req.query.date_from || null
+    const dateTo   = req.query.date_to   || null
 
-    // "Hoje" em BRT: subtrai o offset do UTC now
-    const nowBRT = new Date(Date.now() - BRT_OFFSET_MS)
+    let sinceUTC, sinceBRT, days
 
-    // Primeiro dia do range (meia-noite BRT → converte para UTC pro filtro Supabase)
-    const sinceBRT = new Date(nowBRT)
-    sinceBRT.setDate(sinceBRT.getDate() - days + 1)
-    sinceBRT.setHours(0, 0, 0, 0)
-    const sinceUTC = new Date(sinceBRT.getTime() + BRT_OFFSET_MS)
+    if (dateFrom && dateTo) {
+      // Range explícito: usa date_from/date_to
+      sinceUTC = brtDateToUtcIso(dateFrom, false)
+      // sinceBRT: meia-noite BRT do dateFrom, para gerar o array de dias
+      const [fy, fm, fd] = dateFrom.split('-').map(Number)
+      sinceBRT = new Date(Date.UTC(fy, fm - 1, fd, 3, 0, 0, 0) - BRT_OFFSET_MS)
+      // Calcula número de dias entre dateFrom e dateTo (inclusivo)
+      const [ty, tm, td] = dateTo.split('-').map(Number)
+      const fromMs = Date.UTC(fy, fm - 1, fd)
+      const toMs   = Date.UTC(ty, tm - 1, td)
+      days = Math.round((toMs - fromMs) / 86400000) + 1
+    } else {
+      // Fallback: lógica original com `days`
+      days = Math.min(60, Math.max(1, parseInt(req.query.days || '14', 10)))
 
-    const { data, error } = await supabase
+      // "Hoje" em BRT: subtrai o offset do UTC now
+      const nowBRT = new Date(Date.now() - BRT_OFFSET_MS)
+
+      // Primeiro dia do range (meia-noite BRT → converte para UTC pro filtro Supabase)
+      sinceBRT = new Date(nowBRT)
+      sinceBRT.setDate(sinceBRT.getDate() - days + 1)
+      sinceBRT.setHours(0, 0, 0, 0)
+      sinceUTC = new Date(sinceBRT.getTime() + BRT_OFFSET_MS).toISOString()
+    }
+
+    let dbQuery = supabase
       .from('cct_vendas')
       .select('created_at, produto_tipo, valor')
-      .gte('created_at', sinceUTC.toISOString())
+      .gte('created_at', sinceUTC)
       .order('created_at', { ascending: true })
+    if (dateFrom && dateTo) dbQuery = dbQuery.lt('created_at', brtDateToUtcIso(dateTo, true))
+
+    const { data, error } = await dbQuery
 
     if (error) throw error
 

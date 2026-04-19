@@ -2,7 +2,13 @@ import { getRedis } from '../_redis.js'
 import { getSupabase } from '../_supabase.js'
 import { requireAdmin } from './_auth.js'
 
-// GET /api/dashboard/overview?token=X
+const BRT = 3 * 60 * 60 * 1000
+function brtDateToUtcIso(dateStr, endOfDay = false) {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return new Date(Date.UTC(y, m - 1, d + (endOfDay ? 1 : 0), 3, 0, 0, 0)).toISOString()
+}
+
+// GET /api/dashboard/overview?token=X&date_from=YYYY-MM-DD&date_to=YYYY-MM-DD
 // Retorna KPIs agregados (Redis + Supabase).
 export default async function handler(req, res) {
   if (!requireAdmin(req, res)) return
@@ -43,9 +49,16 @@ export default async function handler(req, res) {
 
     // KPIs do Supabase (cct_vendas)
     // raw_payload.payment_method vem direto da Ticto ('pix' | 'credit_card' | etc)
-    const { data: vendasRows, error: vendasErr } = await supabase
+    const dateFrom = req.query.date_from || null
+    const dateTo   = req.query.date_to   || null
+
+    let vendasQuery = supabase
       .from('cct_vendas')
       .select('ticto_transaction_id, produto_tipo, lote_id, valor, meta_capi_sent, status, raw_payload')
+    if (dateFrom) vendasQuery = vendasQuery.gte('created_at', brtDateToUtcIso(dateFrom, false))
+    if (dateTo)   vendasQuery = vendasQuery.lt('created_at',  brtDateToUtcIso(dateTo,   true))
+
+    const { data: vendasRows, error: vendasErr } = await vendasQuery
 
     if (vendasErr) throw vendasErr
 

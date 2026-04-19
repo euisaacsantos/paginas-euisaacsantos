@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import CampanhasPanel from './components/admin/CampanhasPanel.jsx'
 import LeadsPendentesPanel from './components/admin/LeadsPendentesPanel.jsx'
+import DateRangePicker from './components/admin/DateRangePicker.jsx'
 
 // Hook de responsividade
 function useIsMobile() {
@@ -20,6 +21,16 @@ const EVENT_DATE = new Date('2026-05-02T09:00:00-03:00')
 // Data atual em BRT (UTC-3, sem horário de verão no Brasil)
 function todayBRT() {
   return new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString().slice(0, 10)
+}
+
+function computeDateRange(preset) {
+  const now = Date.now() - 3 * 60 * 60 * 1000  // agora em BRT ms
+  const today = new Date(now).toISOString().slice(0, 10)
+  if (preset === 'total') return { since: null, until: null }
+  if (preset === 'hoje')  return { since: today, until: today }
+  if (preset === '7d')    return { since: new Date(now - 6  * 86400000).toISOString().slice(0, 10), until: today }
+  if (preset === '30d')   return { since: new Date(now - 29 * 86400000).toISOString().slice(0, 10), until: today }
+  return { since: null, until: null }
 }
 
 function getTokenFromUrl() {
@@ -610,7 +621,7 @@ function MetasPanel({ token }) {
 }
 
 // ─── Tabela de Vendas ──────────────────────────────────────────────────────────
-function VendasTable({ token }) {
+function VendasTable({ token, dateFilter }) {
   const [rows, setRows] = useState([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -623,6 +634,7 @@ function VendasTable({ token }) {
     try {
       const p = new URLSearchParams({ token, limit: String(limit), offset: String(offset) })
       if (filter) p.set('produto_tipo', filter)
+      if (dateFilter?.since) { p.set('date_from', dateFilter.since); p.set('date_to', dateFilter.until) }
       const r = await fetch(`/api/dashboard/vendas?${p}`)
       const j = await r.json()
       setRows(j.vendas || [])
@@ -631,7 +643,7 @@ function VendasTable({ token }) {
     setLoading(false)
   }
 
-  useEffect(() => { load() }, [filter, offset])
+  useEffect(() => { load() }, [filter, offset, dateFilter])
 
   function exportCSV() {
     const headers = ['created_at','produto_tipo','lote_id','valor','email','nome','telefone','utm_source','utm_medium','utm_campaign','fbclid','meta_capi_sent','ticto_transaction_id']
@@ -752,6 +764,98 @@ function VendasTable({ token }) {
   )
 }
 
+// ─── Barra global de filtro de datas ──────────────────────────────────────────
+const PRESETS = [
+  ['total', 'Total'],
+  ['hoje',  'Hoje'],
+  ['7d',    '7 dias'],
+  ['30d',   '30 dias'],
+]
+
+function GlobalDateBar({ dateFilter, onChange }) {
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const S = { fontFamily: "'JetBrains Mono', monospace" }
+
+  function applyPreset(preset) {
+    const { since, until } = computeDateRange(preset)
+    onChange({ preset, since, until, start: null, end: null })
+    setPickerOpen(false)
+  }
+
+  const isCustom = dateFilter.preset === 'custom'
+  const label = isCustom
+    ? `${dateFilter.since} → ${dateFilter.until}`
+    : '📅 Período'
+
+  return (
+    <div style={{
+      borderBottom: '1px solid rgba(255,255,255,0.05)',
+      background: 'rgba(7,7,9,0.6)',
+      padding: '10px 28px',
+      display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap',
+      ...S,
+    }}>
+      <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', color: '#52525b', textTransform: 'uppercase', marginRight: 4 }}>
+        Período:
+      </span>
+
+      {PRESETS.map(([preset, label]) => {
+        const active = dateFilter.preset === preset
+        return (
+          <button
+            key={preset}
+            onClick={() => applyPreset(preset)}
+            style={{
+              background: active ? 'rgba(255,140,60,0.18)' : 'rgba(255,255,255,0.04)',
+              border: `1px solid ${active ? 'rgba(255,140,60,0.45)' : 'rgba(255,255,255,0.08)'}`,
+              borderRadius: 6, color: active ? '#ff8c3c' : '#71717a',
+              fontFamily: 'inherit', fontSize: 11, fontWeight: 700,
+              padding: '5px 12px', cursor: 'pointer',
+            }}
+          >
+            {label}
+          </button>
+        )
+      })}
+
+      {/* Botão de range customizado */}
+      <div style={{ position: 'relative' }}>
+        <button
+          onClick={() => setPickerOpen((o) => !o)}
+          style={{
+            background: isCustom ? 'rgba(255,140,60,0.18)' : 'rgba(255,255,255,0.04)',
+            border: `1px solid ${isCustom ? 'rgba(255,140,60,0.45)' : 'rgba(255,255,255,0.08)'}`,
+            borderRadius: 6, color: isCustom ? '#ff8c3c' : '#71717a',
+            fontFamily: 'inherit', fontSize: 11, fontWeight: 700,
+            padding: '5px 12px', cursor: 'pointer',
+          }}
+        >
+          {label}
+        </button>
+        {pickerOpen && (
+          <DateRangePicker
+            value={{ start: dateFilter.start, end: dateFilter.end }}
+            onChange={({ start, end, since, until }) => {
+              onChange({ preset: 'custom', since, until, start, end })
+              setPickerOpen(false)
+            }}
+            onClose={() => setPickerOpen(false)}
+          />
+        )}
+      </div>
+
+      {/* Exibe o range ativo */}
+      {dateFilter.since && (
+        <span style={{ fontSize: 10, color: '#52525b', marginLeft: 4 }}>
+          {dateFilter.since === dateFilter.until
+            ? dateFilter.since
+            : `${dateFilter.since} → ${dateFilter.until}`}
+        </span>
+      )}
+    </div>
+  )
+}
+
 // ─── Dashboard principal ───────────────────────────────────────────────────────
 function Dashboard({ token, onLogout }) {
   const isMobile = useIsMobile()
@@ -761,12 +865,15 @@ function Dashboard({ token, onLogout }) {
   const [err, setErr] = useState(null)
   const [lastUpdate, setLastUpdate] = useState(null)
   const [spendTotal, setSpendTotal] = useState(null)
+  const [dateFilter, setDateFilter] = useState({ preset: 'total', since: null, until: null, start: null, end: null })
 
   const load = useCallback(async () => {
+    const dp = dateFilter.since ? `&date_from=${dateFilter.since}&date_to=${dateFilter.until}` : ''
+    const chartDays = dateFilter.since ? '' : '&days=30'
     try {
       const [r1, r2] = await Promise.all([
-        fetch(`/api/dashboard/overview?token=${encodeURIComponent(token)}`),
-        fetch(`/api/dashboard/vendas-por-dia?token=${encodeURIComponent(token)}&days=14`),
+        fetch(`/api/dashboard/overview?token=${encodeURIComponent(token)}${dp}`),
+        fetch(`/api/dashboard/vendas-por-dia?token=${encodeURIComponent(token)}${dp}${chartDays}`),
       ])
       if (r1.status === 401) { onLogout(); return }
       const [j1, j2] = await Promise.all([r1.json(), r2.json()])
@@ -780,7 +887,7 @@ function Dashboard({ token, onLogout }) {
     } finally {
       setLoading(false)
     }
-  }, [token, onLogout])
+  }, [token, onLogout, dateFilter])
 
   useEffect(() => {
     load()
@@ -861,6 +968,8 @@ function Dashboard({ token, onLogout }) {
           </button>
         </div>
       </div>
+
+      <GlobalDateBar dateFilter={dateFilter} onChange={setDateFilter} />
 
       {err && (
         <div style={{ margin: '16px 28px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 10, padding: '12px 16px', color: '#ef4444', fontSize: 12 }}>
@@ -1043,7 +1152,9 @@ function Dashboard({ token, onLogout }) {
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr 1fr', gap: 16 }}>
           <div style={{ background: '#0e0e12', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: '24px 28px' }}>
             <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', color: '#ff8c3c', marginBottom: 20, textTransform: 'uppercase' }}>
-              Vendas por dia · últimos 14 dias
+              {dateFilter.since
+                ? `Vendas por dia · ${dateFilter.since === dateFilter.until ? dateFilter.since : `${dateFilter.since} → ${dateFilter.until}`}`
+                : 'Vendas por dia · últimos 30 dias'}
             </div>
             <BarChart dias={diasData} metaDiaria={metaDiaria} />
           </div>
@@ -1058,13 +1169,13 @@ function Dashboard({ token, onLogout }) {
         </div>
 
         {/* ── Linha 5: campanhas Meta Ads ── */}
-        <CampanhasPanel token={token} onSpendTotal={setSpendTotal} />
+        <CampanhasPanel token={token} onSpendTotal={setSpendTotal} dateRange={dateFilter.since ? { since: dateFilter.since, until: dateFilter.until } : null} />
 
         {/* ── Linha 6: leads pendentes (PIX + abandono) ── */}
         <LeadsPendentesPanel token={token} />
 
         {/* ── Linha 7: tabela de vendas ── */}
-        <VendasTable token={token} />
+        <VendasTable token={token} dateFilter={dateFilter} />
 
       </div>
     </div>

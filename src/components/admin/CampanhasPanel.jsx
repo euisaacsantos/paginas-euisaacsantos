@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import DateRangePicker from './DateRangePicker.jsx'
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 const fmtBRL  = (n) => (Number(n) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 })
@@ -389,31 +388,34 @@ function TotalRow({ rows, attribMap, attribKey }) {
 }
 
 // ─── Painel principal ──────────────────────────────────────────────────────────
-export default function CampanhasPanel({ token, onSpendTotal }) {
+// dateRange: { since: 'YYYY-MM-DD', until: 'YYYY-MM-DD' } | null (vem do Dashboard global)
+export default function CampanhasPanel({ token, onSpendTotal, dateRange }) {
   const [campaigns, setCampaigns]     = useState([])
   const [atrib, setAtrib]             = useState(null)
   const [loading, setLoading]         = useState(true)
   const [err, setErr]                 = useState(null)
-  const [datePreset, setDatePreset]   = useState('')  // '' = time_range 2023→hoje
-  const [customRange, setCustomRange] = useState(null)  // { start, end, since, until }
-  const [pickerOpen, setPickerOpen]   = useState(false)
   const [expanded, setExpanded]       = useState({})
   const [adExpanded, setAdExpanded]   = useState({})
 
-  // Monta os params de data para todas as chamadas à API
+  // Monta os params de data para Meta Ads API
   function dateParams() {
-    if (customRange?.since && customRange?.until) {
-      return `since=${customRange.since}&until=${customRange.until}`
+    if (dateRange?.since && dateRange?.until) {
+      return `since=${dateRange.since}&until=${dateRange.until}`
     }
-    return `date_preset=${datePreset}`
+    return 'date_preset='  // Meta: all time
   }
+
+  // Params de data para Supabase (atribuicao)
+  const attribDateParam = dateRange?.since
+    ? `&date_from=${dateRange.since}&date_to=${dateRange.until}`
+    : ''
 
   const load = useCallback(async () => {
     setLoading(true); setErr(null); setExpanded({}); setAdExpanded({})
     try {
       const [r1, r2] = await Promise.all([
         fetch(`/api/dashboard/meta-ads?token=${encodeURIComponent(token)}&level=campaign&${dateParams()}`),
-        fetch(`/api/dashboard/atribuicao?token=${encodeURIComponent(token)}`),
+        fetch(`/api/dashboard/atribuicao?token=${encodeURIComponent(token)}${attribDateParam}`),
       ])
       const [j1, j2] = await Promise.all([r1.json(), r2.json()])
       if (!r1.ok) {
@@ -430,7 +432,7 @@ export default function CampanhasPanel({ token, onSpendTotal }) {
       setErr(e.message)
     }
     setLoading(false)
-  }, [token, datePreset, customRange, onSpendTotal])
+  }, [token, dateRange, onSpendTotal])
 
   useEffect(() => { load() }, [load])
 
@@ -486,71 +488,13 @@ export default function CampanhasPanel({ token, onSpendTotal }) {
   return (
     <div style={{ background: '#0e0e12', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: '24px 0' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 20, padding: '0 24px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 20, padding: '0 24px' }}>
         <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', color: '#ff8c3c', textTransform: 'uppercase' }}>
           Campanhas · [VENDAS][IMERSAO]
         </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', position: 'relative' }}>
-          {/* Presets */}
-          {[
-            ['',           'Total'],
-            ['this_month', 'Este mês'],
-            ['last_30d',   'Últimos 30d'],
-            ['this_week',  'Esta semana'],
-          ].map(([dp, label]) => {
-            const active = !customRange && datePreset === dp
-            return (
-              <button key={dp} onClick={() => { setCustomRange(null); setDatePreset(dp) }} style={{
-                background: active ? 'rgba(255,140,60,0.2)' : 'rgba(255,255,255,0.04)',
-                border: `1px solid ${active ? 'rgba(255,140,60,0.4)' : 'rgba(255,255,255,0.08)'}`,
-                borderRadius: 6, color: active ? '#ff8c3c' : '#71717a',
-                fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700,
-                padding: '5px 10px', cursor: 'pointer',
-              }}>
-                {label}
-              </button>
-            )
-          })}
-
-          {/* Botão de range customizado */}
-          <button onClick={() => setPickerOpen((o) => !o)} style={{
-            background: customRange ? 'rgba(255,140,60,0.2)' : 'rgba(255,255,255,0.04)',
-            border: `1px solid ${customRange ? 'rgba(255,140,60,0.5)' : 'rgba(255,255,255,0.08)'}`,
-            borderRadius: 6,
-            color: customRange ? '#ff8c3c' : '#71717a',
-            fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 700,
-            padding: '5px 10px', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', gap: 6,
-          }}>
-            <span>📅</span>
-            {customRange
-              ? `${customRange.since} → ${customRange.until}`
-              : 'Período'}
-          </button>
-
-          {/* Picker dropdown */}
-          {pickerOpen && (
-            <DateRangePicker
-              value={{ start: customRange?.start, end: customRange?.end }}
-              onChange={(range) => { setCustomRange(range); setPickerOpen(false) }}
-              onClose={() => setPickerOpen(false)}
-            />
-          )}
-
-          {/* Clear range */}
-          {customRange && (
-            <button onClick={() => { setCustomRange(null); setDatePreset('') }} style={{
-              background: 'transparent', border: 'none', color: '#52525b',
-              fontFamily: "'JetBrains Mono', monospace", fontSize: 11, cursor: 'pointer', padding: '5px 4px',
-            }}>
-              ✕
-            </button>
-          )}
-
-          <button onClick={load} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6, color: '#71717a', fontFamily: "'JetBrains Mono', monospace", fontSize: 11, padding: '5px 10px', cursor: 'pointer' }}>
-            ↻
-          </button>
-        </div>
+        <button onClick={load} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6, color: '#71717a', fontFamily: "'JetBrains Mono', monospace", fontSize: 11, padding: '5px 10px', cursor: 'pointer' }}>
+          ↻
+        </button>
       </div>
 
       {err && (
