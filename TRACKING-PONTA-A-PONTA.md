@@ -332,6 +332,55 @@ order by v.created_at desc
 limit 10;
 ```
 
+## Safari ITP — Fix de `_fbp` server-side
+
+### Problema identificado
+
+Diagnóstico de abril/2026: **37% das compras chegavam sem `fbp`** no evento Purchase da CAPI (confirmado no Events Manager: 62,96% de cobertura).
+
+Causa raiz: Safari com Intelligent Tracking Prevention (ITP) bloqueia ou expira rapidamente cookies gravados via JavaScript (`document.cookie`). O pixel do Meta grava `_fbp` via JS — no Safari, o cookie some antes do usuário clicar no CTA.
+
+Dos 28 eventos Purchase sem fbp analisados: **26 eram Safari puro (iOS/iPhone)**, todos com `utm_source=MetaAds`. Ou seja: tráfego pago que chegou via link de anúncio, mas perdeu o cookie de identificação.
+
+Todos os 28 tinham `fbc` (fbclid) + `external_id` + `email` + `phone` — matching ainda acontecia, mas sem fbp.
+
+### Solução implementada (`api/fp.js`)
+
+Safari respeita cookies gravados via **HTTP `Set-Cookie` header** (server-side) como first-party — ao contrário de cookies JS. O pixel, ao inicializar, só gera um novo `_fbp` se não encontrar um existente. Aproveitamos essa janela:
+
+```
+Usuário abre a página
+  └→ fetch('/api/fp') — executa antes do pixel
+       └→ Vercel Function: _fbp existe? → 204, sem ação
+                           não existe? → gera fb.1.<ts>.<random>
+                                         Set-Cookie header (Max-Age=1 ano, SameSite=Lax)
+  └→ Pixel carrega, lê document.cookie → encontra _fbp já gravado pelo servidor
+  └→ Usa esse valor (não gera novo)
+  └→ cctGetCookie('_fbp') no CTA click → retorna o mesmo valor
+  └→ session-start → Purchase CAPI → fbp presente
+```
+
+O formato gerado (`fb.1.<timestamp_ms>.<random_10_digits>`) é idêntico ao que o pixel gera — o Meta não valida criptograficamente o valor, apenas o usa como identificador de sessão de browser.
+
+**Arquivos alterados:**
+- `api/fp.js` — nova Vercel Function (criada em 20/04/2026)
+- `index.html` — `<script>fetch('/api/fp')</script>` adicionado antes do bloco do pixel
+
+### Alternativa oficial: CAPI Gateway via Cloudflare (não implementada)
+
+A solução oficial do Meta resolve dois problemas:
+
+| Problema | Nossa solução (Vercel) | CAPI Gateway (Cloudflare) |
+|---|---|---|
+| Safari ITP bloqueando `_fbp` | ✅ resolvido | ✅ resolvido |
+| Ad blocker bloqueando `connect.facebook.net` | ❌ não cobre | ✅ cobre |
+
+O CAPI Gateway funciona fazendo proxy do script `fbevents.js` e dos hits de pixel pelo subdomínio próprio (ex: `pixel.seusite.com.br` via Cloudflare Worker), tornando tudo first-party tanto para o cookie quanto para as requisições de rede.
+
+Considerar quando: tráfego pago ultrapassar R$ 10k/mês E houver queda relevante de match quality atribuída a ad blockers (não ao Safari ITP, que já está resolvido).
+
+---
+
 ## Edge cases
 
 - **Sessão não chegou ao webhook** (race — webhook chega antes do INSERT completar, ou usuário cliclou antes do keepalive mandar): Purchase CAPI ainda dispara, mas sem fbp/fbc/external_id da sessão. Fallback usa dados do payload Ticto (ip/ua/geo do checkout, UTMs que Ticto preservou). `session_id/external_id` em `cct_vendas` ficam `null`.
@@ -355,6 +404,6 @@ Browser: Meta Pixel ID já está inline em `index.html`.
 
 1. **Domain Verification** no Business Manager (Meta → Brand Safety → Domains) → adiciona `growthtap.com.br` pra habilitar Aggregated Event Measurement (iOS 14.5+)
 2. **Priorização de eventos** no Events Manager (Aggregated Event Measurement): configurar Purchase > AddToCart > PageView
-3. **Conversion API Gateway** (futuro): roda container próprio pra bypass total de adblocker no client-side — considerar quando tráfego pago ultrapassar R$ 10k/mês
+3. **Safari ITP / `_fbp`**: ✅ resolvido via `api/fp.js` (Set-Cookie server-side). Para cobertura adicional de ad blockers, ver seção "CAPI Gateway via Cloudflare" acima — considerar quando tráfego pago ultrapassar R$ 10k/mês
 4. **Deduplicação do Pixel do checkout Ticto**: se o Ticto disparar seu próprio Pixel Purchase client-side, incluir mesmo `event_id = purchase_<transaction_hash>` na integração (hoje não há — só server-side sai)
 5. **`content_ids` consistente**: hoje passa `offer_code`; considerar usar ID canônico de produto Ticto quando disponível
