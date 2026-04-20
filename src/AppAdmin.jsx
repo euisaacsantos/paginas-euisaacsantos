@@ -52,9 +52,11 @@ function fmtDia(iso) {
   return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
 }
 function daysUntilEvent() {
-  const now = new Date()
-  const diff = EVENT_DATE - now
-  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
+  const todayStr = todayBRT()
+  const eventStr = '2026-05-02'
+  const msPerDay = 1000 * 60 * 60 * 24
+  const diff = new Date(eventStr) - new Date(todayStr)
+  return Math.max(0, Math.round(diff / msPerDay))
 }
 
 // Cor baseada em % atingido (0–1)
