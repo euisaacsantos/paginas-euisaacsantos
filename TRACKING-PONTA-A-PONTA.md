@@ -344,27 +344,34 @@ Dos 28 eventos Purchase sem fbp analisados: **26 eram Safari puro (iOS/iPhone)**
 
 Todos os 28 tinham `fbc` (fbclid) + `external_id` + `email` + `phone` — matching ainda acontecia, mas sem fbp.
 
-### Solução implementada (`api/fp.js`)
+### Solução implementada (`middleware.js`)
 
-Safari respeita cookies gravados via **HTTP `Set-Cookie` header** (server-side) como first-party — ao contrário de cookies JS. O pixel, ao inicializar, só gera um novo `_fbp` se não encontrar um existente. Aproveitamos essa janela:
+Safari respeita cookies gravados via **HTTP `Set-Cookie` header** (server-side) como first-party — ao contrário de cookies JS. O pixel, ao inicializar, só gera um novo `_fbp` se não encontrar um existente. Aproveitamos essa janela.
+
+A solução usa **Vercel Edge Middleware** (`middleware.js` na raiz), que intercepta o request e injeta o `Set-Cookie` **no mesmo response HTTP que entrega o HTML** — antes de qualquer script da página executar:
 
 ```
-Usuário abre a página
-  └→ fetch('/api/fp') — executa antes do pixel
-       └→ Vercel Function: _fbp existe? → 204, sem ação
-                           não existe? → gera fb.1.<ts>.<random>
-                                         Set-Cookie header (Max-Age=1 ano, SameSite=Lax)
-  └→ Pixel carrega, lê document.cookie → encontra _fbp já gravado pelo servidor
+Browser → GET /v1
+  └→ Edge Middleware intercepta (antes do HTML ser enviado)
+       └→ _fbp existe no request? → passa adiante sem alteração
+          não existe? → gera fb.1.<ts>.<random>
+                        adiciona Set-Cookie ao response header
+  └→ HTML chega no browser com _fbp já gravado
+  └→ Pixel carrega, lê document.cookie → encontra _fbp
   └→ Usa esse valor (não gera novo)
   └→ cctGetCookie('_fbp') no CTA click → retorna o mesmo valor
   └→ session-start → Purchase CAPI → fbp presente
 ```
 
+**Por que middleware e não `/api/fp.js` (solução anterior)?**
+
+A versão anterior usava `fetch('/api/fp')` + `<script>` antes do pixel. Funcionava na maioria dos casos, mas havia um race condition: o `fetch` e o download do `fbevents.js` corriam em paralelo. Se o `fbevents.js` terminasse antes do response de `/api/fp` chegar, o pixel não encontrava o cookie. O middleware elimina esse race condition porque o cookie está no response antes do primeiro byte de HTML ser processado.
+
 O formato gerado (`fb.1.<timestamp_ms>.<random_10_digits>`) é idêntico ao que o pixel gera — o Meta não valida criptograficamente o valor, apenas o usa como identificador de sessão de browser.
 
-**Arquivos alterados:**
-- `api/fp.js` — nova Vercel Function (criada em 20/04/2026)
-- `index.html` — `<script>fetch('/api/fp')</script>` adicionado antes do bloco do pixel
+**Arquivos:**
+- `middleware.js` — Vercel Edge Middleware (criado em 20/04/2026, substitui `api/fp.js`)
+- Depende de `@vercel/edge` (instalado como dependência)
 
 ### Alternativa oficial: CAPI Gateway via Cloudflare (não implementada)
 
@@ -404,6 +411,6 @@ Browser: Meta Pixel ID já está inline em `index.html`.
 
 1. **Domain Verification** no Business Manager (Meta → Brand Safety → Domains) → adiciona `growthtap.com.br` pra habilitar Aggregated Event Measurement (iOS 14.5+)
 2. **Priorização de eventos** no Events Manager (Aggregated Event Measurement): configurar Purchase > AddToCart > PageView
-3. **Safari ITP / `_fbp`**: ✅ resolvido via `api/fp.js` (Set-Cookie server-side). Para cobertura adicional de ad blockers, ver seção "CAPI Gateway via Cloudflare" acima — considerar quando tráfego pago ultrapassar R$ 10k/mês
+3. **Safari ITP / `_fbp`**: ✅ resolvido via `middleware.js` (Edge Middleware, Set-Cookie no mesmo response do HTML — sem race condition). Para cobertura adicional de ad blockers, ver seção "CAPI Gateway via Cloudflare" acima — considerar quando tráfego pago ultrapassar R$ 10k/mês
 4. **Deduplicação do Pixel do checkout Ticto**: se o Ticto disparar seu próprio Pixel Purchase client-side, incluir mesmo `event_id = purchase_<transaction_hash>` na integração (hoje não há — só server-side sai)
 5. **`content_ids` consistente**: hoje passa `offer_code`; considerar usar ID canônico de produto Ticto quando disponível
