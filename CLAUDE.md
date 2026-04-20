@@ -5,7 +5,7 @@ Regras operacionais do repo. Contexto estratégico (avatar, narrativa, concorren
 ## Projeto ativo
 
 - **Produto:** "Claude para Gestores de Tráfego" (imersão low-ticket → **Mentoria Gestor de Tráfego Automático** premium)
-- **Data:** sábado 25/04/2026 · 9h às 12h · **1 dia só, 3 horas** (nunca dizer "2 dias" ou "2 horas")
+- **Data:** sábado 02/05/2026 · 9h às 12h · **1 dia só, 3 horas** (nunca dizer "2 dias" ou "2 horas")
 
 ### Rotas ativas
 
