@@ -190,6 +190,87 @@ function MiniCard({ label, value, sub, color, badge }) {
   )
 }
 
+// ─── Heatmap de vendas (dia × hora) ───────────────────────────────────────────
+function SalesHeatmap({ token }) {
+  const [matrix, setMatrix] = useState({})
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    fetch(`/api/dashboard/heatmap?token=${encodeURIComponent(token)}`)
+      .then((r) => r.json())
+      .then((j) => { setMatrix(j.matrix || {}); setLoaded(true) })
+      .catch(() => setLoaded(true))
+  }, [token])
+
+  const DAYS  = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+  const HOURS = Array.from({ length: 24 }, (_, i) => i)
+  const CELL  = 26
+  const GAP   = 3
+
+  const maxVal = Math.max(1, ...Object.values(matrix))
+
+  function cellColor(count) {
+    if (!count) return '#1a1a22'
+    const intensity = count / maxVal
+    // laranja #ff8c3c com opacidade progressiva
+    const alpha = Math.round((0.15 + intensity * 0.85) * 255).toString(16).padStart(2, '0')
+    return `#ff8c3c${alpha}`
+  }
+
+  return (
+    <div style={{ background: '#0e0e12', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: '24px 28px' }}>
+      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', color: '#ff8c3c', marginBottom: 20, textTransform: 'uppercase' }}>
+        Vendas por horário · ingresso
+      </div>
+
+      {!loaded ? (
+        <div style={{ color: '#52525b', fontSize: 12 }}>Carregando...</div>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          {/* Cabeçalho horas */}
+          <div style={{ display: 'flex', marginLeft: 34, marginBottom: GAP, gap: GAP }}>
+            {HOURS.map((h) => (
+              <div key={h} style={{ width: CELL, textAlign: 'center', fontSize: 9, color: '#52525b', flexShrink: 0 }}>
+                {h % 3 === 0 ? `${String(h).padStart(2,'0')}h` : ''}
+              </div>
+            ))}
+          </div>
+
+          {/* Linhas por dia */}
+          {DAYS.map((day, dow) => (
+            <div key={dow} style={{ display: 'flex', alignItems: 'center', gap: GAP, marginBottom: GAP }}>
+              <div style={{ width: 30, fontSize: 10, color: '#71717a', textAlign: 'right', flexShrink: 0 }}>{day}</div>
+              {HOURS.map((h) => {
+                const count = matrix[`${dow}_${h}`] || 0
+                return (
+                  <div
+                    key={h}
+                    title={count ? `${day} ${String(h).padStart(2,'0')}h: ${count} venda${count > 1 ? 's' : ''}` : ''}
+                    style={{
+                      width: CELL, height: CELL, borderRadius: 4, flexShrink: 0,
+                      background: cellColor(count),
+                      cursor: count ? 'default' : 'default',
+                    }}
+                  />
+                )
+              })}
+            </div>
+          ))}
+
+          {/* Legenda */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12, justifyContent: 'flex-end' }}>
+            <span style={{ fontSize: 9, color: '#52525b' }}>menos</span>
+            {[0, 0.25, 0.5, 0.75, 1].map((v, i) => (
+              <div key={i} style={{ width: 14, height: 14, borderRadius: 3, background: cellColor(v * maxVal) }} />
+            ))}
+            <span style={{ fontSize: 9, color: '#52525b' }}>mais</span>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Gráfico horizontal de lotes ──────────────────────────────────────────────
 function LotesChart({ lotes }) {
   if (!lotes || lotes.length === 0) return null
@@ -1164,7 +1245,10 @@ function Dashboard({ token, onLogout }) {
           <FunnelCard kpis={kpis} />
         </div>
 
-        {/* ── Linha 4: lotes + metas ── */}
+        {/* ── Linha 4: heatmap ── */}
+        <SalesHeatmap token={token} />
+
+        {/* ── Linha 5: lotes + metas ── */}
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
           <LotesChart lotes={lotesBreakdown} />
           <MetasPanel token={token} />
