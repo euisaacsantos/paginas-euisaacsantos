@@ -217,22 +217,43 @@ export default async function handler(req, res) {
       }
     }
 
-    // Adset level: fetch budgets separately (not available in Insights API)
+    // Adset/ad level: fetch budgets + status (não disponíveis na Insights API)
     let budgetMap = {}
+    let statusMap = {}
     if (level === 'adset') {
       const adsetIds = [...new Set(insightsRows.map((r) => r.adset_id).filter(Boolean))]
       if (adsetIds.length > 0) {
         try {
-          const bp = new URLSearchParams({ ids: adsetIds.join(','), fields: 'id,daily_budget,lifetime_budget', access_token: token })
+          const bp = new URLSearchParams({ ids: adsetIds.join(','), fields: 'id,daily_budget,lifetime_budget,status,effective_status', access_token: token })
           const br = await fetch(`${GRAPH}/?${bp}`)
-          if (br.ok) budgetMap = await br.json()
+          if (br.ok) {
+            const bj = await br.json()
+            budgetMap = bj
+            statusMap = bj
+          }
+        } catch {}
+      }
+    }
+    if (level === 'ad') {
+      const adIds = [...new Set(insightsRows.map((r) => r.ad_id).filter(Boolean))]
+      if (adIds.length > 0) {
+        try {
+          const sp = new URLSearchParams({ ids: adIds.join(','), fields: 'id,status,effective_status', access_token: token })
+          const sr = await fetch(`${GRAPH}/?${sp}`)
+          if (sr.ok) statusMap = await sr.json()
         } catch {}
       }
     }
 
     const rows = insightsRows.map((r) => {
       const b = budgetMap[r.adset_id] || {}
-      return normalizeRow({ ...r, daily_budget: b.daily_budget, lifetime_budget: b.lifetime_budget }, thumbMap, acctId)
+      const s = statusMap[r.adset_id || r.ad_id] || {}
+      return normalizeRow({
+        ...r,
+        daily_budget: b.daily_budget, lifetime_budget: b.lifetime_budget,
+        status: s.status || r.status,
+        effective_status: s.effective_status || r.effective_status,
+      }, thumbMap, acctId)
     })
 
     res.setHeader('Cache-Control', 'no-store')

@@ -72,6 +72,61 @@ const TH = ({ children, right = true }) => (
 )
 
 // ─── Linha de métricas ────────────────────────────────────────────────────────
+// ─── Toggle ativo/pausado ─────────────────────────────────────────────────────
+function StatusToggle({ objectId, status, token, onSuccess }) {
+  const [current, setCurrent]   = useState(status)
+  const [loading, setLoading]   = useState(false)
+
+  const isActive = current === 'ACTIVE'
+
+  async function handleClick(e) {
+    e.stopPropagation()
+    if (loading || !objectId) return
+    const next = isActive ? 'PAUSED' : 'ACTIVE'
+    setLoading(true)
+    setCurrent(next) // optimistic
+    try {
+      const r = await fetch(`/api/dashboard/meta-toggle?token=${encodeURIComponent(token)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ object_id: objectId, status: next }),
+      })
+      const j = await r.json()
+      if (!j.ok) { setCurrent(current); alert('Erro: ' + (j.error || 'falha')) }
+      else onSuccess && onSuccess(next)
+    } catch {
+      setCurrent(current)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (!objectId || !status) return null
+
+  return (
+    <div
+      onClick={handleClick}
+      title={isActive ? 'Pausar' : 'Ativar'}
+      style={{
+        position: 'relative', flexShrink: 0,
+        width: 28, height: 16, borderRadius: 8,
+        background: loading ? '#3f3f46' : isActive ? '#22c55e' : '#3f3f46',
+        cursor: loading ? 'wait' : 'pointer',
+        transition: 'background 0.2s',
+      }}
+    >
+      <div style={{
+        position: 'absolute', top: 2,
+        left: isActive ? 14 : 2,
+        width: 12, height: 12, borderRadius: '50%',
+        background: '#fff',
+        transition: 'left 0.2s',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
+      }} />
+    </div>
+  )
+}
+
 function MetricRow({ row, attrib, level, isExpanded, onToggle, depth = 0, token }) {
   const db = attrib || { ingressos: 0, order_bumps: 0, mesa: 0, fat_ingresso: 0, fat_order_bump: 0, fat_mesa: 0 }
   const hasAttrib = db.ingressos > 0 || db.order_bumps > 0 || db.mesa > 0
@@ -107,6 +162,15 @@ function MetricRow({ row, attrib, level, isExpanded, onToggle, depth = 0, token 
         maxWidth: 320,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {/* Toggle ativo/pausado */}
+          <StatusToggle
+            objectId={row.campaign_id && level === 'campaign' ? row.campaign_id
+                    : row.adset_id   && level === 'adset'    ? row.adset_id
+                    : row.ad_id      && level === 'ad'       ? row.ad_id
+                    : null}
+            status={row.status || (row.effective_status === 'ACTIVE' ? 'ACTIVE' : row.effective_status ? 'PAUSED' : null)}
+            token={token}
+          />
           {/* Thumbnail (somente ad level) */}
           {level === 'ad' && row.thumbnail?.thumbnail_url && (
             <img
@@ -128,16 +192,6 @@ function MetricRow({ row, attrib, level, isExpanded, onToggle, depth = 0, token 
           }}>
             {name}
           </span>
-          {/* Badge status campanha */}
-          {level === 'campaign' && row.effective_status && row.effective_status !== 'ACTIVE' && (
-            <span style={{
-              fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 4,
-              background: 'rgba(82,82,91,0.25)', color: '#71717a',
-              flexShrink: 0, letterSpacing: '0.05em',
-            }}>
-              {row.effective_status === 'PAUSED' ? 'PAUSADA' : row.effective_status}
-            </span>
-          )}
           {/* Link externo (ad level) */}
           {level === 'ad' && row.ad_manager_url && (
             <a
