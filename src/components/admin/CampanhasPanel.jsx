@@ -51,7 +51,7 @@ const TD = ({ children, right = true, muted = false, style = {} }) => (
   </td>
 )
 
-const TH = ({ children, right = true }) => (
+const TH = ({ children, right = true, frozen = false }) => (
   <th style={{
     padding: '8px 12px',
     textAlign: right ? 'right' : 'left',
@@ -64,8 +64,10 @@ const TH = ({ children, right = true }) => (
     whiteSpace: 'nowrap',
     position: 'sticky',
     top: 0,
+    left: frozen ? 0 : undefined,
     background: '#0e0e12',
-    zIndex: 2,
+    zIndex: frozen ? 3 : 2,
+    boxShadow: frozen ? '2px 0 6px rgba(0,0,0,0.4)' : undefined,
   }}>
     {children}
   </th>
@@ -159,7 +161,12 @@ function MetricRow({ row, attrib, level, isExpanded, onToggle, depth = 0, token 
         color: '#e4e4e7',
         borderBottom: '1px solid rgba(255,255,255,0.04)',
         minWidth: 240,
-        maxWidth: 320,
+        maxWidth: 340,
+        position: 'sticky',
+        left: 0,
+        zIndex: 1,
+        background: '#070709',
+        boxShadow: '2px 0 6px rgba(0,0,0,0.4)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {/* Toggle ativo/pausado */}
@@ -186,9 +193,10 @@ function MetricRow({ row, attrib, level, isExpanded, onToggle, depth = 0, token 
             </span>
           )}
           <span style={{
-            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             color: depth === 0 ? '#ff8c3c' : depth === 1 ? '#e4e4e7' : '#a1a1aa',
             fontWeight: depth === 0 ? 700 : 400,
+            wordBreak: 'break-word',
+            lineHeight: 1.4,
           }}>
             {name}
           </span>
@@ -574,7 +582,7 @@ export default function CampanhasPanel({ token, onSpendTotal, dateRange }) {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: "'JetBrains Mono', monospace", minWidth: 1100 }}>
             <thead>
               <tr>
-                {headers.map(([label, right]) => <TH key={label} right={right}>{label}</TH>)}
+                {headers.map(([label, right], i) => <TH key={label} right={right} frozen={i === 0}>{label}</TH>)}
               </tr>
             </thead>
             <tbody>
