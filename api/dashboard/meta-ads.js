@@ -7,12 +7,12 @@ function act(id) { return `act_${id}` }
 
 function getAction(actions, ...types) {
   if (!Array.isArray(actions)) return 0
-  let total = 0
+  // Usa o primeiro tipo que tiver valor — não soma (evita dupla contagem de aliases)
   for (const type of types) {
     const found = actions.find((a) => a.action_type === type)
-    if (found) total += Number(found.value) || 0
+    if (found) return Number(found.value) || 0
   }
-  return total
+  return 0
 }
 
 function buildInsightFields(level) {
