@@ -1,13 +1,16 @@
 """
 Setup wizard do GTOS.
 Executado automaticamente pelo CLAUDE.md quando .setup-complete não existe.
+Compatível com macOS e Windows.
 """
 import os
 import sys
 import json
+import platform
 from pathlib import Path
 
-ROOT = Path(__file__).parent.parent
+ROOT       = Path(__file__).parent.parent
+IS_WINDOWS = platform.system() == 'Windows'
 
 def print_header():
     try:
@@ -80,6 +83,12 @@ _Nenhum concorrente cadastrado. Use "espionar concorrente" para começar._
 def main():
     print_header()
     print("  Vamos configurar seu GTOS. Leva menos de 2 minutos.\n")
+
+    # Verifica e instala dependências primeiro
+    from setup.deps import run_all
+    if not run_all():
+        print("  ⚠️  Corrija as dependências acima antes de continuar.")
+        sys.exit(1)
 
     config = {}
 

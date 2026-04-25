@@ -1,10 +1,11 @@
 # GTOS — Dependências Python
 
-# Voz (Jarvis)
+# Voz (Jarvis) — macOS + Windows
 sounddevice
 numpy
 openai
 soundfile
+pyttsx3
 
 # Espião de anúncios
 playwright
