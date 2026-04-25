@@ -151,14 +151,18 @@ const dia2 = [
   'Você sai da imersão com as 5 skills, a Skill Master, Obsidian e Evolution Go rodando',
 ]
 
-const faq = [
-  ['Como funciona a imersão?', 'A imersão Claude para Gestores de Tráfego acontece ao vivo no sábado 2 de maio, das 10h às 17h (com pausa pra almoço), via Zoom. O link chega direto no seu WhatsApp após a inscrição, junto com os lembretes antes do início.'],
-  ['Preciso saber programar?', 'Não. Claude Code é por comando em português. Se você sabe escrever pra um humano, sabe usar.'],
-  ['Funciona com Meta Ads e Google Ads?', 'Sim, ambos. A integração é feita via MCP (Model Context Protocol) — vou te mostrar como configurar passo a passo durante a imersão.'],
-  ['E se eu não puder assistir no dia?', 'A imersão é 100% ao vivo. Se você quiser garantir a gravação vitalícia, no checkout tem um pacote especial por +R$47 que inclui isso.'],
-  ['Por que R$9?', 'Porque o 1° lote é uma condição especial de lançamento. Quero encher a sala de gestores de verdade. O preço sobe rápido conforme os lotes esgotam.'],
-  ['Quais as formas de pagamento?', 'Cartão de crédito, PIX ou boleto. Acesso imediato aos bônus após a confirmação.'],
-]
+function buildFaq(lote) {
+  const num = lote?.id != null ? lote.id + 1 : ''
+  const preco = lote?.preco ?? '?'
+  return [
+    ['Como funciona a imersão?', 'A imersão Claude para Gestores de Tráfego acontece ao vivo no sábado 2 de maio, das 10h às 17h (com pausa pra almoço), via Zoom. O link chega direto no seu WhatsApp após a inscrição, junto com os lembretes antes do início.'],
+    ['Preciso saber programar?', 'Não. Claude Code é por comando em português. Se você sabe escrever pra um humano, sabe usar.'],
+    ['Funciona com Meta Ads e Google Ads?', 'Sim, ambos. A integração é feita via MCP (Model Context Protocol) — vou te mostrar como configurar passo a passo durante a imersão.'],
+    ['E se eu não puder assistir no dia?', 'A imersão é 100% ao vivo. Se você quiser garantir a gravação vitalícia, no checkout tem um pacote especial por +R$47 que inclui isso.'],
+    [`Por que R$${preco}?`, `Porque o ${num}° lote é uma condição especial de lançamento. Quero encher a sala de gestores de verdade. O preço sobe rápido conforme os lotes esgotam.`],
+    ['Quais as formas de pagamento?', 'Cartão de crédito ou PIX. Acesso imediato após a confirmação.'],
+  ]
+}
 
 const TERMINAL_SCRIPTS = [
   {
@@ -956,7 +960,7 @@ function AppV1() {
           <p className="text-center uppercase tracking-widest text-sm font-bold eyebrow mb-3">Dúvidas frequentes</p>
           <h2 className="reveal section-title text-center mb-14">Perguntas e <span className="highlight-orange">Respostas</span></h2>
           <div className="space-y-4">
-            {faq.map(([q,a],i)=>(
+            {buildFaq(lote).map(([q,a],i)=>(
               <details key={i} className="faq-item">
                 <summary>{q}</summary>
                 <p>{a}</p>
