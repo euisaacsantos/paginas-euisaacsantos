@@ -497,12 +497,11 @@ details.faq-item p {
 
 /* ===== TYPEWRITER ===== */
 .typewriter-caret {
-  display: inline;
+  display: inline-block;
   margin-left: 2px;
   color: #FF0000;
   font-weight: 300;
-  position: relative;
-  top: -2px;
+  transform: translateY(-2px);
 }
 .typewriter-caret.blink { animation: caretBlink 0.9s step-end infinite; }
 @keyframes caretBlink {
