@@ -56,15 +56,13 @@ function HeroTitle() {
   return (
     <h1 className="mb-4 md:mb-6 font-black leading-[1.05] tracking-tight hero-title-v1 relative" style={{ whiteSpace: 'pre-line' }}>
       <span aria-hidden="true" className="invisible">
-        {'Pare de subir campanha.\nComece a '}<span style={{whiteSpace:'nowrap'}}><span className="highlight-orange">COMANDAR</span>.</span>
+        {'Pare de subir campanha.\nComece a '}<span className="highlight-orange">COMANDAR</span>.<span className="typewriter-caret">|</span>
       </span>
       <span className="absolute inset-0">
         {before.replace('Comece', '\nComece')}
-        <span style={{whiteSpace:'nowrap'}}>
-          <span className="highlight-orange">{raiz}</span>
-          {after}
-          <span className={`typewriter-caret ${done ? 'blink' : ''}`}>|</span>
-        </span>
+        <span className="highlight-orange">{raiz}</span>
+        {after}
+        <span className={`typewriter-caret ${done ? 'blink' : ''}`}>|</span>
       </span>
     </h1>
   )
