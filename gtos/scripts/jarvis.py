@@ -20,6 +20,11 @@ import argparse
 import platform
 from pathlib import Path
 
+_venv_py = Path(__file__).resolve().parent.parent / '.venv' / (
+    'Scripts/python.exe' if sys.platform == 'win32' else 'bin/python')
+if _venv_py.exists() and os.path.normcase(sys.executable) != os.path.normcase(str(_venv_py)):
+    os.execv(str(_venv_py), [str(_venv_py)] + sys.argv)
+
 ROOT       = Path(__file__).resolve().parent.parent
 IS_WINDOWS = platform.system() == 'Windows'
 IS_MAC     = platform.system() == 'Darwin'

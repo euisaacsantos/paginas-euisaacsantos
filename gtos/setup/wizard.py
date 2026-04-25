@@ -9,6 +9,11 @@ import json
 import platform
 from pathlib import Path
 
+_venv_py = Path(__file__).resolve().parent.parent / '.venv' / (
+    'Scripts/python.exe' if sys.platform == 'win32' else 'bin/python')
+if _venv_py.exists() and os.path.normcase(sys.executable) != os.path.normcase(str(_venv_py)):
+    os.execv(str(_venv_py), [str(_venv_py)] + sys.argv)
+
 ROOT       = Path(__file__).parent.parent
 IS_WINDOWS = platform.system() == 'Windows'
 
@@ -85,7 +90,7 @@ def main():
     print("  Vamos configurar seu GTOS. Leva menos de 2 minutos.\n")
 
     # Verifica e instala dependências primeiro
-    from setup.deps import run_all
+    from deps import run_all
     if not run_all():
         print("  ⚠️  Corrija as dependências acima antes de continuar.")
         sys.exit(1)

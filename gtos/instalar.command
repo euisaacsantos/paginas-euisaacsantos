@@ -74,11 +74,15 @@ fi
 PYVER=$("$PYTHON" --version 2>&1)
 ok "$PYVER"
 
-# ── 2. pip ────────────────────────────────────────────────────────────────────
+# ── 2. Ambiente virtual ───────────────────────────────────────────────────────
 echo ""
-echo "[2/4] Atualizando pip..."
+echo "[2/4] Criando ambiente virtual..."
+if [ ! -d "$ROOT/.venv" ]; then
+    "$PYTHON" -m venv "$ROOT/.venv"
+fi
+PYTHON="$ROOT/.venv/bin/python"
 "$PYTHON" -m pip install --upgrade pip --quiet
-ok "pip atualizado"
+ok "venv criado e pip atualizado"
 
 # ── 3. Node.js / Claude Code ──────────────────────────────────────────────────
 echo ""

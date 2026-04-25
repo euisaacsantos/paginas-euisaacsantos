@@ -19,6 +19,11 @@ import urllib.request
 import urllib.parse
 from pathlib import Path
 
+_venv_py = Path(__file__).resolve().parent.parent / '.venv' / (
+    'Scripts/python.exe' if sys.platform == 'win32' else 'bin/python')
+if _venv_py.exists() and os.path.normcase(sys.executable) != os.path.normcase(str(_venv_py)):
+    os.execv(str(_venv_py), [str(_venv_py)] + sys.argv)
+
 ROOT = Path(__file__).parent.parent
 
 def load_env():

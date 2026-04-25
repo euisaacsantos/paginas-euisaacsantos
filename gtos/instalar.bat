@@ -59,10 +59,21 @@ if %errorlevel% neq 0 (
     for /f "tokens=*" %%v in ('python --version 2^>^&1') do echo  OK: %%v
 )
 
-:: ── pip atualizado ────────────────────────────────────────────────────────────
+:: ── Ambiente virtual ──────────────────────────────────────────────────────────
 echo.
-echo [2/4] Atualizando pip...
-python -m pip install --upgrade pip --quiet
+echo [2/4] Criando ambiente virtual...
+cd /d "%~dp0"
+if not exist ".venv" (
+    python -m venv .venv
+    if %errorlevel% neq 0 (
+        echo.
+        echo  ERRO: Nao foi possivel criar o ambiente virtual.
+        pause
+        exit /b 1
+    )
+)
+set "PYTHON=%~dp0.venv\Scripts\python.exe"
+"%PYTHON%" -m pip install --upgrade pip --quiet
 echo  OK.
 
 :: ── Node.js / Claude Code ─────────────────────────────────────────────────────
@@ -103,7 +114,7 @@ if %errorlevel% neq 0 (
 :: ── Setup GTOS ────────────────────────────────────────────────────────────────
 echo.
 echo [4/4] Configurando GTOS...
-python setup\wizard.py
+"%PYTHON%" setup\wizard.py
 if %errorlevel% neq 0 (
     echo.
     echo  ERRO durante o setup. Veja as mensagens acima.
