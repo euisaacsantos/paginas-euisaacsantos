@@ -87,7 +87,7 @@ def open_project():
         subprocess.Popen(['open', '-a', 'Obsidian'], stderr=subprocess.DEVNULL)
 
         # Abre Terminal: manda "oi" como primeiro input e mantém modo interativo
-        cmd = f"cd {ROOT} && (printf 'oi\\n'; cat /dev/tty) | claude"
+        cmd = f"cd {ROOT} && (echo oi; cat /dev/tty) | claude"
         script = (
             'tell application "Terminal" to activate\n'
             f'tell application "Terminal" to do script "{cmd}"'
