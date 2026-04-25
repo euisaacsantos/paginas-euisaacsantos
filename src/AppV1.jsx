@@ -155,7 +155,7 @@ const faq = [
   ['Como funciona a imersão?', 'A imersão Claude para Gestores de Tráfego acontece ao vivo no sábado 2 de maio, das 10h às 17h (com pausa pra almoço), via Zoom. O link chega direto no seu WhatsApp após a inscrição, junto com os lembretes antes do início.'],
   ['Preciso saber programar?', 'Não. Claude Code é por comando em português. Se você sabe escrever pra um humano, sabe usar.'],
   ['Funciona com Meta Ads e Google Ads?', 'Sim, ambos. A integração é feita via MCP (Model Context Protocol) — vou te mostrar como configurar passo a passo durante a imersão.'],
-  ['E se eu não puder assistir no dia?', 'A imersão é 100% ao vivo. Se você quiser garantir a gravação vitalícia + templates prontos, no checkout tem um pacote especial por +R$27 que inclui tudo isso.'],
+  ['E se eu não puder assistir no dia?', 'A imersão é 100% ao vivo. Se você quiser garantir a gravação vitalícia, no checkout tem um pacote especial por +R$47 que inclui isso.'],
   ['Por que R$9?', 'Porque o 1° lote é uma condição especial de lançamento. Quero encher a sala de gestores de verdade. O preço sobe rápido conforme os lotes esgotam.'],
   ['Quais as formas de pagamento?', 'Cartão de crédito, PIX ou boleto. Acesso imediato aos bônus após a confirmação.'],
 ]
