@@ -87,7 +87,7 @@ def open_project():
         subprocess.Popen(['open', '-a', 'Obsidian'], stderr=subprocess.DEVNULL)
 
         # claude "oi" inicia modo interativo já com a saudação como primeiro input
-        cmd = f'cd {ROOT} && claude "oi"'
+        cmd = f"cd {ROOT} && claude oi"
         script = (
             'tell application "Terminal" to activate\n'
             f'tell application "Terminal" to do script "{cmd}"'
