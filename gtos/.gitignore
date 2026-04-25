@@ -1,0 +1,26 @@
+# Configuração pessoal
+.env
+.setup-complete
+
+# Dados de clientes reais (preserva pasta exemplo)
+clientes/*/conta.md
+!clientes/exemplo/conta.md
+clientes/*/relatorios/*.md
+!clientes/exemplo/relatorios/
+
+# Catálogo de concorrentes (preserva pasta exemplo)
+concorrentes/*/catalog.json
+concorrentes/*/config.json
+concorrentes/*/ads/
+!concorrentes/exemplo/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# macOS
+.DS_Store

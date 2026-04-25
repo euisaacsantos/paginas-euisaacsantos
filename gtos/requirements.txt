@@ -1,0 +1,13 @@
+# GTOS — Dependências Python
+
+# Voz (Jarvis)
+sounddevice
+numpy
+openai
+soundfile
+
+# Espião de anúncios
+playwright
+
+# Opcional: transcrição local (sem API)
+# faster-whisper
