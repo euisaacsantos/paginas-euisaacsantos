@@ -150,6 +150,20 @@ def main():
     # Marcar setup como completo
     (ROOT / '.setup-complete').write_text('ok')
 
+    # Jarvis — instala como serviço
+    print("\n  ── JARVIS (detecção de palmas) ───────────")
+    print("  O Jarvis fica rodando em background e abre o GTOS quando")
+    print("  você bater 2 palmas.")
+    if ask_yn("Ativar o Jarvis agora?"):
+        import subprocess
+        result = subprocess.run(
+            [sys.executable, str(ROOT / 'scripts' / 'jarvis.py'), '--instalar'],
+            cwd=str(ROOT)
+        )
+        if result.returncode != 0:
+            print("  ⚠️  Não foi possível instalar o Jarvis automaticamente.")
+            print(f"  Execute manualmente: python scripts/jarvis.py --instalar")
+
     print("\n  ✅ GTOS configurado com sucesso!")
     print(f"  Bem-vindo, {config['nome']}. Seu sistema operacional está pronto.\n")
 
