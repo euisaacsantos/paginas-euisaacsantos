@@ -16,8 +16,20 @@ python -c "import os; print('SETUP_OK' if os.path.exists('.setup-complete') else
 ```bash
 cat welcome.txt
 ```
-Leia `clientes/_index.md` e exiba resumo dos clientes ativos com status de cada um.
-Pergunte: "O que você quer fazer hoje?"
+Em seguida, leia `.env` (variável `OPERADOR_NOME`) e `clientes/_index.md`. Exiba um painel visual usando box-drawing characters, adaptado com os dados reais:
+
+```
+  ╔══════════════════════════════════════════════════╗
+  ║  Olá, {nome}.  ·  {data e hora atual}           ║
+  ╠══════════════════════════════════════════════════╣
+  ║  CLIENTES ATIVOS                                 ║
+  ║  ▸ NomeCliente          conta: XXXXXXXXX         ║
+  ╠══════════════════════════════════════════════════╣
+  ║  O que fazemos hoje?                             ║
+  ╚══════════════════════════════════════════════════╝
+```
+
+Se não houver clientes: exiba "Nenhum cliente cadastrado. Diga 'adicionar cliente' para começar."
 
 ---
 

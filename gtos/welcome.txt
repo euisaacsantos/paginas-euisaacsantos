@@ -1,10 +1,23 @@
 
- ██████╗ ████████╗ ██████╗ ███████╗
-██╔════╝    ██╔══╝██╔═══██╗██╔════╝
-██║  ███╗   ██║   ██║   ██║███████╗
-██║   ██║   ██║   ██║   ██║╚════██║
-╚██████╔╝   ██║   ╚██████╔╝███████║
- ╚═════╝    ╚═╝    ╚═════╝ ╚══════╝
+  ██████╗ ████████╗ ██████╗ ███████╗
+ ██╔════╝    ██╔══╝██╔═══██╗██╔════╝
+ ██║  ███╗   ██║   ██║   ██║███████╗
+ ██║   ██║   ██║   ██║   ██║╚════██║
+ ╚██████╔╝   ██║   ╚██████╔╝███████║
+  ╚═════╝    ╚═╝    ╚═════╝ ╚══════╝
 
-  Gestor de Tráfego · Sistema Operacional
-  ────────────────────────────────────────
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   GESTOR DE TRÁFEGO · SISTEMA OPERACIONAL
+   Powered by Claude Code
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ◈  /subir-campanha         criar e subir campanhas
+  ◈  /vigia-24h              monitorar contas em tempo real
+  ◈  /relatorio-cliente      gerar e enviar relatórios
+  ◈  /diagnostico-conta      auditar e corrigir contas
+  ◈  /espionar-concorrente   catalogar anúncios de rivais
+
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Meta Ads  ·  WhatsApp  ·  Obsidian  ·  Telegram
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+

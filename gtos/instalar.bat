@@ -111,6 +111,26 @@ if %errorlevel% neq 0 (
     for /f "tokens=*" %%v in ('claude --version 2^>^&1') do echo  OK: %%v
 )
 
+:: ── Obsidian ───────────────────────────────────────────────────────────────────
+echo.
+echo       Verificando Obsidian...
+if not exist "%LOCALAPPDATA%\Programs\obsidian\Obsidian.exe" (
+    if not exist "%PROGRAMFILES%\Obsidian\Obsidian.exe" (
+        echo  Obsidian nao encontrado. Instalando...
+        winget install Obsidian.Obsidian --silent --accept-package-agreements --accept-source-agreements >nul 2>&1
+        if %errorlevel% neq 0 (
+            echo  AVISO: Nao foi possivel instalar Obsidian automaticamente.
+            echo  Instale manualmente: https://obsidian.md
+        ) else (
+            echo  OK: Obsidian instalado.
+        )
+    ) else (
+        echo  OK: Obsidian.
+    )
+) else (
+    echo  OK: Obsidian.
+)
+
 :: ── Setup GTOS ────────────────────────────────────────────────────────────────
 echo.
 echo [4/4] Configurando GTOS...

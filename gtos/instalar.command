@@ -116,6 +116,21 @@ fi
 
 ok "Claude Code $(claude --version 2>&1 | head -1)"
 
+# ── Obsidian ──────────────────────────────────────────────────────────────────
+echo ""
+echo "      Verificando Obsidian..."
+if [ ! -d "/Applications/Obsidian.app" ]; then
+    info "Obsidian não encontrado. Instalando..."
+    if command -v brew &>/dev/null; then
+        brew install --cask obsidian --quiet && ok "Obsidian instalado" || \
+            warn "Falha ao instalar Obsidian. Instale manualmente: https://obsidian.md"
+    else
+        warn "Instale o Obsidian manualmente: https://obsidian.md"
+    fi
+else
+    ok "Obsidian"
+fi
+
 # ── 4. Setup GTOS ─────────────────────────────────────────────────────────────
 echo ""
 echo "[4/4] Configurando GTOS..."
