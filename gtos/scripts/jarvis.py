@@ -86,8 +86,8 @@ def open_project():
         # Abre Obsidian (retorna à última posição — idealmente o grafo)
         subprocess.Popen(['open', '-a', 'Obsidian'], stderr=subprocess.DEVNULL)
 
-        # Abre Terminal: manda "oi" como primeiro input e mantém modo interativo
-        cmd = f"cd {ROOT} && (echo oi; cat /dev/tty) | claude"
+        # claude "oi" inicia modo interativo já com a saudação como primeiro input
+        cmd = f'cd {ROOT} && claude "oi"'
         script = (
             'tell application "Terminal" to activate\n'
             f'tell application "Terminal" to do script "{cmd}"'
@@ -107,9 +107,9 @@ def open_project():
         # Manda "oi" como primeiro input via (echo oi & type CON) e mantém interativo
         wt = subprocess.run(['where', 'wt'], capture_output=True)
         if wt.returncode == 0:
-            subprocess.Popen(f'wt -d "{ROOT}" cmd /k "(echo oi & type CON) | claude"', shell=True)
+            subprocess.Popen(f'wt -d "{ROOT}" cmd /k claude "oi"', shell=True)
         else:
-            subprocess.Popen(f'start cmd /k "cd /d {ROOT} && (echo oi & type CON) | claude"', shell=True)
+            subprocess.Popen(f'start cmd /k "cd /d {ROOT} && claude "oi""', shell=True)
 
     else:  # Linux
         for term in ['gnome-terminal', 'konsole', 'xfce4-terminal', 'xterm']:
