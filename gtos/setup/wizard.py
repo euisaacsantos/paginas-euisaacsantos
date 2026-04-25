@@ -129,12 +129,12 @@ def main():
         config['telegram_token'] = ''
         config['telegram_chat_id'] = ''
 
-    # OpenAI (para voz)
-    print("\n  ── OPENAI (voz via Jarvis) ──────────────")
-    if ask_yn("Quer usar o Jarvis com reconhecimento de voz?", default="s"):
-        config['openai_key'] = ask("OpenAI API Key (para Whisper)", required=False)
-    else:
-        config['openai_key'] = ''
+    # OpenAI (transcrição de voz — opcional)
+    print("\n  ── OPENAI (opcional) ────────────────────")
+    print("  O Jarvis fala usando a voz nativa do sistema (sem API).")
+    print("  A OpenAI só é necessária se quiser dar comandos por voz")
+    print("  além das palmas (modo --voz). Pode deixar em branco.")
+    config['openai_key'] = ask("OpenAI API Key (deixe em branco para pular)", required=False)
 
     # Criar arquivos
     print("\n  Salvando configurações...")
