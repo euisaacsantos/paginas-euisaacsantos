@@ -86,22 +86,13 @@ def open_project():
         # Abre Obsidian (retorna à última posição — idealmente o grafo)
         subprocess.Popen(['open', '-a', 'Obsidian'], stderr=subprocess.DEVNULL)
 
-        # Abre Terminal com Claude
+        # Abre Terminal: manda "oi" como primeiro input e mantém modo interativo
+        cmd = f"cd {ROOT} && (printf 'oi\\n'; cat /dev/tty) | claude"
         script = (
             'tell application "Terminal" to activate\n'
-            f'tell application "Terminal" to do script "cd {ROOT} && claude"'
+            f'tell application "Terminal" to do script "{cmd}"'
         )
         subprocess.run(['osascript', '-e', script], check=False)
-
-        # Aguarda Claude iniciar e envia saudação para disparar o boot
-        time.sleep(5)
-        subprocess.run(['osascript', '-e',
-            'tell application "Terminal" to activate\n'
-            'tell application "System Events"\n'
-            '    keystroke "oi"\n'
-            '    key code 36\n'
-            'end tell'
-        ], check=False)
 
     elif IS_WINDOWS:
         # Abre Obsidian
@@ -113,20 +104,12 @@ def open_project():
                 subprocess.Popen([str(obs_path)])
                 break
 
-        # Tenta Windows Terminal primeiro, cai para cmd
+        # Manda "oi" como primeiro input via (echo oi & type CON) e mantém interativo
         wt = subprocess.run(['where', 'wt'], capture_output=True)
         if wt.returncode == 0:
-            subprocess.Popen(f'wt -d "{ROOT}" cmd /k claude', shell=True)
+            subprocess.Popen(f'wt -d "{ROOT}" cmd /k "(echo oi & type CON) | claude"', shell=True)
         else:
-            subprocess.Popen(f'start cmd /k "cd /d {ROOT} && claude"', shell=True)
-
-        # Envia saudação via SendKeys
-        time.sleep(5)
-        subprocess.run([
-            'powershell', '-Command',
-            '[void][reflection.assembly]::LoadWithPartialName("System.Windows.Forms"); '
-            '[System.Windows.Forms.SendKeys]::SendWait("oi{ENTER}")'
-        ], capture_output=True, shell=True)
+            subprocess.Popen(f'start cmd /k "cd /d {ROOT} && (echo oi & type CON) | claude"', shell=True)
 
     else:  # Linux
         for term in ['gnome-terminal', 'konsole', 'xfce4-terminal', 'xterm']:
