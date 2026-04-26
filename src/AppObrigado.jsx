@@ -145,7 +145,7 @@ function AppObrigado() {
               type="button"
               data-fallback-offer={mesa.offer_code}
               className="ticto-upsell-button btn-mesa-sim"
-              onClick={() => setTimeout(() => { window.location.href = mesa.checkout }, 800)}
+              onClick={() => { if (window === window.top) setTimeout(() => { window.location.href = mesa.checkout }, 400) }}
             >
               SIM, QUERO A MESA DE COMANDO
             </button>
@@ -266,7 +266,7 @@ function AppObrigado() {
                 <p className="offer-price-sub">ou 12x de R$ 49,70</p>
               </div>
 
-              <button type="button" data-fallback-offer={mesa.offer_code} className="ticto-upsell-button offer-cta cta-delayed" onClick={() => setTimeout(() => { window.location.href = mesa.checkout }, 800)}>QUERO MINHA VAGA NA MESA</button>
+              <button type="button" data-fallback-offer={mesa.offer_code} className="ticto-upsell-button offer-cta cta-delayed" onClick={() => { if (window === window.top) setTimeout(() => { window.location.href = mesa.checkout }, 400) }}>QUERO MINHA VAGA NA MESA</button>
 
               <div className="offer-progress cta-delayed">
                 <div className="offer-progress-bar"><div className="offer-progress-fill" style={{ width: `${mesa.pct_vendido}%` }} /></div>
@@ -311,7 +311,7 @@ function AppObrigado() {
           </p>
           <VagasBar mesa={mesa} />
           <div className="mt-8">
-            <button type="button" data-fallback-offer={mesa.offer_code} className="ticto-upsell-button btn-brutalist btn-brutalist-orange cta-delayed" onClick={() => setTimeout(() => { window.location.href = mesa.checkout }, 800)}>QUERO GARANTIR AGORA</button>
+            <button type="button" data-fallback-offer={mesa.offer_code} className="ticto-upsell-button btn-brutalist btn-brutalist-orange cta-delayed" onClick={() => { if (window === window.top) setTimeout(() => { window.location.href = mesa.checkout }, 400) }}>QUERO GARANTIR AGORA</button>
           </div>
         </div>
       </section>
@@ -374,7 +374,7 @@ function AppObrigado() {
             O mapa você já garantiu. A implementação assistida tá a um clique — e a {mesa.restantes} vagas de distância.
           </p>
           <span className="cta-stack">
-            <button type="button" data-fallback-offer={mesa.offer_code} className="ticto-upsell-button btn-brutalist btn-brutalist-orange cta-delayed" onClick={() => setTimeout(() => { window.location.href = mesa.checkout }, 800)}>GARANTIR MINHA VAGA NA MESA — R${mesa.preco}</button>
+            <button type="button" data-fallback-offer={mesa.offer_code} className="ticto-upsell-button btn-brutalist btn-brutalist-orange cta-delayed" onClick={() => { if (window === window.top) setTimeout(() => { window.location.href = mesa.checkout }, 400) }}>GARANTIR MINHA VAGA NA MESA — R${mesa.preco}</button>
             <VagasBar mesa={mesa} />
           </span>
           <p className="text-sm text-txts mt-6">Essa oferta não reabre · Fechou a aba, sumiu</p>
