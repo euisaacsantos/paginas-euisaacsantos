@@ -122,11 +122,9 @@ export default async function handler(req, res) {
       }
     }
 
-    const totalVendas =
-      kpis.vendas_imersao + kpis.vendas_order_bump + kpis.vendas_mesa
     kpis.ticket_medio =
-      totalVendas > 0
-        ? Math.round((kpis.faturamento_total / totalVendas) * 100) / 100
+      kpis.vendas_imersao > 0
+        ? Math.round((kpis.faturamento_total / kpis.vendas_imersao) * 100) / 100
         : 0
     kpis.faturamento_total = Math.round(kpis.faturamento_total * 100) / 100
     kpis.comissao_total    = Math.round(kpis.comissao_total    * 100) / 100
